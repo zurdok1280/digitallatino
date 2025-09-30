@@ -10,8 +10,8 @@ import { LatinAmericaMap } from "@/components/LatinAmericaMap";
 import { SpotifyTrack } from "@/types/spotify";
 import { useAuth } from "@/hooks/useAuth";
 import { digitalLatinoApi, Country, Format, City, Song } from "@/lib/api";
-
 // Import album covers
+import { Backdrop, CircularProgress } from '@mui/material';
 import teddySwimsCover from "@/assets/covers/teddy-swims-lose-control.jpg";
 import badBunnyCover from "@/assets/covers/bad-bunny-monaco.jpg";
 import karolGCover from "@/assets/covers/karol-g-si-antes.jpg";
@@ -22,6 +22,8 @@ import taylorSwiftCover from "@/assets/covers/taylor-swift-fortnight.jpg";
 import eminemCover from "@/assets/covers/eminem-tobey.jpg";
 import chappellRoanCover from "@/assets/covers/chappell-roan-good-luck.jpg";
 import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
+import { time } from "console";
+import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -54,8 +56,8 @@ for (let i = 16; i <= 40; i++) {
   const covers = [teddySwimsCover, badBunnyCover, karolGCover, shaboozeyCover, sabrinaCarpenterCover, pesoPlumaCover, taylorSwiftCover, eminemCover, chappellRoanCover, billieEilishCover];
   const artists = ["Miley Cyrus", "Harry Styles", "Ariana Grande", "The Weeknd", "Drake", "Post Malone", "Rihanna", "Ed Sheeran", "Bruno Mars", "Adele"];
   const tracks = ["Flowers", "As It Was", "positions", "Blinding Lights", "God's Plan", "Circles", "Umbrella", "Shape of You", "Uptown Funk", "Hello"];
-  
-  
+
+
 }
 
 // El array final con 40 entradas
@@ -645,7 +647,7 @@ const chartsByCountry = {
 // Ciudades por país
 const citiesByCountry = {
   global: [
-    "Los Angeles", "New York", "London", "Mexico City", "São Paulo", 
+    "Los Angeles", "New York", "London", "Mexico City", "São Paulo",
     "Madrid", "Toronto", "Miami", "Buenos Aires", "Paris"
   ],
   mexico: [
@@ -721,10 +723,10 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
             </div>
           </div>
         </div>
-        
+
         {/* Sin blur para mostrar el dashboard hermoso */}
         <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-br from-transparent to-background/5" />
-        
+
         {/* Unlock overlay compacto con colores Digital Latino */}
         <div className="absolute inset-0 z-20 flex items-center justify-center p-4">
           <div className="text-center p-4 bg-gradient-to-br from-background/85 to-background/80 rounded-xl shadow-xl border border-primary/30 max-w-[240px] w-full">
@@ -741,97 +743,97 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
                 Dashboard + Analytics + Promoción
               </div>
             </div>
-                {/* Clear Two-Tier Options */}
-                <div className="grid md:grid-cols-2 gap-4 mb-6">
-                  {/* Premium Tier */}
-                  <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4">
-                    <div className="text-center mb-3">
-                      <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
-                        <span className="text-white font-bold text-sm">👑</span>
-                      </div>
-                      <h4 className="font-bold text-foreground text-sm">Premium</h4>
-                      <p className="text-xs text-muted-foreground">Solo Charts & Analytics</p>
-                      <div className="text-lg font-bold text-foreground mt-1">$14.99/mes</div>
-                    </div>
-                    
-                    <div className="space-y-1 mb-4 text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="text-primary">✓</span>
-                        <span>Charts Completos</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-primary">✓</span>
-                        <span>Analytics Básicos</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-primary">✓</span>
-                        <span>Datos de Audiencia</span>
-                      </div>
-                    </div>
-
-                    <button 
-                      onClick={() => {
-                        // TODO: Integrar con Stripe cuando esté listo
-                        console.log('Redirect to premium subscription');
-                      }}
-                      className="w-full bg-gradient-primary text-white text-xs font-bold px-3 py-2 rounded-full hover:shadow-md hover:scale-105 transition-all duration-300"
-                    >
-                      Suscribirse Premium
-                    </button>
+            {/* Clear Two-Tier Options */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              {/* Premium Tier */}
+              <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4">
+                <div className="text-center mb-3">
+                  <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                    <span className="text-white font-bold text-sm">👑</span>
                   </div>
+                  <h4 className="font-bold text-foreground text-sm">Premium</h4>
+                  <p className="text-xs text-muted-foreground">Solo Charts & Analytics</p>
+                  <div className="text-lg font-bold text-foreground mt-1">$14.99/mes</div>
+                </div>
 
-                  {/* Campaign Tier */}
-                  <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 relative">
-                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                      <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
-                        INCLUYE TODO
-                      </span>
-                    </div>
-                    
-                    <div className="text-center mb-3 pt-1">
-                      <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2">
-                        <span className="text-white font-bold text-sm">🚀</span>
-                      </div>
-                      <h4 className="font-bold text-foreground text-sm">Campaña Completa</h4>
-                      <p className="text-xs text-muted-foreground">Premium + Promoción</p>
-                      <div className="text-lg font-bold text-foreground mt-1">Desde $750</div>
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-0.5 mb-4 text-[10px]">
-                      <div className="flex items-center gap-1">
-                        <span className="text-green-600">✓</span>
-                        <span>Todo Premium</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-green-600">✓</span>
-                        <span>Pitch Curadores</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-green-600">✓</span>
-                        <span>Redes Sociales</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-green-600">✓</span>
-                        <span>Analytics Pro</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-green-600">✓</span>
-                        <span>Dashboard Full</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <span className="text-green-600">✓</span>
-                        <span>Revenue Reports</span>
-                      </div>
-                    </div>
-
-                    <button 
-                      onClick={() => onNavigate('/campaign')}
-                      className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white text-xs font-bold px-3 py-2 rounded-full hover:shadow-md hover:scale-105 transition-all duration-300"
-                    >
-                      Crear Campaña
-                    </button>
+                <div className="space-y-1 mb-4 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Charts Completos</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Analytics Básicos</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Datos de Audiencia</span>
                   </div>
                 </div>
+
+                <button
+                  onClick={() => {
+                    // TODO: Integrar con Stripe cuando esté listo
+                    console.log('Redirect to premium subscription');
+                  }}
+                  className="w-full bg-gradient-primary text-white text-xs font-bold px-3 py-2 rounded-full hover:shadow-md hover:scale-105 transition-all duration-300"
+                >
+                  Suscribirse Premium
+                </button>
+              </div>
+
+              {/* Campaign Tier */}
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 relative">
+                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    INCLUYE TODO
+                  </span>
+                </div>
+
+                <div className="text-center mb-3 pt-1">
+                  <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2">
+                    <span className="text-white font-bold text-sm">🚀</span>
+                  </div>
+                  <h4 className="font-bold text-foreground text-sm">Campaña Completa</h4>
+                  <p className="text-xs text-muted-foreground">Premium + Promoción</p>
+                  <div className="text-lg font-bold text-foreground mt-1">Desde $750</div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-0.5 mb-4 text-[10px]">
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Todo Premium</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Pitch Curadores</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Redes Sociales</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Analytics Pro</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Dashboard Full</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Revenue Reports</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => onNavigate('/campaign')}
+                  className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white text-xs font-bold px-3 py-2 rounded-full hover:shadow-md hover:scale-105 transition-all duration-300"
+                >
+                  Crear Campaña
+                </button>
+              </div>
+            </div>
             <p className="text-[9px] text-muted-foreground mt-2 leading-tight">ROI: +347% en 30 días</p>
           </div>
         </div>
@@ -856,7 +858,7 @@ function MovementIndicator({ movement, lastWeek, currentRank }: MovementIndicato
       </div>
     );
   }
-  
+
   if (movement === "RE-ENTRY") {
     return (
       <div className="flex items-center justify-center">
@@ -891,7 +893,7 @@ function MovementIndicator({ movement, lastWeek, currentRank }: MovementIndicato
 }
 
 interface ExpandRowProps {
-  row: typeof demoRows[0];
+  row: Song;
   onPromote: () => void;
 }
 
@@ -902,7 +904,7 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
       <div className="blur-sm pointer-events-none">
         {/* Compact Billboard-style Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-          
+
           {/* Debut Position */}
           <div className="bg-black border border-green-500 rounded-xl p-3 text-center">
             <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">Debut Position</div>
@@ -911,7 +913,7 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
             <div className="text-xs text-white">01/15/24</div>
           </div>
 
-          {/* Peak Position */} 
+          {/* Peak Position */}
           <div className="bg-black border border-green-500 rounded-xl p-3 text-center">
             <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">Peak Position</div>
             <div className="text-3xl font-bold text-green-400 mb-1">{row.rk}</div>
@@ -970,7 +972,7 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
         <div className="mb-4 bg-black border border-green-500/30 rounded-xl p-3">
           <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Top Markets Performance</div>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
-           {/*  {row.topCountries.slice(0, 5).map((country, index) => (
+            {/*  {row.topCountries.slice(0, 5).map((country, index) => (
               <div key={country} className="flex justify-between items-center bg-white/5 rounded p-2">
                 <span className="text-gray-400">{index === 0 ? '🇺🇸' : index === 1 ? '🇲🇽' : index === 2 ? '🇨🇴' : index === 3 ? '🇦🇷' : '🇨🇱'} {country.split(' ')[0]}</span>
                 <span className="text-green-400 font-bold">{34 - (index * 6)}%</span>
@@ -998,7 +1000,7 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-black border border-green-500/30 rounded-xl p-3">
             <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Growth Metrics</div>
             <div className="space-y-1 text-xs">
@@ -1016,7 +1018,7 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
               </div>
             </div>
           </div>
-          
+
           <div className="bg-black border border-green-500/30 rounded-xl p-3">
             <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Demographic Data</div>
             <div className="space-y-1 text-xs">
@@ -1118,11 +1120,11 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
     <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
       <div className="flex items-center gap-4" onClick={handleClick}>
         <div className="relative">
-           <img 
-             src={track.album.images[0]?.url} 
-             alt={track.album.name}
-             className="w-24 h-24 rounded-lg object-cover"
-           />
+          <img
+            src={track.album.images[0]?.url}
+            alt={track.album.name}
+            className="w-24 h-24 rounded-lg object-cover"
+          />
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity rounded-lg">
             <Music className="w-6 h-6 text-white" />
           </div>
@@ -1132,8 +1134,8 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
           <p className="text-sm text-slate-600 mb-2">{track.artists.map(artist => artist.name).join(', ')}</p>
           <p className="text-xs text-slate-500">{track.album.name}</p>
         </div>
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           size="sm"
           className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
         >
@@ -1145,29 +1147,30 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
 }
 
 export default function Charts() {
+  const { loading, callApi } = useApiWithLoading();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
-  
+
   // Spotify search state
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SpotifyTrack[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading1, setLoading] = useState(false);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
-  
+
   // Countries API state
   const [countries, setCountries] = useState<Country[]>([]);
   const [loadingCountries, setLoadingCountries] = useState(true);
   const [selectedCountry, setSelectedCountry] = useState('2'); // USA ID = 2 por defecto
-  
+
   // Formats API state
   const [formats, setFormats] = useState<Format[]>([]);
   const [loadingFormats, setLoadingFormats] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState('0'); // General ID = 0 por defecto
-  
+
   // Cities API state
   const [cities, setCities] = useState<City[]>([]);
   const [loadingCities, setLoadingCities] = useState(false);
@@ -1177,7 +1180,7 @@ export default function Charts() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [loadingSongs, setLoadingSongs] = useState(true);
   const [selectedSong, setSelectedSong] = useState('2'); // USA ID = 2 por defecto
-  
+
   const [showGenreOverlay, setShowGenreOverlay] = useState(false);
   const [showCrgOverlay, setShowCrgOverlay] = useState(false);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
@@ -1195,33 +1198,61 @@ export default function Charts() {
     }
   }, []);
 
-  // Fetch countries from API
-  useEffect(() => {
-    const fetchCountries = async () => {
+  const fetchCountries = async () => {
+    try {
+      setLoadingCountries(true);
+      const response = await digitalLatinoApi.getCountries();
+      console.log();
+      setCountries(response.data);
+    } catch (error) {
+      console.error('Error fetching countries:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los países. Intenta de nuevo.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingCountries(false);
+    }
+
+  };
+
+  const fetchSongs = async () => {
+    const data = await callApi(async () => {
+      if (!selectedCountry) {
+        setSongs([]);
+        return;
+      }
+
       try {
-        setLoadingCountries(true);
-        const response = await digitalLatinoApi.getCountries();
-        console.log();
-        setCountries(response.data);
+        setLoadingSongs(true);
+        if (Number.isNaN(selectedCity)) setSelectedCity('0');
+        const response = await digitalLatinoApi.getChartDigital(parseInt(selectedFormat), parseInt(selectedCountry), "C", parseInt(selectedCity));
+        setSongs(response.data);
+
       } catch (error) {
-        console.error('Error fetching countries:', error);
+        console.error('Error fetching songs:', error);
         toast({
           title: "Error",
-          description: "No se pudieron cargar los países. Intenta de nuevo.",
+          description: "No se pudieron cargar las canciones. Intenta de nuevo.",
           variant: "destructive"
         });
+        setSongs([]);
       } finally {
-        setLoadingCountries(false);
+        setLoadingSongs(false);
       }
-    };
+    });
+  };
 
+  // Fetch countries from API
+  useEffect(() => {
     fetchCountries();
   }, []);
 
   // Fetch formats when country changes
   useEffect(() => {
     const fetchFormats = async () => {
-      if (!selectedCountry) {
+      if (!selectedFormat) {
         setFormats([]);
         return;
       }
@@ -1230,7 +1261,7 @@ export default function Charts() {
         setLoadingFormats(true);
         const response = await digitalLatinoApi.getFormatsByCountry(parseInt(selectedCountry));
         setFormats(response.data);
-        
+
         // Set General as default if available, otherwise set first format
         const generalFormat = response.data.find(format => format.format.toLowerCase() === 'general');
         if (generalFormat) {
@@ -1285,37 +1316,86 @@ export default function Charts() {
   }, [selectedCountry, toast]);
 
 
-  // Fetch Songs when format changes
+  // Fetch Songs when country changes
   useEffect(() => {
-    console.log("start loading chart :" +  selectedCity);
-    const fetchSongs = async () => {
-      if (!selectedCountry) {
-        setSongs([]);
-        return;
-      }
 
-      try {
-        setLoadingSongs(true);
-        if (Number.isNaN(selectedCity)) setSelectedCity('0');
-        const response = await digitalLatinoApi.getChartDigital(parseInt(selectedFormat),parseInt(selectedCountry),"C",0);
-        setSongs(response.data);
-        console.log(songs);
-        
-      } catch (error) {
-        console.error('Error fetching songs:', error);
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar las canciones. Intenta de nuevo.",
-          variant: "destructive"
-        });
-        setSongs([]);
-      } finally {
-        setLoadingSongs(false);
-      }
-    };
 
     fetchSongs();
-  }, [selectedCountry, toast]);
+  }, [selectedCountry, selectedFormat, selectedCity, toast]);
+
+  /*
+  useEffect(() => {
+    console.log('Run spotify api to update images for each song ' +accessToken); 
+    const updateSongsWithImages = async () => {
+      const updatedSongs = await Promise.all(
+        songs.map(async song => {
+          try {
+            // ✅ Extraer el ID del track desde la URL
+            //const idMatch = song.url.match(/track\/([a-zA-Z0-9]+)/);
+            //if (!idMatch) return song;
+
+            const spotifyId = song.spotify_id;//idMatch[1];
+
+            // ✅ Llamada a la API de Spotify
+            const res = await fetch(
+              `https://api.spotify.com/v1/tracks/${spotifyId}`,
+              {
+                headers: { Authorization: `Bearer ${accessToken}` }
+              }
+            );
+            const data = await res.json();
+
+            // ✅ Devolver el objeto Song con la portada en avatar
+            return { ...song, avatar: data.album.images[0].url };
+          } catch (err) {
+            console.error("Error con la canción:", song.song, err);
+            return song; // Devolver igual en caso de error
+          }
+        })
+      );
+      console.log('Update image for each song'); 
+      setSongs(updatedSongs);
+    };
+
+    updateSongsWithImages();
+  }, [selectedSong, toast] );
+  */
+
+  /* // Fetch Songs when format changes
+  useEffect(() => {
+    console.log("start loading chart :" + selectedFormat);
+    if (selectedFormat !== '0') {
+      const fetchSongs = async () => {
+        if (!selectedCountry) {
+          setSongs([]);
+          return;
+        }
+
+        try {
+          setLoadingSongs(true);
+          if (Number.isNaN(selectedFormat)) setSelectedFormat('0');
+          const response = await digitalLatinoApi.getChartDigital(parseInt(selectedFormat), parseInt(selectedCountry), "C", 0);
+          setSongs(response.data);
+
+        } catch (error) {
+          console.error('Error fetching songs:', error);
+          toast({
+            title: "Error",
+            description: "No se pudieron cargar las canciones. Intenta de nuevo.",
+            variant: "destructive"
+          });
+          setSongs([]);
+        } finally {
+          setLoadingSongs(false);
+        }
+      };
+
+      fetchSongs();
+    }
+
+  }, [selectedFormat, toast]); */
+
+
 
   // Handle Spotify OAuth callback
   useEffect(() => {
@@ -1329,17 +1409,17 @@ export default function Charts() {
 
       if (token && state === storedState) {
         const expiryTime = Date.now() + (parseInt(expiresIn || '3600') * 1000);
-        
+
         window.localStorage.setItem('spotify_access_token', token);
         window.localStorage.setItem('spotify_token_expiry', expiryTime.toString());
         window.localStorage.removeItem('spotify_auth_state');
-        
+
         setAccessToken(token);
         setIsConnected(true);
-        
+        console.log('Spotify connected, token saved.', token);
         // Clean up URL
         window.history.replaceState({}, document.title, window.location.pathname);
-        
+
         toast({
           title: "Conectado exitosamente",
           description: "Ya puedes buscar artistas en Spotify."
@@ -1356,7 +1436,7 @@ export default function Charts() {
     console.log('searchTracks called with:', query);
     console.log('accessToken:', accessToken);
     console.log('isConnected:', isConnected);
-    
+
     if (!accessToken) {
       console.log('No access token, using iTunes fallback...');
       setLoading(true);
@@ -1423,7 +1503,7 @@ export default function Charts() {
         const data = await response.json();
         setSearchResults(data.tracks.items);
         setShowSearchResults(true);
-        
+
         if (data.tracks.items.length === 0) {
           toast({
             title: "Sin resultados",
@@ -1463,7 +1543,7 @@ export default function Charts() {
       previewUrl: track.preview_url || '',
       spotifyUrl: (track as any).external_urls?.spotify || ''
     });
-    
+
     navigate(`/campaign?${params.toString()}`);
   };
 
@@ -1473,20 +1553,21 @@ export default function Charts() {
     // Generate a random state for security
     const state = Math.random().toString(36).substring(2, 15);
     window.localStorage.setItem('spotify_auth_state', state);
-    
+
     const authUrl = new URL('https://accounts.spotify.com/authorize');
     authUrl.searchParams.append('client_id', DEFAULT_CLIENT_ID);
     authUrl.searchParams.append('response_type', 'token');
     authUrl.searchParams.append('redirect_uri', window.location.origin);
     authUrl.searchParams.append('scope', SPOTIFY_CONFIG.scope);
     authUrl.searchParams.append('state', state);
-    
+
     console.log('Redirecting to Spotify auth:', authUrl.toString());
     // Open Spotify auth in the same window
     window.location.href = authUrl.toString();
   };
 
   const toggleRow = (index: number) => {
+    console.log('Toggling row:', index);
     const newExpanded = new Set(expandedRows);
     if (newExpanded.has(index)) {
       newExpanded.delete(index);
@@ -1503,7 +1584,7 @@ export default function Charts() {
       ...(coverUrl && { coverUrl }),
       ...(artistImageUrl && { artistImageUrl })
     });
-    
+
     navigate(`/campaign?${params.toString()}`);
   };
 
@@ -1515,31 +1596,36 @@ export default function Charts() {
   const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault();
     setShowGenreOverlay(true);
+    setSelectedCountry(e.target.value);
+    setSelectedCity('0'); // Reset city when country changes
     // Resetear el select a su valor inicial
-    e.target.selectedIndex = 0;
+    //e.target.selectedIndex = 0;
+
   };
 
   const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const cityId = e.target.value;
     setSelectedCity(cityId);
-    
+
     if (cityId && cityId !== '0') {
       // Find the selected city object
       const selectedCityObj = cities.find(city => city.id.toString() === cityId);
       const cityName = selectedCityObj?.city_name || '';
       // Redirect to campaign with the selected city
-      navigate(`/campaign?city=${encodeURIComponent(cityName)}&country=${encodeURIComponent(selectedCountry)}`);
+      //navigate(`/campaign?city=${encodeURIComponent(cityName)}&country=${encodeURIComponent(selectedCountry)}`);
+      setSelectedCity(cityId);
     }
   };
 
   const handleCrgChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setShowCrgOverlay(true);
     // Resetear el select a su valor inicial
     e.target.selectedIndex = 0;
   };
 
-  const handlePlayPreview = useCallback((trackRank: number, audioUrl: string) => {
+  /* const handlePlayPreview = useCallback((trackRank: number, audioUrl: string) => {
+    console.log('handlePlayPreview called for rank:', audioUrl);
     if (currentlyPlaying === trackRank) {
       // Pausar audio actual
       if (audioRef.current) {
@@ -1552,22 +1638,64 @@ export default function Charts() {
       if (audioRef.current) {
         audioRef.current.pause();
       }
-      
+
       // Crear nuevo audio (simulado para demo)
       const audio = new Audio();
       // En producción aquí usarías la URL real del preview de Spotify
       // audio.src = audioUrl;
-      
+
       // Para demo, simular reproducción
       audioRef.current = audio;
       setCurrentlyPlaying(trackRank);
-      
+
       // Simular que el audio termina después de 30 segundos
       setTimeout(() => {
         setCurrentlyPlaying(null);
         audioRef.current = null;
       }, 30000);
     }
+  }, [currentlyPlaying]); */
+
+
+  const handlePlayPreview = useCallback((trackRank: number, audioUrl: string) => {
+    console.log("handlePlayPreview called for:", trackRank, audioUrl);
+
+    // Si la misma canción está sonando, pausar y limpiar
+    if (currentlyPlaying === trackRank) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0; // reinicia a inicio
+        audioRef.current = null;
+      }
+      setCurrentlyPlaying(null);
+      return;
+    }
+
+    // Si hay una canción sonando, detenerla
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    // Crear y reproducir nueva canción
+    const audio = new Audio(audioUrl); // aquí se asigna la URL real del MP3
+    audioRef.current = audio;
+
+    // Cuando termine el audio, limpiar estado
+    audio.addEventListener("ended", () => {
+      setCurrentlyPlaying(null);
+      audioRef.current = null;
+    });
+
+    // Intentar reproducir (algunos navegadores requieren interacción de usuario)
+    audio.play().then(() => {
+      setCurrentlyPlaying(trackRank);
+    }).catch((err) => {
+      console.error("Error al reproducir el audio:", err);
+      setCurrentlyPlaying(null);
+      audioRef.current = null;
+    });
+
   }, [currentlyPlaying]);
 
   const getCurrentCharts = () => {
@@ -1577,19 +1705,19 @@ export default function Charts() {
       '2': 'usa',       // USA ID = 2  
       '4': 'colombia',  // Colombia ID = 4
     };
-    
+
     const countryKey = selectedCountry ? countryIdToKey[selectedCountry] || 'global' : 'global';
     let charts = chartsByCountry[countryKey as keyof typeof songs] || chartsByCountry.global;
-    
+
     // Filtrar por búsqueda si hay query
     if (chartSearchQuery.trim()) {
       const query = chartSearchQuery.toLowerCase().trim();
-      charts = charts.filter(chart => 
-        chart.artist.toLowerCase().includes(query) || 
+      charts = charts.filter(chart =>
+        chart.artist.toLowerCase().includes(query) ||
         chart.track.toLowerCase().includes(query)
       );
     }
-    
+
     // Mostrar solo top 10 para usuarios no loggeados, top 40 para loggeados
     return user ? charts : charts.slice(0, 10);
   };
@@ -1618,7 +1746,7 @@ export default function Charts() {
                   {user.email === 'garciafix4@gmail.com' ? '🎯 Demo Exclusivo Activo' : '🎵 Acceso Premium Desbloqueado'}
                 </h2>
                 <p className="text-sm text-green-600">
-                  {user.email === 'garciafix4@gmail.com' 
+                  {user.email === 'garciafix4@gmail.com'
                     ? 'Tienes acceso completo + estadísticas de campaña en tiempo real'
                     : `Top 40 completo desbloqueado • ${user.email}`
                   }
@@ -1633,7 +1761,7 @@ export default function Charts() {
         </div>
       )}
 
-      
+
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg">
@@ -1641,41 +1769,41 @@ export default function Charts() {
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
                 <div className="absolute -inset-2 bg-gradient-to-r from-slate-400 to-blue-500 rounded-2xl opacity-15 blur-lg"></div>
-                <img 
-                  src="/lovable-uploads/544b8d7c-17e6-4c56-be22-6cb146932d26.png" 
-                  alt="Digital Latino" 
+                <img
+                  src="/lovable-uploads/544b8d7c-17e6-4c56-be22-6cb146932d26.png"
+                  alt="Digital Latino"
                   className="relative h-8 md:h-12 w-auto"
                 />
               </div>
-               <div className="min-w-0 flex-1">
-                 <p className="text-xs md:text-sm text-slate-600/70 font-medium">Artist 100 • Actualizado semanalmente</p>
-               </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs md:text-sm text-slate-600/70 font-medium">Artist 100 • Actualizado semanalmente</p>
+              </div>
             </div>
           </div>
 
           {/* Search Section */}
           <div className="space-y-4">
-             <div className="flex items-center justify-between">
-               <div className="flex items-center gap-2">
-                 <span className="text-xl">🔍</span>
-                 <h2 className="text-lg font-semibold text-slate-700">¿No encuentras tu artista en los charts?</h2>
-               </div>
-             </div>
-            
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🔍</span>
+                <h2 className="text-lg font-semibold text-slate-700">¿No encuentras tu artista en los charts?</h2>
+              </div>
+            </div>
+
             <form onSubmit={handleSearch} className="flex gap-2">
               <div className="flex-1">
-                 <Input
-                   placeholder="Buscar artista o canción..."
-                   value={searchQuery}
+                <Input
+                  placeholder="Buscar artista o canción..."
+                  value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm shadow-md focus:ring-2 focus:ring-blue-400"
                 />
               </div>
-               <Button 
-                 type="submit" 
-                 disabled={loading || !searchQuery.trim()}
-                 className="rounded-2xl bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 px-6 py-3 text-white hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
-               >
+              <Button
+                type="submit"
+                disabled={loading || !searchQuery.trim()}
+                className="rounded-2xl bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 px-6 py-3 text-white hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
+              >
                 {loading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
@@ -1689,9 +1817,9 @@ export default function Charts() {
               <div className="space-y-3 mt-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm font-semibold text-slate-700">Resultados de búsqueda</h3>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => {
                       setShowSearchResults(false);
                       setSearchQuery('');
@@ -1704,10 +1832,10 @@ export default function Charts() {
                 </div>
                 <div className="grid gap-3 max-h-96 overflow-y-auto">
                   {searchResults.map((track) => (
-                    <SearchResult 
-                      key={track.id} 
-                      track={track} 
-                      onSelect={handleSearchResultSelect} 
+                    <SearchResult
+                      key={track.id}
+                      track={track}
+                      onSelect={handleSearchResultSelect}
                     />
                   ))}
                 </div>
@@ -1722,7 +1850,7 @@ export default function Charts() {
               <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
                 <span>🌎</span> País/Región
               </label>
-              <select 
+              <select
                 className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
                 value={selectedCountry}
                 onChange={handleCountryChange}
@@ -1734,9 +1862,9 @@ export default function Charts() {
                   <>
                     <option value="">Selecciona un país</option>
                     {countries.map((country) => (
-                       <option key={country.id} value={country.id.toString()}>
-                         {country.country || country.description} ({country.country_name})
-                       </option>
+                      <option key={country.id} value={country.id.toString()}>
+                        {country.country || country.description} ({country.country_name})
+                      </option>
                     ))}
                   </>
                 )}
@@ -1748,7 +1876,7 @@ export default function Charts() {
               <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-2">
                 <span>📊</span> Género
               </label>
-              <select 
+              <select
                 className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
                 value={selectedFormat}
                 onChange={(e) => setSelectedFormat(e.target.value)}
@@ -1775,7 +1903,7 @@ export default function Charts() {
               <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-2">
                 <span>🏙️</span> Ciudad Target
               </label>
-              <select 
+              <select
                 className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
                 value={selectedCity}
                 onChange={handleCityChange}
@@ -1803,7 +1931,7 @@ export default function Charts() {
                 <span>⏰</span> Periodo Musical
               </label>
               <div className="relative">
-                <select 
+                <select
                   className="w-full pointer-events-none rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
                   defaultValue=""
                 >
@@ -1812,7 +1940,7 @@ export default function Charts() {
                   <option>🟡 Recurrent - 1-3 años</option>
                   <option>🟠 Gold - Más de 3 años</option>
                 </select>
-                <button 
+                <button
                   type="button"
                   className="absolute inset-0 rounded-2xl"
                   aria-label="Activar campaña para usar filtros de periodo"
@@ -1851,7 +1979,7 @@ export default function Charts() {
         <div className="space-y-0.5">
           {songs.map((row, index) => (
             <div
-              key={row.cs_song} 
+              key={row.cs_song}
               className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
             >
               <div className="grid grid-cols-9 items-center gap-3 px-6 py-2">
@@ -1878,9 +2006,9 @@ export default function Charts() {
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
                     <div className="relative">
                       <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
-                         <AvatarImage 
-                           src={row.song}
-                          alt={row.song}
+                        <AvatarImage
+                          src={row.spotifyid}
+                          alt={row.spotifyid}
                           className="rounded-lg object-cover"
                         />
                         <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
@@ -1892,7 +2020,7 @@ export default function Charts() {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handlePlayPreview(row.rk, `https://p.scdn.co/mp3-preview/sample-${row.cs_song}.mp3`);
+                            handlePlayPreview(row.rk, `https://audios.monitorlatino.com/Iam/${row.entid}.mp3`);
                           }}
                           className="w-8 h-8 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors shadow-lg"
                           aria-label={`Reproducir preview de ${row.cs_song}`}
@@ -1906,7 +2034,7 @@ export default function Charts() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
                       {row.song}
@@ -1945,8 +2073,14 @@ export default function Charts() {
                   </div>
                 </div>
               </div>
-                          {/* Sección para mostrar oculto de cada canción borrada */}
-              
+              {expandedRows.has(index) && (
+                <div className="bg-white/30 backdrop-blur-sm px-8 pb-6">
+                  <ExpandRow
+                    row={row}
+                    onPromote={() => handlePromote(row.artists, row.song, row.avatar, row.url)}
+                  />
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -2002,7 +2136,7 @@ export default function Charts() {
                     <p className="text-sm text-purple-600 mb-4">
                       Accede a rankings completos y estadísticas avanzadas
                     </p>
-                    
+
                     {/* Precio */}
                     <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-3 mb-4">
                       <div className="flex items-center justify-center gap-2 mb-1">
@@ -2012,14 +2146,14 @@ export default function Charts() {
                         <span className="font-bold text-amber-800 text-sm">Oferta Limitada</span>
                       </div>
                       <div className="text-center">
-                        <span className="line-through text-amber-600 text-sm">$49 USD/mes</span> 
+                        <span className="line-through text-amber-600 text-sm">$49 USD/mes</span>
                         <span className="ml-2 text-xl font-bold text-amber-800">$14.99 USD/mes</span>
                         <span className="ml-1 text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">70% OFF</span>
                       </div>
                     </div>
 
-                    <Button 
-                      size="lg" 
+                    <Button
+                      size="lg"
                       className="w-full bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 hover:from-purple-700 hover:via-purple-800 hover:to-pink-700 text-white font-semibold shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300"
                     >
                       <Trophy className="mr-2 h-4 w-4" />
@@ -2038,7 +2172,7 @@ export default function Charts() {
                     <p className="text-sm text-green-600 mb-4">
                       Incluye pitching, promociones en redes sociales, analytics avanzados y reportes en tiempo real
                     </p>
-                    
+
                     {/* Precio */}
                     <div className="bg-gradient-to-r from-green-100 to-emerald-100 border border-green-300 rounded-xl p-3 mb-4">
                       <div className="flex items-center justify-center gap-2 mb-1">
@@ -2053,8 +2187,8 @@ export default function Charts() {
                       </div>
                     </div>
 
-                    <Button 
-                      size="lg" 
+                    <Button
+                      size="lg"
                       className="w-full bg-gradient-to-r from-green-600 via-green-700 to-emerald-600 hover:from-green-700 hover:via-green-800 hover:to-emerald-700 text-white font-semibold shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300"
                     >
                       <Zap className="mr-2 h-4 w-4" />
@@ -2127,12 +2261,12 @@ export default function Charts() {
                   <div className="text-xs text-muted-foreground mb-1">Solo Charts & Analytics</div>
                   <div className="text-sm font-bold text-foreground">$14.99/mes</div>
                 </div>
-                
-                <button 
+
+                <button
                   onClick={() => {
                     // TODO: Integrar con Stripe cuando esté listo
                     console.log('Redirect to premium subscription');
-                    setShowGenreOverlay(false); 
+                    setShowGenreOverlay(false);
                     setShowCrgOverlay(false);
                   }}
                   className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
@@ -2140,14 +2274,14 @@ export default function Charts() {
                   Suscribirse
                 </button>
               </div>
-              
+
               <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
                 <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
                   <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
                     INCLUYE TODO
                   </span>
                 </div>
-                
+
                 <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
                   <span className="text-white font-bold text-sm">🚀</span>
                 </div>
@@ -2156,11 +2290,11 @@ export default function Charts() {
                   <div className="text-xs text-muted-foreground mb-1">Premium + Promoción</div>
                   <div className="text-sm font-bold text-foreground">Desde $750</div>
                 </div>
-                
-                <button 
+
+                <button
                   onClick={() => {
                     navigate('/campaign');
-                    setShowGenreOverlay(false); 
+                    setShowGenreOverlay(false);
                     setShowCrgOverlay(false);
                   }}
                   className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
@@ -2175,7 +2309,10 @@ export default function Charts() {
           </div>
         </div>
       )}
-
+      {/* Overlay global mientras se carga */}
+      <Backdrop open={loading} sx={{ color: '#fff', zIndex: 9999 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </div>
   );
 }

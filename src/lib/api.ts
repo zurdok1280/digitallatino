@@ -1,6 +1,7 @@
 // Configuración base para conexiones API
 const API_CONFIG = {
   baseURL: 'https://backend.digital-latino.com/api/',
+  //baseURL: 'http://localhost:8084/api/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -50,6 +51,9 @@ export interface Song {
   label: string;
   artists: string;
   crg: string;
+  avatar: string;
+  url: string;
+  spotifyid: string;
 }
 
 // Tipos básicos para las respuestas
