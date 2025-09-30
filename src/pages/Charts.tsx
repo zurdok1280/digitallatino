@@ -69,13 +69,6 @@ export async function fetchSongsLatinoAPI({ query, country, genre, city, period 
 }*/
 
 
-
-
-
-
-
-
-
 // Completar hasta el top 40
 const extendedDemoRows = [...demoRows, ...demoRows];
 
@@ -85,593 +78,12 @@ for (let i = 16; i <= 40; i++) {
   const artists = ["Miley Cyrus", "Harry Styles", "Ariana Grande", "The Weeknd", "Drake", "Post Malone", "Rihanna", "Ed Sheeran", "Bruno Mars", "Adele"];
   const tracks = ["Flowers", "As It Was", "positions", "Blinding Lights", "God's Plan", "Circles", "Umbrella", "Shape of You", "Uptown Funk", "Hello"];
 
-
 }
 
 // El array final con 40 entradas
 const allDemoRows = extendedDemoRows;
 
 // Charts por país estaticos *para demo local* -Se van a eliminar cuando se integre la API
-
-const chartsByCountry = {
-  global: allDemoRows,
-  mexico: [
-    {
-      rank: 1,
-      artist: "Peso Pluma",
-      track: "La Bebé (Remix)",
-      coverUrl: pesoPlumaCover,
-      artistImageUrl: "",
-      digitalScore: 98,
-      lastWeek: 2,
-      peak: 1,
-      weeks: 12,
-      movement: "UP",
-      topCountries: ["Mexico", "United States", "Colombia", "Guatemala", "El Salvador"],
-      topCities: ["Mexico City", "Guadalajara", "Monterrey", "Los Angeles", "Phoenix"],
-      platformRanks: { Spotify: 1, TikTok: 5, YouTube: 2, Shazam: 1, Pandora: 320, SoundCloud: 15 },
-      vsGenre: 245,
-      growthPotential: "Potencial alto",
-      estimatedROI: 380,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 2,
-      artist: "Bad Bunny",
-      track: "Monaco",
-      coverUrl: badBunnyCover,
-      artistImageUrl: "",
-      digitalScore: 96,
-      lastWeek: 1,
-      peak: 1,
-      weeks: 28,
-      movement: "DOWN",
-      topCountries: ["Mexico", "Puerto Rico", "Colombia", "United States", "Spain"],
-      topCities: ["Mexico City", "San Juan", "Guadalajara", "Miami", "Madrid"],
-      platformRanks: { Spotify: 2, TikTok: 8, YouTube: 1, Shazam: 3, Pandora: 150, SoundCloud: 8 },
-      vsGenre: 189,
-      growthPotential: "Potencial alto",
-      estimatedROI: 350,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 3,
-      artist: "Karol G",
-      track: "Si Antes Te Hubiera Conocido",
-      coverUrl: karolGCover,
-      artistImageUrl: "",
-      digitalScore: 94,
-      lastWeek: 3,
-      peak: 2,
-      weeks: 16,
-      movement: "SAME",
-      topCountries: ["Mexico", "Colombia", "United States", "Argentina", "Chile"],
-      topCities: ["Mexico City", "Medellín", "Guadalajara", "Miami", "Buenos Aires"],
-      platformRanks: { Spotify: 3, TikTok: 12, YouTube: 5, Shazam: 8, Pandora: 280, SoundCloud: 25 },
-      vsGenre: 167,
-      growthPotential: "Potencial alto",
-      estimatedROI: 310,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 4,
-      artist: "Feid",
-      track: "Luna",
-      coverUrl: sabrinaCarpenterCover,
-      artistImageUrl: "",
-      digitalScore: 92,
-      lastWeek: 4,
-      peak: 3,
-      weeks: 8,
-      movement: "SAME",
-      topCountries: ["Mexico", "Colombia", "Argentina", "Chile", "Peru"],
-      topCities: ["Mexico City", "Guadalajara", "Monterrey", "Tijuana", "Puebla"],
-      platformRanks: { Spotify: 4, TikTok: 18, YouTube: 8, Shazam: 12, Pandora: 280, SoundCloud: 35 },
-      vsGenre: 156,
-      growthPotential: "Potencial alto",
-      estimatedROI: 295,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 5,
-      artist: "Junior H",
-      track: "Exquísita",
-      coverUrl: taylorSwiftCover,
-      artistImageUrl: "",
-      digitalScore: 90,
-      lastWeek: 6,
-      peak: 4,
-      weeks: 15,
-      movement: "UP",
-      topCountries: ["Mexico", "United States", "Guatemala", "Honduras", "El Salvador"],
-      topCities: ["Mexico City", "Los Angeles", "Houston", "Phoenix", "Guadalajara"],
-      platformRanks: { Spotify: 5, TikTok: 25, YouTube: 12, Shazam: 18, Pandora: 350, SoundCloud: 42 },
-      vsGenre: 178,
-      growthPotential: "Potencial medio",
-      estimatedROI: 275,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 6,
-      artist: "Grupo Frontera",
-      track: "Que Vuelvas",
-      coverUrl: eminemCover,
-      artistImageUrl: "",
-      digitalScore: 88,
-      lastWeek: 5,
-      peak: 2,
-      weeks: 22,
-      movement: "DOWN",
-      topCountries: ["Mexico", "United States", "Colombia", "Argentina", "Chile"],
-      topCities: ["Mexico City", "San Antonio", "Houston", "Dallas", "Guadalajara"],
-      platformRanks: { Spotify: 6, TikTok: 35, YouTube: 18, Shazam: 25, Pandora: 380, SoundCloud: 58 },
-      vsGenre: 145,
-      growthPotential: "Potencial medio",
-      estimatedROI: 250,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 7,
-      artist: "Natanael Cano",
-      track: "AMG",
-      coverUrl: chappellRoanCover,
-      artistImageUrl: "",
-      digitalScore: 86,
-      lastWeek: 8,
-      peak: 5,
-      weeks: 18,
-      movement: "UP",
-      topCountries: ["Mexico", "United States", "Colombia", "Guatemala", "Costa Rica"],
-      topCities: ["Mexico City", "Los Angeles", "Phoenix", "Guadalajara", "Tijuana"],
-      platformRanks: { Spotify: 7, TikTok: 42, YouTube: 22, Shazam: 32, Pandora: 420, SoundCloud: 68 },
-      vsGenre: 134,
-      growthPotential: "Potencial medio",
-      estimatedROI: 230,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 8,
-      artist: "Bizarrap",
-      track: "BZRP Music Sessions #53",
-      coverUrl: billieEilishCover,
-      artistImageUrl: "",
-      digitalScore: 84,
-      lastWeek: 7,
-      peak: 1,
-      weeks: 35,
-      movement: "DOWN",
-      topCountries: ["Mexico", "Argentina", "Colombia", "Chile", "Peru"],
-      topCities: ["Mexico City", "Buenos Aires", "Guadalajara", "Santiago", "Lima"],
-      platformRanks: { Spotify: 8, TikTok: 15, YouTube: 5, Shazam: 45, Pandora: 480, SoundCloud: 25 },
-      vsGenre: 189,
-      growthPotential: "Potencial alto",
-      estimatedROI: 320,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 9,
-      artist: "Eslabón Armado",
-      track: "Ella Baila Sola",
-      coverUrl: teddySwimsCover,
-      artistImageUrl: "",
-      digitalScore: 82,
-      lastWeek: 9,
-      peak: 6,
-      weeks: 24,
-      movement: "SAME",
-      topCountries: ["Mexico", "United States", "Guatemala", "El Salvador", "Honduras"],
-      topCities: ["Mexico City", "Los Angeles", "Houston", "Phoenix", "Chicago"],
-      platformRanks: { Spotify: 9, TikTok: 55, YouTube: 28, Shazam: 38, Pandora: 520, SoundCloud: 85 },
-      vsGenre: 123,
-      growthPotential: "Potencial medio",
-      estimatedROI: 210,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 10,
-      artist: "Ryan Castro",
-      track: "Mujeriego",
-      coverUrl: shaboozeyCover,
-      artistImageUrl: "",
-      digitalScore: 80,
-      lastWeek: 10,
-      peak: 8,
-      weeks: 14,
-      movement: "SAME",
-      topCountries: ["Mexico", "Colombia", "United States", "Peru", "Ecuador"],
-      topCities: ["Mexico City", "Medellín", "Guadalajara", "Bogotá", "Miami"],
-      platformRanks: { Spotify: 10, TikTok: 25, YouTube: 35, Shazam: 42, Pandora: 580, SoundCloud: 95 },
-      vsGenre: 112,
-      growthPotential: "Potencial medio",
-      estimatedROI: 190,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    }
-  ],
-  colombia: [
-    {
-      rank: 1,
-      artist: "Karol G",
-      track: "Si Antes Te Hubiera Conocido",
-      coverUrl: karolGCover,
-      artistImageUrl: "",
-      digitalScore: 98,
-      lastWeek: 1,
-      peak: 1,
-      weeks: 16,
-      movement: "SAME",
-      topCountries: ["Colombia", "Mexico", "United States", "Argentina", "Chile"],
-      topCities: ["Bogotá", "Medellín", "Cali", "Barranquilla", "Cartagena"],
-      platformRanks: { Spotify: 1, TikTok: 3, YouTube: 1, Shazam: 1, Pandora: 280, SoundCloud: 15 },
-      vsGenre: 235,
-      growthPotential: "Potencial alto",
-      estimatedROI: 390,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 2,
-      artist: "Feid",
-      track: "Luna",
-      coverUrl: sabrinaCarpenterCover,
-      artistImageUrl: "",
-      digitalScore: 96,
-      lastWeek: 2,
-      peak: 2,
-      weeks: 8,
-      movement: "SAME",
-      topCountries: ["Colombia", "Mexico", "Argentina", "Chile", "Peru"],
-      topCities: ["Medellín", "Bogotá", "Cali", "Barranquilla", "Bucaramanga"],
-      platformRanks: { Spotify: 2, TikTok: 8, YouTube: 3, Shazam: 5, Pandora: 280, SoundCloud: 22 },
-      vsGenre: 198,
-      growthPotential: "Potencial alto",
-      estimatedROI: 360,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 3,
-      artist: "Ryan Castro",
-      track: "Mujeriego",
-      coverUrl: shaboozeyCover,
-      artistImageUrl: "",
-      digitalScore: 94,
-      lastWeek: 3,
-      peak: 3,
-      weeks: 14,
-      movement: "SAME",
-      topCountries: ["Colombia", "Mexico", "United States", "Peru", "Ecuador"],
-      topCities: ["Medellín", "Bogotá", "Cali", "Barranquilla", "Pereira"],
-      platformRanks: { Spotify: 3, TikTok: 12, YouTube: 8, Shazam: 12, Pandora: 580, SoundCloud: 35 },
-      vsGenre: 167,
-      growthPotential: "Potencial alto",
-      estimatedROI: 320,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 4,
-      artist: "Maluma",
-      track: "Cosas Pendientes",
-      coverUrl: badBunnyCover,
-      artistImageUrl: "",
-      digitalScore: 92,
-      lastWeek: 4,
-      peak: 2,
-      weeks: 20,
-      movement: "SAME",
-      topCountries: ["Colombia", "Mexico", "United States", "Argentina", "Spain"],
-      topCities: ["Medellín", "Bogotá", "Miami", "Mexico City", "Buenos Aires"],
-      platformRanks: { Spotify: 4, TikTok: 18, YouTube: 12, Shazam: 18, Pandora: 350, SoundCloud: 45 },
-      vsGenre: 145,
-      growthPotential: "Potencial alto",
-      estimatedROI: 290,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 5,
-      artist: "J Balvin",
-      track: "Doblexxó",
-      coverUrl: pesoPlumaCover,
-      artistImageUrl: "",
-      digitalScore: 90,
-      lastWeek: 6,
-      peak: 4,
-      weeks: 12,
-      movement: "UP",
-      topCountries: ["Colombia", "Mexico", "United States", "Argentina", "Chile"],
-      topCities: ["Medellín", "Bogotá", "Miami", "Los Angeles", "Buenos Aires"],
-      platformRanks: { Spotify: 5, TikTok: 25, YouTube: 18, Shazam: 25, Pandora: 380, SoundCloud: 58 },
-      vsGenre: 178,
-      growthPotential: "Potencial alto",
-      estimatedROI: 275,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 6,
-      artist: "Blessd",
-      track: "Mírame",
-      coverUrl: taylorSwiftCover,
-      artistImageUrl: "",
-      digitalScore: 88,
-      lastWeek: 5,
-      peak: 5,
-      weeks: 18,
-      movement: "DOWN",
-      topCountries: ["Colombia", "Mexico", "United States", "Peru", "Ecuador"],
-      topCities: ["Medellín", "Bogotá", "Cali", "Pereira", "Manizales"],
-      platformRanks: { Spotify: 6, TikTok: 35, YouTube: 25, Shazam: 32, Pandora: 420, SoundCloud: 68 },
-      vsGenre: 156,
-      growthPotential: "Potencial medio",
-      estimatedROI: 250,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 7,
-      artist: "Shakira",
-      track: "Soltera",
-      coverUrl: eminemCover,
-      artistImageUrl: "",
-      digitalScore: 86,
-      lastWeek: 8,
-      peak: 3,
-      weeks: 26,
-      movement: "UP",
-      topCountries: ["Colombia", "Spain", "Mexico", "United States", "Argentina"],
-      topCities: ["Bogotá", "Barranquilla", "Madrid", "Miami", "Barcelona"],
-      platformRanks: { Spotify: 7, TikTok: 42, YouTube: 15, Shazam: 38, Pandora: 480, SoundCloud: 85 },
-      vsGenre: 134,
-      growthPotential: "Potencial medio",
-      estimatedROI: 230,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 8,
-      artist: "Manuel Turizo",
-      track: "Sígueme Besando Así",
-      coverUrl: chappellRoanCover,
-      artistImageUrl: "",
-      digitalScore: 84,
-      lastWeek: 7,
-      peak: 6,
-      weeks: 22,
-      movement: "DOWN",
-      topCountries: ["Colombia", "Mexico", "United States", "Argentina", "Chile"],
-      topCities: ["Montería", "Bogotá", "Medellín", "Miami", "Mexico City"],
-      platformRanks: { Spotify: 8, TikTok: 55, YouTube: 35, Shazam: 45, Pandora: 520, SoundCloud: 95 },
-      vsGenre: 123,
-      growthPotential: "Potencial medio",
-      estimatedROI: 210,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 9,
-      artist: "Morat",
-      track: "No Hay Más Que Hablar",
-      coverUrl: billieEilishCover,
-      artistImageUrl: "",
-      digitalScore: 82,
-      lastWeek: 9,
-      peak: 7,
-      weeks: 16,
-      movement: "SAME",
-      topCountries: ["Colombia", "Mexico", "Argentina", "Chile", "Peru"],
-      topCities: ["Bogotá", "Medellín", "Mexico City", "Buenos Aires", "Santiago"],
-      platformRanks: { Spotify: 9, TikTok: 65, YouTube: 42, Shazam: 52, Pandora: 580, SoundCloud: 105 },
-      vsGenre: 112,
-      growthPotential: "Potencial medio",
-      estimatedROI: 190,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 10,
-      artist: "Bad Bunny",
-      track: "Monaco",
-      coverUrl: badBunnyCover,
-      artistImageUrl: "",
-      digitalScore: 80,
-      lastWeek: 9,
-      peak: 4,
-      weeks: 28,
-      movement: "DOWN",
-      topCountries: ["United States", "Puerto Rico", "Mexico", "Colombia", "Spain"],
-      topCities: ["Miami", "Los Angeles", "New York", "San Juan", "Houston"],
-      platformRanks: { Spotify: 10, TikTok: 68, YouTube: 38, Shazam: 48, Pandora: 150, SoundCloud: 95 },
-      vsGenre: 145,
-      growthPotential: "Potencial alto",
-      estimatedROI: 280,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    }
-  ],
-  usa: [
-    {
-      rank: 1,
-      artist: "Teddy Swims",
-      track: "Lose Control",
-      coverUrl: teddySwimsCover,
-      artistImageUrl: "",
-      digitalScore: 98,
-      lastWeek: 1,
-      peak: 1,
-      weeks: 45,
-      movement: "SAME",
-      topCountries: ["United States", "Canada", "United Kingdom", "Australia", "Germany"],
-      topCities: ["Los Angeles", "New York", "Chicago", "Miami", "Houston"],
-      platformRanks: { Spotify: 1, TikTok: 15, YouTube: 8, Shazam: 1, Pandora: 2, SoundCloud: 25 },
-      vsGenre: 189,
-      growthPotential: "Potencial de crecimiento",
-      estimatedROI: 245,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 2,
-      artist: "Shaboozey",
-      track: "A Bar Song (Tipsy)",
-      coverUrl: shaboozeyCover,
-      artistImageUrl: "",
-      digitalScore: 96,
-      lastWeek: 2,
-      peak: 1,
-      weeks: 32,
-      movement: "SAME",
-      topCountries: ["United States", "Canada", "Australia", "New Zealand", "United Kingdom"],
-      topCities: ["Nashville", "Austin", "Atlanta", "Dallas", "Memphis"],
-      platformRanks: { Spotify: 2, TikTok: 180, YouTube: 45, Shazam: 3, Pandora: 1, SoundCloud: 85 },
-      vsGenre: 134,
-      growthPotential: "Potencial de crecimiento",
-      estimatedROI: 195,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 3,
-      artist: "Sabrina Carpenter",
-      track: "Espresso",
-      coverUrl: sabrinaCarpenterCover,
-      artistImageUrl: "",
-      digitalScore: 94,
-      lastWeek: 4,
-      peak: 2,
-      weeks: 38,
-      movement: "UP",
-      topCountries: ["United States", "United Kingdom", "Canada", "Australia", "Ireland"],
-      topCities: ["Los Angeles", "New York", "Chicago", "Miami", "Boston"],
-      platformRanks: { Spotify: 3, TikTok: 8, YouTube: 25, Shazam: 12, Pandora: 15, SoundCloud: 120 },
-      vsGenre: 167,
-      growthPotential: "Potencial alto",
-      estimatedROI: 220,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 4,
-      artist: "Taylor Swift",
-      track: "Fortnight (feat. Post Malone)",
-      coverUrl: taylorSwiftCover,
-      artistImageUrl: "",
-      digitalScore: 92,
-      lastWeek: 3,
-      peak: 1,
-      weeks: 24,
-      movement: "DOWN",
-      topCountries: ["United States", "Canada", "United Kingdom", "Australia", "Germany"],
-      topCities: ["Nashville", "New York", "Los Angeles", "Chicago", "Philadelphia"],
-      platformRanks: { Spotify: 4, TikTok: 55, YouTube: 15, Shazam: 20, Pandora: 8, SoundCloud: 180 },
-      vsGenre: 145,
-      growthPotential: "Potencial de crecimiento",
-      estimatedROI: 175,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 5,
-      artist: "Eminem",
-      track: "Tobey (feat. Big Sean & BabyTron)",
-      coverUrl: eminemCover,
-      artistImageUrl: "",
-      digitalScore: 90,
-      lastWeek: "-",
-      peak: 5,
-      weeks: 2,
-      movement: "NEW",
-      topCountries: ["United States", "Canada", "United Kingdom", "Australia", "Germany"],
-      topCities: ["Detroit", "Chicago", "New York", "Los Angeles", "Philadelphia"],
-      platformRanks: { Spotify: 5, TikTok: 95, YouTube: 22, Shazam: 35, Pandora: 18, SoundCloud: 40 },
-      vsGenre: 289,
-      growthPotential: "Potencial alto",
-      estimatedROI: 410,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 6,
-      artist: "Chappell Roan",
-      track: "Good Luck, Babe!",
-      coverUrl: chappellRoanCover,
-      artistImageUrl: "",
-      digitalScore: 88,
-      lastWeek: 7,
-      peak: 6,
-      weeks: 20,
-      movement: "UP",
-      topCountries: ["United States", "Canada", "United Kingdom", "Australia", "Netherlands"],
-      topCities: ["Los Angeles", "New York", "Chicago", "San Francisco", "Seattle"],
-      platformRanks: { Spotify: 6, TikTok: 12, YouTube: 35, Shazam: 40, Pandora: 45, SoundCloud: 95 },
-      vsGenre: 176,
-      growthPotential: "Potencial de crecimiento",
-      estimatedROI: 265,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 7,
-      artist: "Billie Eilish",
-      track: "BIRDS OF A FEATHER",
-      coverUrl: billieEilishCover,
-      artistImageUrl: "",
-      digitalScore: 86,
-      lastWeek: 6,
-      peak: 2,
-      weeks: 26,
-      movement: "DOWN",
-      topCountries: ["United States", "Canada", "United Kingdom", "Australia", "France"],
-      topCities: ["Los Angeles", "New York", "Chicago", "Miami", "San Francisco"],
-      platformRanks: { Spotify: 7, TikTok: 20, YouTube: 18, Shazam: 30, Pandora: 25, SoundCloud: 150 },
-      vsGenre: 123,
-      growthPotential: "Potencial de crecimiento",
-      estimatedROI: 180,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 8,
-      artist: "Post Malone",
-      track: "I Had Some Help",
-      coverUrl: pesoPlumaCover,
-      artistImageUrl: "",
-      digitalScore: 84,
-      lastWeek: 8,
-      peak: 5,
-      weeks: 18,
-      movement: "SAME",
-      topCountries: ["United States", "Canada", "Australia", "United Kingdom", "Germany"],
-      topCities: ["Los Angeles", "New York", "Chicago", "Nashville", "Atlanta"],
-      platformRanks: { Spotify: 8, TikTok: 85, YouTube: 32, Shazam: 45, Pandora: 28, SoundCloud: 180 },
-      vsGenre: 156,
-      growthPotential: "Potencial de crecimiento",
-      estimatedROI: 205,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 9,
-      artist: "Peso Pluma",
-      track: "La Bebé (Remix)",
-      coverUrl: pesoPlumaCover,
-      artistImageUrl: "",
-      digitalScore: 82,
-      lastWeek: 10,
-      peak: 7,
-      weeks: 12,
-      movement: "UP",
-      topCountries: ["Mexico", "United States", "Colombia", "Guatemala", "El Salvador"],
-      topCities: ["Los Angeles", "Phoenix", "Houston", "Chicago", "Miami"],
-      platformRanks: { Spotify: 9, TikTok: 35, YouTube: 18, Shazam: 25, Pandora: 320, SoundCloud: 65 },
-      vsGenre: 198,
-      growthPotential: "Potencial alto",
-      estimatedROI: 340,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    },
-    {
-      rank: 10,
-      artist: "Bad Bunny",
-      track: "Monaco",
-      coverUrl: badBunnyCover,
-      artistImageUrl: "",
-      digitalScore: 80,
-      lastWeek: 9,
-      peak: 4,
-      weeks: 28,
-      movement: "DOWN",
-      topCountries: ["United States", "Puerto Rico", "Mexico", "Colombia", "Spain"],
-      topCities: ["Miami", "Los Angeles", "New York", "San Juan", "Houston"],
-      platformRanks: { Spotify: 10, TikTok: 68, YouTube: 38, Shazam: 48, Pandora: 150, SoundCloud: 95 },
-      vsGenre: 145,
-      growthPotential: "Potencial alto",
-      estimatedROI: 280,
-      campaignDescription: "Campaña integral de promoción musical con duración de 30 días que incluye pitch con curadores de playlists verificadas, campañas publicitarias en Facebook, TikTok e Instagram, y análisis detallado de performance para maximizar el alcance de tu canción."
-    }
-  ]
-};
 
 // Ciudades por país
 const citiesByCountry = {
@@ -869,6 +281,47 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
       </div>
     </div>
   );
+}
+
+//Temporal component for songs cover and avatar
+const SongAvatar = ({ song }) => {
+  const [imageError, setImageError] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false)
+
+  useEffect(() => {
+    setImageError(false);
+    setImgLoaded(false);
+  }, [song.avatar]);
+
+  if (imageError || !song.avatar) {
+    return (
+      <>
+        <Avatar className="relative h-14 w-14 rounded-lg shadow-sm">
+          <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
+            {song.artists ? song.artists.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() : 'NA'}
+          </AvatarFallback>
+        </Avatar>
+      </>
+    )
+  }
+  return (
+    <Avatar className="relative h-14 w-14 rounded-lg shadow-sm">
+      <AvatarImage
+        src={song.avatar}
+        alt={song.song}
+        className="rounded-lg object-cover"
+        onLoad={() => setImgLoaded(true)}
+        onError={() => setImageError(true)}
+        style={{ display: imgLoaded ? 'block' : 'none' }}
+      />
+      {!imgLoaded && (
+        <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
+          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        </AvatarFallback>
+      )}
+    </Avatar>
+  );
+
 }
 
 interface MovementIndicatorProps {
@@ -1262,8 +715,6 @@ export default function Charts() {
   }, []);
 
   //NEW funcion para obtener canciones (charts) de la API Digital Latino - Por País...
-  //useEffect(() => {
-
   const fetchChartDigital = async (countryId, formatId = null, cityId = null) => {
     try {
       setLoadingSongs(true);
@@ -1271,8 +722,6 @@ export default function Charts() {
       //Parametros por defecto (por ahora) para la consulta
       const chartType = "C"; // C = Current, por ahora siempre es current
       const cityToUse = cityId || selectedCity || 0; // 0 = All
-      //Borrar al hacer commit
-      //console.log(`Fetching chart for country: ${countryId}, format: ${formatToUse}`)
 
       const response = await fetch(
         `https://backend.digital-latino.com/api/report/getChartDigital/${formatToUse}/${countryId}/${chartType}/${cityToUse}`);
@@ -1282,11 +731,10 @@ export default function Charts() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const dataCharts = await response.json();
-      //Borrar al hacer commit
-      //console.log('Fetched charts:', countryId, dataCharts);
 
       //Si hay entries, setear canciones, si no, setear array vacío
       if (dataCharts) {
+        setSongs([]);
         setSongs(dataCharts);
       } else {
         setSongs([]);
@@ -1303,10 +751,6 @@ export default function Charts() {
       setLoadingSongs(false);
     }
   }
-  //}, [toast]);
-
-
-
 
   // Fetch formats when country changes, este si funciona, no necesita grandes cambios
   useEffect(() => {
@@ -1328,9 +772,11 @@ export default function Charts() {
         const generalFormat = response.data.find(format => format.format.toLowerCase() === 'general');
         if (generalFormat) {
           setSelectedFormat(generalFormat.id.toString());
+          console.log("Se ejecuto fetchChartDigital con formato General en el useEffect de formats");
           fetchChartDigital(parseInt(selectedCountry), generalFormat.id.toString(), selectedCity);
         } else if (response.data.length > 0) {
           setSelectedFormat(response.data[0].id.toString());
+          console.log("Se ejecuto fetchChartDigital con el primer formato en el useEffect de formats cuando el response lenght es mayor a 0");
           fetchChartDigital(parseInt(selectedCountry), response.data[0].id.toString(), selectedCity);
         }
       } catch (error) {
@@ -1364,6 +810,7 @@ export default function Charts() {
         setCities(response.data);
         setSelectedCity('0'); // Reset to "All" when country changes
         if (selectedCountry && selectedFormat) {
+          console.log("Se ejecuto fetchChartDigital en el useEffect de cities");
           fetchChartDigital(parseInt(selectedCountry), (selectedFormat), 0);
         }
       } catch (error) {
@@ -1384,6 +831,7 @@ export default function Charts() {
 
 
   // Fetch Songs when format changes
+  /*
   useEffect(() => {
     console.log("start loading chart :" + selectedCity);
     fetchChartDigital(parseInt(selectedCountry));
@@ -1414,8 +862,9 @@ export default function Charts() {
     };
 
     fetchSongs();*/
+  /*
   }, [selectedCountry, toast]);
-
+*/
   // Handle Spotify OAuth callback
   useEffect(() => {
     const handleSpotifyCallback = () => {
@@ -1624,6 +1073,7 @@ export default function Charts() {
     const formatId = e.target.value;
     setSelectedFormat(formatId);
     if (selectedCountry && formatId) {
+      console.log("Se ejecuto fetchChartDigital por cambio de formato - handleFormatChange");
       fetchChartDigital(parseInt(selectedCountry), parseInt(formatId));
     }
   }
@@ -1640,20 +1090,13 @@ export default function Charts() {
     setSelectedCity(cityId);
 
     if (selectedCountry && selectedFormat && cityId && cityId !== '0') {
+      console.log("Se ejecuto fetchChartDigital por cambio de ciudad - handleCityChange");
       fetchChartDigital(parseInt(selectedCountry), selectedFormat, cityId);
     } else if (selectedCountry && selectedFormat && cityId === '0') {
       // Si selecciona "Todas las ciudades"
+      console.log("Se ejecuto fetchChartDigital por cambio de ciudad a 'Todas' - handleCityChange");
       fetchChartDigital(parseInt(selectedCountry), selectedFormat, '0');
     }
-
-    /*
-    if (cityId && cityId !== '0') {
-      // Find the selected city object
-      const selectedCityObj = cities.find(city => city.id.toString() === cityId);
-      const cityName = selectedCityObj?.city_name || '';
-      // Redirect to campaign with the selected city
-      navigate(`/campaign?city=${encodeURIComponent(cityName)}&country=${encodeURIComponent(selectedCountry)}`);
-    }*/
   };
 
   const handleCrgChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -1693,32 +1136,6 @@ export default function Charts() {
       }, 30000);
     }
   }, [currentlyPlaying]);
-
-  const getCurrentCharts = () => {
-    // Map API country IDs to existing chart keys
-    const countryIdToKey: Record<string, string> = {
-      '1': 'mexico',    // Mexico ID = 1
-      '2': 'usa',       // USA ID = 2  
-      '4': 'colombia',  // Colombia ID = 4
-    };
-
-    const countryKey = selectedCountry ? countryIdToKey[selectedCountry] || 'global' : 'global';
-    let charts = chartsByCountry[countryKey as keyof typeof songs] || chartsByCountry.global;
-
-    // Filtrar por búsqueda si hay query
-    if (chartSearchQuery.trim()) {
-      const query = chartSearchQuery.toLowerCase().trim();
-      charts = charts.filter(chart =>
-        chart.artist.toLowerCase().includes(query) ||
-        chart.track.toLowerCase().includes(query)
-      );
-    }
-
-    // Mostrar solo top 10 para usuarios no loggeados, top 40 para loggeados
-    return user ? charts : charts.slice(0, 10);
-  };
-
-  const currentRows = getCurrentCharts();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
@@ -1973,9 +1390,9 @@ export default function Charts() {
 
         {/* Lista de Charts */}
         <div className="space-y-0.5">
-          {songs.map((row, index) => (
+          {songs.map((song, index) => (
             <div
-              key={row.cs_song}
+              key={song.cs_song}
               className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
             >
               <div className="grid grid-cols-9 items-center gap-3 px-6 py-2">
@@ -1985,15 +1402,10 @@ export default function Charts() {
                     <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
                     <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-11 h-11 flex items-center justify-center shadow-sm group-hover/rank:shadow-md transition-all">
                       <span className="text-lg font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
-                        {row.rk}
+                        {song.rk}
                       </span>
                     </div>
                   </div>
-                  {/* <MovementIndicator 
-                    movement={row.movement} 
-                    lastWeek={typeof row.lastWeek === 'number' ? row.lastWeek : 0} 
-                    currentRank={row.rank}
-                  /> */}
                 </div>
 
                 {/* Track Info */}
@@ -2001,27 +1413,18 @@ export default function Charts() {
                   <div className="relative group-hover:scale-105 transition-transform">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
                     <div className="relative">
-                      <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
-                        <AvatarImage
-                          src={row.song}
-                          alt={row.song}
-                          className="rounded-lg object-cover"
-                        />
-                        <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
-                          {row.artists.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      <SongAvatar song={song}></SongAvatar>
                       {/* Play Button Overlay */}
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handlePlayPreview(row.rk, `https://p.scdn.co/mp3-preview/sample-${row.cs_song}.mp3`);
+                            handlePlayPreview(song.rk, `https://p.scdn.co/mp3-preview/sample-${song.cs_song}.mp3`);
                           }}
                           className="w-8 h-8 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors shadow-lg"
-                          aria-label={`Reproducir preview de ${row.cs_song}`}
+                          aria-label={`Reproducir preview de ${song.cs_song}`}
                         >
-                          {currentlyPlaying === row.rk ? (
+                          {currentlyPlaying === song.rk ? (
                             <Pause className="w-3 h-3" />
                           ) : (
                             <Play className="w-3 h-3 ml-0.5" />
@@ -2033,10 +1436,10 @@ export default function Charts() {
 
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
-                      {row.song}
+                      {song.song}
                     </h3>
                     <p className="text-sm font-medium text-gray-600 truncate">
-                      {row.artists}
+                      {song.artists}
                     </p>
                   </div>
                 </div>
@@ -2053,7 +1456,7 @@ export default function Charts() {
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                        {row.score}
+                        {song.score}
                       </div>
                       <button
                         onClick={() => toggleRow(index)}
