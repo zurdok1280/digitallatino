@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap } from "lucide-react";
@@ -11,7 +11,7 @@ import { SpotifyTrack } from "@/types/spotify";
 import { useAuth } from "@/hooks/useAuth";
 import { digitalLatinoApi, Country, Format, City, Song } from "@/lib/api";
 // Import album covers
-import { Backdrop, CircularProgress } from '@mui/material';
+import { Backdrop, CircularProgress, Fab } from '@mui/material';
 import teddySwimsCover from "@/assets/covers/teddy-swims-lose-control.jpg";
 import badBunnyCover from "@/assets/covers/bad-bunny-monaco.jpg";
 import karolGCover from "@/assets/covers/karol-g-si-antes.jpg";
@@ -1181,11 +1181,99 @@ export default function Charts() {
   const [loadingSongs, setLoadingSongs] = useState(true);
   const [selectedSong, setSelectedSong] = useState('2'); // USA ID = 2 por defecto
 
+  // Period API state
+  const [selectedPeriod, setSelectedPeriod] = useState('C'); // Current por defecto 
+
   const [showGenreOverlay, setShowGenreOverlay] = useState(false);
   const [showCrgOverlay, setShowCrgOverlay] = useState(false);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
   const [chartSearchQuery, setChartSearchQuery] = useState('');
+  const [showSearchBar, setShowSearchBar] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Dropdown state keyboard navigation
+  const [openDropdown, setOpenDropdown] = useState<'country' | 'format' | 'city' | null>(null);
+  const [dropdownSearch, setDropdownSearch] = useState('');
+
+  const filteredSongs = useMemo(() => {
+    console.log('Filtrando canciones...', chartSearchQuery, songs.length);
+
+    // Si no hay query de búsqueda, devolver todas las canciones
+    if (!chartSearchQuery.trim()) {
+      return songs;
+    }
+    const query = chartSearchQuery.toLowerCase().trim();
+    return songs.filter(song => {
+      const songMatch = song.song?.toLowerCase().includes(query) ||
+        song.label?.toLowerCase().includes(query);
+      const artistMatch = song.artists?.toLowerCase().includes(query);
+
+      return songMatch || artistMatch;
+    });
+  }, [songs, chartSearchQuery]);
+
+  // Función para alternar la visibilidad de la barra de búsqueda
+  const toggleSearchBar = () => {
+    setShowSearchBar(!showSearchBar);
+    if (showSearchBar) {
+      setChartSearchQuery('');
+    }
+  };
+
+  // Enfocar el input cuando se muestra la barra
+  useEffect(() => {
+    if (showSearchBar) {
+      const searchInput = document.querySelector('input[placeholder="Buscar artista o canción en los charts..."]') as HTMLInputElement;
+      if (searchInput) {
+        setTimeout(() => searchInput.focus(), 100);
+      }
+    }
+  }, [showSearchBar]);
+
+  // Función para filtrar opciones basado en la búsqueda
+  const getFilteredOptions = (options: any[], searchQuery: string, type: 'country' | 'format' | 'city') => {
+    if (!searchQuery.trim()) return options;
+
+    const query = searchQuery.toLowerCase().trim();
+    return options.filter(option => {
+      if (type === 'country') {
+        return option.country_name?.toLowerCase().includes(query) ||
+          option.country?.toLowerCase().includes(query) ||
+          option.description?.toLowerCase().includes(query);
+      } else if (type === 'format') {
+        return option.format?.toLowerCase().includes(query);
+      } else if (type === 'city') {
+        return option.city_name?.toLowerCase().includes(query);
+      }
+      return false;
+    });
+  };
+
+  // Función para manejar la selección
+  const handleOptionSelect = (value: string, type: 'country' | 'format' | 'city') => {
+    if (type === 'country') {
+      setSelectedCountry(value);
+    } else if (type === 'format') {
+      setSelectedFormat(value);
+    } else if (type === 'city') {
+      setSelectedCity(value);
+    }
+    setOpenDropdown(null);
+    setDropdownSearch('');
+  };
+
+  // Efecto para manejar la tecla Escape
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpenDropdown(null);
+        setDropdownSearch('');
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
 
   // Check for existing Spotify connection
   useEffect(() => {
@@ -1202,7 +1290,6 @@ export default function Charts() {
     try {
       setLoadingCountries(true);
       const response = await digitalLatinoApi.getCountries();
-      console.log();
       setCountries(response.data);
     } catch (error) {
       console.error('Error fetching countries:', error);
@@ -1216,7 +1303,7 @@ export default function Charts() {
     }
 
   };
-
+  //ESTE FETCH PARA ASIGNAR EL PERIOD
   const fetchSongs = async () => {
     const data = await callApi(async () => {
       if (!selectedCountry) {
@@ -1227,7 +1314,7 @@ export default function Charts() {
       try {
         setLoadingSongs(true);
         if (Number.isNaN(selectedCity)) setSelectedCity('0');
-        const response = await digitalLatinoApi.getChartDigital(parseInt(selectedFormat), parseInt(selectedCountry), "C", parseInt(selectedCity));
+        const response = await digitalLatinoApi.getChartDigital(parseInt(selectedFormat), parseInt(selectedCountry), (selectedPeriod), parseInt(selectedCity));
         setSongs(response.data);
 
       } catch (error) {
@@ -1321,7 +1408,7 @@ export default function Charts() {
 
 
     fetchSongs();
-  }, [selectedCountry, selectedFormat, selectedCity, toast]);
+  }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
 
   /*
   useEffect(() => {
@@ -1764,19 +1851,11 @@ export default function Charts() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg">
+        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
                 <div className="absolute -inset-2 bg-gradient-to-r from-slate-400 to-blue-500 rounded-2xl opacity-15 blur-lg"></div>
-                <img
-                  src="/lovable-uploads/544b8d7c-17e6-4c56-be22-6cb146932d26.png"
-                  alt="Digital Latino"
-                  className="relative h-8 md:h-12 w-auto"
-                />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs md:text-sm text-slate-600/70 font-medium">Artist 100 • Actualizado semanalmente</p>
               </div>
             </div>
           </div>
@@ -1844,7 +1923,7 @@ export default function Charts() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 relative z-30">
             {/* Filtro por País/Región */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
@@ -1898,31 +1977,82 @@ export default function Charts() {
               </select>
             </div>
 
+
             {/* Filtro por Ciudad */}
-            <div className="space-y-2">
+            <div className="space-y-2 relative">
               <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-2">
                 <span>🏙️</span> Ciudad Target
               </label>
-              <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
-                value={selectedCity}
-                onChange={handleCityChange}
-                disabled={loadingCities || !selectedCountry}
-              >
-                {loadingCities ? (
-                  <option value="0">Cargando ciudades...</option>
-                ) : !selectedCountry ? (
-                  <option value="0">Selecciona un país primero</option>
-                ) : (
-                  <>
-                    {cities.map((city) => (
-                      <option key={city.id} value={city.id.toString()}>
-                        🎯 {city.city_name}
-                      </option>
-                    ))}
-                  </>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpenDropdown(openDropdown === 'city' ? null : 'city');
+                    setDropdownSearch('');
+                  }}
+                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 text-left flex justify-between items-center"
+                  disabled={loadingCities || !selectedCountry}
+                >
+                  <span className="truncate">
+                    {loadingCities ? 'Cargando...' :
+                      !selectedCountry ? 'Selecciona país primero' :
+                        selectedCity !== '0' && cities.length > 0
+                          ? cities.find(c => c.id.toString() === selectedCity)?.city_name || 'Todas las ciudades'
+                          : 'Todas las ciudades'}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'city' ? 'rotate-180' : ''}`} />
+                </button>
+
+                {openDropdown === 'city' && cities.length > 0 && (
+                  <div className="absolute z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-2xl max-h-60 overflow-hidden transform translate-z-0 will-change-transform">
+                    <div className="p-2 border-b border-gray-100">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          type="text"
+                          placeholder="Buscar ciudad..."
+                          className="w-full pl-10 pr-4 py-2 bg-white/80 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                          value={dropdownSearch}
+                          onChange={(e) => setDropdownSearch(e.target.value)}
+                          autoFocus
+                        />
+                      </div>
+                    </div>
+
+                    <div className="max-h-48 overflow-y-auto">
+                      {/* Opción "Todas las ciudades" */}
+                      <button
+                        onClick={() => handleOptionSelect('0', 'city')}
+                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === '0'
+                          ? 'bg-orange-100 text-orange-700 font-semibold'
+                          : 'text-gray-700'
+                          }`}
+                      >
+                        🎯 Todas las ciudades
+                      </button>
+
+                      {getFilteredOptions(cities, dropdownSearch, 'city').map((city) => (
+                        <button
+                          key={city.id}
+                          onClick={() => handleOptionSelect(city.id.toString(), 'city')}
+                          className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                            ? 'bg-orange-100 text-orange-700 font-semibold'
+                            : 'text-gray-700'
+                            }`}
+                        >
+                          🎯 {city.city_name}
+                        </button>
+                      ))}
+
+                      {getFilteredOptions(cities, dropdownSearch, 'city').length === 0 && (
+                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                          No se encontraron ciudades
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 )}
-              </select>
+              </div>
             </div>
 
             {/* Filtro por Periodo Musical */}
@@ -1932,159 +2062,225 @@ export default function Charts() {
               </label>
               <div className="relative">
                 <select
-                  className="w-full pointer-events-none rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2"
-                  defaultValue=""
+                  value={selectedPeriod}
+                  onChange={(e) => setSelectedPeriod(e.target.value)}
+                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 cursor-pointer"
                 >
-                  <option value="">🎵 Todos los periodos</option>
-                  <option>🟢 Current - Novedades</option>
-                  <option>🟡 Recurrent - 1-3 años</option>
-                  <option>🟠 Gold - Más de 3 años</option>
+                  <option value="C">🎵 Todos los periodos</option>
+                  <option value="C">🟢 Current - Novedades</option>
+                  <option value="R">🟡 Recurrent - 1-3 años</option>
+                  <option value="G">🟠 Gold - Más de 3 años</option>
                 </select>
-                <button
-                  type="button"
-                  className="absolute inset-0 rounded-2xl"
-                  aria-label="Activar campaña para usar filtros de periodo"
-                  onClick={() => setShowCrgOverlay(true)}
-                />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Buscador dentro de charts */}
-        <div className="mb-6">
-          <div className="bg-white/60 backdrop-blur-sm border border-white/40 rounded-2xl p-4 shadow-lg">
-            <div className="flex items-center gap-3">
-              <Search className="w-5 h-5 text-slate-500" />
-              <input
-                type="text"
-                placeholder="Buscar artista o canción en los charts..."
-                className="flex-1 bg-transparent border-0 focus:outline-none placeholder:text-slate-400 text-sm font-medium"
-                value={chartSearchQuery}
-                onChange={(e) => setChartSearchQuery(e.target.value)}
-              />
-              {chartSearchQuery && (
-                <button
-                  onClick={() => setChartSearchQuery('')}
-                  className="text-slate-400 hover:text-slate-600 transition-colors"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+
 
         {/* Lista de Charts */}
-        <div className="space-y-0.5">
-          {songs.map((row, index) => (
-            <div
-              key={row.cs_song}
-              className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
+        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
+          {/* Fab button de MUI para buscar */}
+          <div className="absolute -top-4 -right-4 z-20">
+            <Fab
+              color="primary"
+              aria-label="search"
+              onClick={toggleSearchBar}
+              sx={{
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
+                  transform: 'scale(1.05)',
+                },
+                transition: 'all 0.3s ease',
+                boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
+                width: 56,
+                height: 56,
+              }}
             >
-              <div className="grid grid-cols-9 items-center gap-3 px-6 py-2">
-                {/* Rank */}
-                <div className="col-span-1 flex items-center gap-2">
-                  <div className="relative group/rank">
-                    <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                    <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-11 h-11 flex items-center justify-center shadow-sm group-hover/rank:shadow-md transition-all">
-                      <span className="text-lg font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
-                        {row.rk}
-                      </span>
-                    </div>
-                  </div>
-                  {/* <MovementIndicator 
-                    movement={row.movement} 
-                    lastWeek={typeof row.lastWeek === 'number' ? row.lastWeek : 0} 
-                    currentRank={row.rank}
-                  /> */}
-                </div>
+              {showSearchBar ? (
+                <Minus className="w-6 h-6 text-white" />
+              ) : (
+                <Search className="w-6 h-6 text-white" />
+              )}
+            </Fab>
+          </div>
 
-                {/* Track Info */}
-                <div className="col-span-6 flex items-center gap-3">
-                  <div className="relative group-hover:scale-105 transition-transform">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
-                    <div className="relative">
-                      <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
-                        <AvatarImage
-                          src={row.spotifyid}
-                          alt={row.spotifyid}
-                          className="rounded-lg object-cover"
-                        />
-                        <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
-                          {row.artists.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      {/* Play Button Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handlePlayPreview(row.rk, `https://audios.monitorlatino.com/Iam/${row.entid}.mp3`);
-                          }}
-                          className="w-8 h-8 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors shadow-lg"
-                          aria-label={`Reproducir preview de ${row.cs_song}`}
-                        >
-                          {currentlyPlaying === row.rk ? (
-                            <Pause className="w-3 h-3" />
-                          ) : (
-                            <Play className="w-3 h-3 ml-0.5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
-                      {row.song}
-                    </h3>
-                    <p className="text-sm font-medium text-gray-600 truncate">
-                      {row.artists}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Digital Score */}
-                <div className="col-span-2 text-right">
-                  <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                        <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Score</span>
-                      </div>
-                      <Star className="w-2.5 h-2.5 text-yellow-500 fill-current" />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                        {row.score}
-                      </div>
+          <div className="space-y-0.5">
+            {/* Buscador dentro de charts funcional */}
+            {showSearchBar && (
+              <div className="mb-6 animate-in fade-in duration-300">
+                <div className="bg-white/60 backdrop-blur-sm border border-blue-200 rounded-2xl p-4 shadow-lg">
+                  <div className="flex items-center gap-3">
+                    <Search className="w-5 h-5 text-blue-500" />
+                    <input
+                      type="text"
+                      placeholder="Buscar artista o canción en los charts..."
+                      className="flex-1 bg-transparent border-0 focus:outline-none placeholder:text-slate-400 text-sm font-medium text-slate-800"
+                      value={chartSearchQuery}
+                      onChange={(e) => setChartSearchQuery(e.target.value)}
+                      autoFocus
+                    />
+                    {chartSearchQuery && (
                       <button
-                        onClick={() => toggleRow(index)}
-                        className="bg-gradient-to-r from-slate-50 to-gray-50 hover:from-slate-100 hover:to-gray-100 border border-white/50 text-slate-600 p-1 rounded-lg text-xs transition-all duration-200 hover:scale-105 shadow-sm ml-2"
+                        onClick={() => setChartSearchQuery('')}
+                        className="text-slate-400 hover:text-slate-600 transition-colors"
+                        aria-label="Limpiar búsqueda"
                       >
-                        {expandedRows.has(index) ? (
-                          <ChevronUp className="w-3 h-3" />
-                        ) : (
-                          <Plus className="w-3 h-3" />
-                        )}
+                        ✕
                       </button>
-                    </div>
+                    )}
                   </div>
+
+                  {/* Contador de resultados */}
+                  {chartSearchQuery && (
+                    <div className="mt-2 text-xs text-slate-600 flex justify-between items-center px-1">
+                      <span className="font-medium">
+                        {filteredSongs.length} de {songs.length} canciones encontradas
+                      </span>
+                      {filteredSongs.length === 0 && (
+                        <span className="text-orange-600 font-medium">
+                          No hay resultados
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
-              {expandedRows.has(index) && (
-                <div className="bg-white/30 backdrop-blur-sm px-8 pb-6">
-                  <ExpandRow
-                    row={row}
-                    onPromote={() => handlePromote(row.artists, row.song, row.avatar, row.url)}
-                  />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
+            )}
 
+            {/* Lista de caciones filtradas */}
+            {loadingSongs ? (
+              <div className="text-center py-8">
+                <div className="inline-flex items-center gap-2 text-slate-600">
+                  <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
+                  Cargando canciones...
+                </div>
+              </div>
+            ) : filteredSongs.length === 0 && chartSearchQuery ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-6 h-6 text-slate-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-700 mb-2">
+                  No se encontraron resultados
+                </h3>
+                <p className="text-sm text-slate-500 mb-4">
+                  No hay canciones que coincidan con "<strong>{chartSearchQuery}</strong>"
+                </p>
+                <button
+                  onClick={() => setChartSearchQuery('')}
+                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Ver todas las canciones
+                </button>
+              </div>
+            ) : (
+              filteredSongs.map((row, index) => (
+                <div
+                  key={`${row.cs_song}-${index}`}
+                  className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
+                >
+                  <div className="grid grid-cols-9 items-center gap-3 px-6 py-2">
+                    {/* Rank */}
+                    <div className="col-span-1 flex items-center gap-2">
+                      <div className="relative group/rank">
+                        <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
+                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-11 h-11 flex items-center justify-center shadow-sm group-hover/rank:shadow-md transition-all">
+                          <span className="text-lg font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
+                            {row.rk}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Track Info */}
+                    <div className="col-span-6 flex items-center gap-3">
+                      <div className="relative group-hover:scale-105 transition-transform">
+                        <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
+                        <div className="relative">
+                          <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
+                            <AvatarImage
+                              src={row.spotifyid}
+                              alt={row.spotifyid}
+                              className="rounded-lg object-cover"
+                            />
+                            <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
+                              {row.artists.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                          {/* Play Button Overlay */}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePlayPreview(row.rk, `https://audios.monitorlatino.com/Iam/${row.entid}.mp3`);
+                              }}
+                              className="w-8 h-8 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors shadow-lg"
+                              aria-label={`Reproducir preview de ${row.cs_song}`}
+                            >
+                              {currentlyPlaying === row.rk ? (
+                                <Pause className="w-3 h-3" />
+                              ) : (
+                                <Play className="w-3 h-3 ml-0.5" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
+                          {row.song}
+                        </h3>
+                        <p className="text-sm font-medium text-gray-600 truncate">
+                          {row.artists}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Digital Score */}
+                    <div className="col-span-2 text-right">
+                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center gap-1">
+                            <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+                            <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Score</span>
+                          </div>
+                          <Star className="w-2.5 h-2.5 text-yellow-500 fill-current" />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
+                            {row.score}
+                          </div>
+                          <button
+                            onClick={() => toggleRow(index)}
+                            className="bg-gradient-to-r from-slate-50 to-gray-50 hover:from-slate-100 hover:to-gray-100 border border-white/50 text-slate-600 p-1 rounded-lg text-xs transition-all duration-200 hover:scale-105 shadow-sm ml-2"
+                          >
+                            {expandedRows.has(index) ? (
+                              <ChevronUp className="w-3 h-3" />
+                            ) : (
+                              <Plus className="w-3 h-3" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {expandedRows.has(index) && (
+                    <div className="bg-white/30 backdrop-blur-sm px-8 pb-6">
+                      <ExpandRow
+                        row={row}
+                        onPromote={() => handlePromote(row.artists, row.song, row.avatar, row.url)}
+                      />
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
         {/* Sección para mostrar más del Top 10 - Solo si NO está autenticado */}
         {!user && (
           <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
