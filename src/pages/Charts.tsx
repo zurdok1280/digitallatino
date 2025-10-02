@@ -1160,6 +1160,7 @@ export default function Charts() {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [loadingSearch, setLoadingSearch] = useState(false);
 
   // Countries API state
   const [countries, setCountries] = useState<Country[]>([]);
@@ -1273,6 +1274,25 @@ export default function Charts() {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, []);
+
+  //Debouncing para limitar las busquedas por API al usuario
+  const useDebounce = (value: string, delay: number) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+      return () => {
+        clearTimeout(handler);
+      };
+    }, [value, delay]);
+    return debouncedValue;
+  }
+  // Usar el hook de debounce con 300ms de delay
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+
 
 
   // Check for existing Spotify connection
@@ -1523,10 +1543,15 @@ export default function Charts() {
     console.log('searchTracks called with:', query);
     console.log('accessToken:', accessToken);
     console.log('isConnected:', isConnected);
+    if (!query.trim()) {
+      setSearchResults([]);
+      setShowSearchResults(false);
+      return;
+    };
 
     if (!accessToken) {
       console.log('No access token, using iTunes fallback...');
-      setLoading(true);
+      setLoadingSearch(true);
       try {
         const encodedQuery = encodeURIComponent(query);
         const response = await fetch(`https://itunes.apple.com/search?term=${encodedQuery}&entity=song&limit=25`);
@@ -1569,12 +1594,12 @@ export default function Charts() {
           variant: "destructive"
         });
       } finally {
-        setLoading(false);
+        setLoadingSearch(false);
       }
       return;
     }
 
-    setLoading(true);
+    setLoadingSearch(true);
     try {
       const encodedQuery = encodeURIComponent(query);
       const response = await fetch(
@@ -1602,15 +1627,20 @@ export default function Charts() {
       }
     } catch (error) {
       console.error('Search error:', error);
-      toast({
-        title: "Error de búsqueda",
-        description: "No se pudo buscar en Spotify. Intenta de nuevo.",
-        variant: "destructive"
-      });
     } finally {
-      setLoading(false);
+      setLoadingSearch(false);
     }
   }, [accessToken, toast]);
+
+  //useEffect para buscar cuando el query cambia
+  useEffect(() => {
+    if (debouncedSearchQuery.trim()) {
+      searchTracks(debouncedSearchQuery);
+    } else {
+      setSearchResults([]);
+      setShowSearchResults(false);
+    }
+  }, [debouncedSearchQuery, searchTracks]);
 
   // Handle search form submission
   const handleSearch = (e: React.FormEvent) => {
@@ -1869,55 +1899,78 @@ export default function Charts() {
               </div>
             </div>
 
-            <form onSubmit={handleSearch} className="flex gap-2">
-              <div className="flex-1">
-                <Input
-                  placeholder="Buscar artista o canción..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm shadow-md focus:ring-2 focus:ring-blue-400"
-                />
-              </div>
-              <Button
-                type="submit"
-                disabled={loading || !searchQuery.trim()}
-                className="rounded-2xl bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 px-6 py-3 text-white hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
-              >
-                {loading ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
+            <div className="relative">
+              <div className="flex gap-2">
+                <div className="flex-1 relative">
+                  <Input
+                    placeholder="Buscar artista o canción..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm shadow-md focus:ring-2 focus:ring-blue-400 pr-10"
+                  />
+                  {/* Loading */}
+                  {loadingSearch && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                    </div>
+                  )}
+                </div>
+                <Button
+                  type="button"
+                  onClick={() => searchQuery.trim() && searchTracks(searchQuery)}
+                  disabled={loadingSearch || !searchQuery.trim()}
+                  className="rounded-2xl bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 px-6 py-3 text-white hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
+                >
                   <Search className="w-4 h-4" />
-                )}
-              </Button>
-            </form>
+                </Button>
+              </div>
 
-            {/* Search Results */}
-            {showSearchResults && searchResults.length > 0 && (
-              <div className="space-y-3 mt-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-semibold text-slate-700">Resultados de búsqueda</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setShowSearchResults(false);
-                      setSearchQuery('');
-                      setSearchResults([]);
-                    }}
-                    className="text-slate-500 hover:text-slate-700 flex items-center gap-2"
-                  >
-                    <span>← Volver a Charts</span>
-                  </Button>
+              {/* Search Results en tiempo real */}
+              {showSearchResults && (
+                <div className="absolute z-50 mt-2 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-2xl max-h-96 overflow-hidden">
+                  <div className="p-3 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold text-slate-700">
+                        {searchResults.length > 0
+                          ? `${searchResults.length} resultados encontrados`
+                          : 'Buscando...'
+                        }
+                      </h3>
+                      <button
+                        onClick={() => {
+                          setShowSearchResults(false);
+                          setSearchQuery('');
+                          setSearchResults([]);
+                        }}
+                        className="text-slate-400 hover:text-slate-600 transition-colors text-xs"
+                      >
+                        ✕ Cerrar
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto">
+                    {searchResults.length > 0 ? (
+                      searchResults.map((track) => (
+                        <div key={track.id} className="border-b border-gray-100 last:border-b-0">
+                          <SearchResult
+                            track={track}
+                            onSelect={handleSearchResultSelect}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="p-4 text-center text-sm text-gray-500">
+                        {loadingSearch ? 'Buscando...' : 'No se encontraron resultados'}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="grid gap-3 max-h-96 overflow-y-auto">
-                  {searchResults.map((track) => (
-                    <SearchResult
-                      key={track.id}
-                      track={track}
-                      onSelect={handleSearchResultSelect}
-                    />
-                  ))}
-                </div>
+              )}
+            </div>
+            {!showSearchResults && searchQuery && (
+              <div className="text-xs text-slate-500 text-center">
+                Escribe para buscar en tiempo real...
               </div>
             )}
           </div>
@@ -2435,80 +2488,82 @@ export default function Charts() {
         </div>
       </div>
 
-      {!user && (showGenreOverlay || showCrgOverlay) && (
-        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
-            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <span className="text-3xl">🔒</span>
-            </div>
-            <h3 className="text-2xl font-bold mb-2 text-foreground">
-              {showGenreOverlay ? 'Filtros por Género' : 'Filtros por Plataforma'}
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              Esta función es parte de las herramientas avanzadas. Activa una campaña para desbloquearla.
-            </p>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
-                <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
-                  <Crown className="w-4 h-4 text-white" />
-                </div>
-                <div className="mb-3">
-                  <div className="text-sm font-bold text-foreground">Premium</div>
-                  <div className="text-xs text-muted-foreground mb-1">Solo Charts & Analytics</div>
-                  <div className="text-sm font-bold text-foreground">$14.99/mes</div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    // TODO: Integrar con Stripe cuando esté listo
-                    console.log('Redirect to premium subscription');
-                    setShowGenreOverlay(false);
-                    setShowCrgOverlay(false);
-                  }}
-                  className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                >
-                  Suscribirse
-                </button>
+      {
+        !user && (showGenreOverlay || showCrgOverlay) && (
+          <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
+              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <span className="text-3xl">🔒</span>
               </div>
+              <h3 className="text-2xl font-bold mb-2 text-foreground">
+                {showGenreOverlay ? 'Filtros por Género' : 'Filtros por Plataforma'}
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Esta función es parte de las herramientas avanzadas. Activa una campaña para desbloquearla.
+              </p>
+              <div className="grid md:grid-cols-2 gap-3">
+                <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
+                  <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                    <Crown className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="mb-3">
+                    <div className="text-sm font-bold text-foreground">Premium</div>
+                    <div className="text-xs text-muted-foreground mb-1">Solo Charts & Analytics</div>
+                    <div className="text-sm font-bold text-foreground">$14.99/mes</div>
+                  </div>
 
-              <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
-                    INCLUYE TODO
-                  </span>
+                  <button
+                    onClick={() => {
+                      // TODO: Integrar con Stripe cuando esté listo
+                      console.log('Redirect to premium subscription');
+                      setShowGenreOverlay(false);
+                      setShowCrgOverlay(false);
+                    }}
+                    className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                  >
+                    Suscribirse
+                  </button>
                 </div>
 
-                <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
-                  <span className="text-white font-bold text-sm">🚀</span>
-                </div>
-                <div className="mb-3">
-                  <div className="text-sm font-bold text-foreground">Campaña Completa</div>
-                  <div className="text-xs text-muted-foreground mb-1">Premium + Promoción</div>
-                  <div className="text-sm font-bold text-foreground">Desde $750</div>
-                </div>
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
+                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
+                      INCLUYE TODO
+                    </span>
+                  </div>
 
-                <button
-                  onClick={() => {
-                    navigate('/campaign');
-                    setShowGenreOverlay(false);
-                    setShowCrgOverlay(false);
-                  }}
-                  className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                >
-                  Crear Campaña
-                </button>
+                  <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
+                    <span className="text-white font-bold text-sm">🚀</span>
+                  </div>
+                  <div className="mb-3">
+                    <div className="text-sm font-bold text-foreground">Campaña Completa</div>
+                    <div className="text-xs text-muted-foreground mb-1">Premium + Promoción</div>
+                    <div className="text-sm font-bold text-foreground">Desde $750</div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      navigate('/campaign');
+                      setShowGenreOverlay(false);
+                      setShowCrgOverlay(false);
+                    }}
+                    className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                  >
+                    Crear Campaña
+                  </button>
+                </div>
               </div>
+              <button onClick={() => { setShowGenreOverlay(false); setShowCrgOverlay(false); }} className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm">
+                Cerrar
+              </button>
             </div>
-            <button onClick={() => { setShowGenreOverlay(false); setShowCrgOverlay(false); }} className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm">
-              Cerrar
-            </button>
           </div>
-        </div>
-      )}
+        )
+      }
       {/* Overlay global mientras se carga */}
       <Backdrop open={loading} sx={{ color: '#fff', zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-    </div>
+    </div >
   );
 }
