@@ -1879,9 +1879,9 @@ export default function Charts() {
       )}
 
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-1">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-2 flex flex-col gap-2 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -1890,90 +1890,7 @@ export default function Charts() {
             </div>
           </div>
 
-          {/* Search Section */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🔍</span>
-                <h2 className="text-lg font-semibold text-slate-700">¿No encuentras tu artista en los charts?</h2>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <Input
-                    placeholder="Buscar artista o canción..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm shadow-md focus:ring-2 focus:ring-blue-400 pr-10"
-                  />
-                  {/* Loading */}
-                  {loadingSearch && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-                    </div>
-                  )}
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => searchQuery.trim() && searchTracks(searchQuery)}
-                  disabled={loadingSearch || !searchQuery.trim()}
-                  className="rounded-2xl bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 px-6 py-3 text-white hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
-                >
-                  <Search className="w-4 h-4" />
-                </Button>
-              </div>
-
-              {/* Search Results en tiempo real */}
-              {showSearchResults && (
-                <div className="absolute z-50 mt-2 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-2xl max-h-96 overflow-hidden">
-                  <div className="p-3 border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-slate-700">
-                        {searchResults.length > 0
-                          ? `${searchResults.length} resultados encontrados`
-                          : 'Buscando...'
-                        }
-                      </h3>
-                      <button
-                        onClick={() => {
-                          setShowSearchResults(false);
-                          setSearchQuery('');
-                          setSearchResults([]);
-                        }}
-                        className="text-slate-400 hover:text-slate-600 transition-colors text-xs"
-                      >
-                        ✕ Cerrar
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="max-h-80 overflow-y-auto">
-                    {searchResults.length > 0 ? (
-                      searchResults.map((track) => (
-                        <div key={track.id} className="border-b border-gray-100 last:border-b-0">
-                          <SearchResult
-                            track={track}
-                            onSelect={handleSearchResultSelect}
-                          />
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-sm text-gray-500">
-                        {loadingSearch ? 'Buscando...' : 'No se encontraron resultados'}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            {!showSearchResults && searchQuery && (
-              <div className="text-xs text-slate-500 text-center">
-                Escribe para buscar en tiempo real...
-              </div>
-            )}
-          </div>
+          
 
           {/* Filtros Profesionales */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 relative z-30">
@@ -2119,7 +2036,7 @@ export default function Charts() {
                   onChange={(e) => setSelectedPeriod(e.target.value)}
                   className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 cursor-pointer"
                 >
-                  <option value="C">🎵 Todos los periodos</option>
+                  <option value="N">🎵 Todos</option>
                   <option value="C">🟢 Current - Novedades</option>
                   <option value="R">🟡 Recurrent - 1-3 años</option>
                   <option value="G">🟠 Gold - Más de 3 años</option>
@@ -2204,7 +2121,7 @@ export default function Charts() {
 
             {/* Lista de caciones filtradas */}
             {loadingSongs ? (
-              <div className="text-center py-8">
+              <div className="text-center py-2">
                 <div className="inline-flex items-center gap-2 text-slate-600">
                   <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
                   Cargando canciones...
@@ -2234,7 +2151,7 @@ export default function Charts() {
                   key={`${row.cs_song}-${index}`}
                   className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
                 >
-                  <div className="grid grid-cols-9 items-center gap-3 px-6 py-2">
+                  <div className="grid grid-cols-9 items-center gap-3 px-6 py-1">
                     {/* Rank */}
                     <div className="col-span-1 flex items-center gap-2">
                       <div className="relative group/rank">
