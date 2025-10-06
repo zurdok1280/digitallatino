@@ -1154,13 +1154,9 @@ export default function Charts() {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   // Spotify search state
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SpotifyTrack[]>([]);
-  const [loading1, setLoading] = useState(false);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');     //Aislar
+  const [accessToken, setAccessToken] = useState<string | null>(null); //Aislar
+  const [isConnected, setIsConnected] = useState(false); //Aislar
 
   // Countries API state
   const [countries, setCountries] = useState<Country[]>([]);
@@ -1537,133 +1533,6 @@ export default function Charts() {
     handleSpotifyCallback();
   }, [toast]);
 
-
-  // Search tracks on Spotify
-  const searchTracks = useCallback(async (query: string) => {
-    console.log('searchTracks called with:', query);
-    console.log('accessToken:', accessToken);
-    console.log('isConnected:', isConnected);
-    if (!query.trim()) {
-      setSearchResults([]);
-      setShowSearchResults(false);
-      return;
-    };
-
-    if (!accessToken) {
-      console.log('No access token, using iTunes fallback...');
-      setLoadingSearch(true);
-      try {
-        const encodedQuery = encodeURIComponent(query);
-        const response = await fetch(`https://itunes.apple.com/search?term=${encodedQuery}&entity=song&limit=25`);
-        const data = await response.json();
-        const items: SpotifyTrack[] = (data.results || []).map((item: any) => {
-          const artwork = item.artworkUrl100 ? item.artworkUrl100.replace('100x100', '512x512') : '';
-          return {
-            id: String(item.trackId || item.collectionId || Math.random()),
-            name: item.trackName || item.collectionName || 'Unknown',
-            artists: [{
-              id: String(item.artistId || ''),
-              name: item.artistName || 'Unknown Artist',
-              images: [],
-              external_urls: { spotify: '' }
-            }],
-            album: {
-              id: String(item.collectionId || ''),
-              name: item.collectionName || '',
-              images: artwork ? [{ url: artwork, height: 512, width: 512 }] : []
-            },
-            external_urls: { spotify: '' },
-            preview_url: item.previewUrl || null,
-            duration_ms: 0,
-            popularity: 0
-          } as SpotifyTrack;
-        });
-        setSearchResults(items);
-        setShowSearchResults(true);
-        if (items.length === 0) {
-          toast({
-            title: "Sin resultados",
-            description: `No se encontraron canciones para "${query}"`,
-          });
-        }
-      } catch (e) {
-        console.error('iTunes fallback error', e);
-        toast({
-          title: "Error",
-          description: "No se pudo buscar. Intenta de nuevo.",
-          variant: "destructive"
-        });
-      } finally {
-        setLoadingSearch(false);
-      }
-      return;
-    }
-
-    setLoadingSearch(true);
-    try {
-      const encodedQuery = encodeURIComponent(query);
-      const response = await fetch(
-        `https://api.spotify.com/v1/search?q=${encodedQuery}&type=track&limit=10&market=US`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        const data = await response.json();
-        setSearchResults(data.tracks.items);
-        setShowSearchResults(true);
-
-        if (data.tracks.items.length === 0) {
-          toast({
-            title: "Sin resultados",
-            description: `No se encontraron canciones para "${query}"`,
-          });
-        }
-      } else {
-        throw new Error('Search failed');
-      }
-    } catch (error) {
-      console.error('Search error:', error);
-    } finally {
-      setLoadingSearch(false);
-    }
-  }, [accessToken, toast]);
-
-  //useEffect para buscar cuando el query cambia
-  useEffect(() => {
-    if (debouncedSearchQuery.trim()) {
-      searchTracks(debouncedSearchQuery);
-    } else {
-      setSearchResults([]);
-      setShowSearchResults(false);
-    }
-  }, [debouncedSearchQuery, searchTracks]);
-
-  // Handle search form submission
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      searchTracks(searchQuery.trim());
-    }
-  };
-
-  // Handle search result selection
-  const handleSearchResultSelect = (track: SpotifyTrack) => {
-    const params = new URLSearchParams({
-      artist: track.artists.map(artist => artist.name).join(', '),
-      track: track.name,
-      coverUrl: track.album.images[0]?.url || '',
-      artistImageUrl: track.artists[0]?.images?.[0]?.url || '',
-      previewUrl: track.preview_url || '',
-      spotifyUrl: (track as any).external_urls?.spotify || ''
-    });
-
-    navigate(`/campaign?${params.toString()}`);
-  };
-
   // Connect to Spotify with OAuth
   const connectToSpotify = () => {
     console.log('connectToSpotify called');
@@ -1850,7 +1719,8 @@ export default function Charts() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-gray-300/10 to-blue-300/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Header para usuarios loggeados */}
+      {/* Header para usuarios loggeados habilitar despues del login */}
+      {/*
       {user && (
         <div className="relative z-10 bg-gradient-to-r from-green-50 to-blue-50 border-b border-green-200 px-6 py-4">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -1876,7 +1746,7 @@ export default function Charts() {
             </div>
           </div>
         </div>
-      )}
+      )}*/}
 
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
@@ -1888,91 +1758,6 @@ export default function Charts() {
                 <div className="absolute -inset-2 bg-gradient-to-r from-slate-400 to-blue-500 rounded-2xl opacity-15 blur-lg"></div>
               </div>
             </div>
-          </div>
-
-          {/* Search Section */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">🔍</span>
-                <h2 className="text-lg font-semibold text-slate-700">¿No encuentras tu artista en los charts?</h2>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <Input
-                    placeholder="Buscar artista o canción..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm shadow-md focus:ring-2 focus:ring-blue-400 pr-10"
-                  />
-                  {/* Loading */}
-                  {loadingSearch && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                      <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-                    </div>
-                  )}
-                </div>
-                <Button
-                  type="button"
-                  onClick={() => searchQuery.trim() && searchTracks(searchQuery)}
-                  disabled={loadingSearch || !searchQuery.trim()}
-                  className="rounded-2xl bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 px-6 py-3 text-white hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
-                >
-                  <Search className="w-4 h-4" />
-                </Button>
-              </div>
-
-              {/* Search Results en tiempo real */}
-              {showSearchResults && (
-                <div className="absolute z-50 mt-2 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-2xl max-h-96 overflow-hidden">
-                  <div className="p-3 border-b border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-slate-700">
-                        {searchResults.length > 0
-                          ? `${searchResults.length} resultados encontrados`
-                          : 'Buscando...'
-                        }
-                      </h3>
-                      <button
-                        onClick={() => {
-                          setShowSearchResults(false);
-                          setSearchQuery('');
-                          setSearchResults([]);
-                        }}
-                        className="text-slate-400 hover:text-slate-600 transition-colors text-xs"
-                      >
-                        ✕ Cerrar
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="max-h-80 overflow-y-auto">
-                    {searchResults.length > 0 ? (
-                      searchResults.map((track) => (
-                        <div key={track.id} className="border-b border-gray-100 last:border-b-0">
-                          <SearchResult
-                            track={track}
-                            onSelect={handleSearchResultSelect}
-                          />
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-4 text-center text-sm text-gray-500">
-                        {loadingSearch ? 'Buscando...' : 'No se encontraron resultados'}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-            {!showSearchResults && searchQuery && (
-              <div className="text-xs text-slate-500 text-center">
-                Escribe para buscar en tiempo real...
-              </div>
-            )}
           </div>
 
           {/* Filtros Profesionales */}
@@ -2119,7 +1904,7 @@ export default function Charts() {
                   onChange={(e) => setSelectedPeriod(e.target.value)}
                   className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 cursor-pointer"
                 >
-                  <option value="C">🎵 Todos los periodos</option>
+                  <option value="N">🎵 Todos los periodos</option>
                   <option value="C">🟢 Current - Novedades</option>
                   <option value="R">🟡 Recurrent - 1-3 años</option>
                   <option value="G">🟠 Gold - Más de 3 años</option>
@@ -2136,6 +1921,7 @@ export default function Charts() {
           {/* Fab button de MUI para buscar */}
           <div className="absolute -top-4 -right-4 z-20">
             <Fab
+              size="medium"
               color="primary"
               aria-label="search"
               onClick={toggleSearchBar}
@@ -2147,8 +1933,7 @@ export default function Charts() {
                 },
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
-                width: 56,
-                height: 56,
+
               }}
             >
               {showSearchBar ? (
