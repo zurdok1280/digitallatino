@@ -1,12 +1,12 @@
 // Configuración base para conexiones API
 const API_CONFIG = {
-  baseURL: 'https://backend.digital-latino.com/api/',
+  baseURL: "https://backend.digital-latino.com/api/",
   //baseURL: 'http://localhost:8084/api/',
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  }
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
 };
 
 // Tipos para la API de Digital Latino
@@ -26,6 +26,13 @@ export interface City {
   id: number;
   city_name: string;
   country_code: string;
+}
+
+export interface TrendingSong {
+  id: number;
+  rank: string;
+  artist: string;
+  song: string;
 }
 
 export interface Song {
@@ -69,6 +76,46 @@ export interface ApiError {
   status: number;
   code?: string;
 }
+// interfaces para entradas de top plataforms
+export interface TopTrendingPlatforms {
+  rk: string;
+  song: string;
+  artist: string;
+  label: string;
+  data_res: number;
+  cs_song: number;
+}
+
+// interfaces para entradas de Debut Songs
+export interface DebutSongs {
+  cs_song: number;
+  song: string;
+  artists: string;
+  label: string;
+  tw_score: number;
+  lw_score: number;
+  dif_score: number;
+  rk_trending: number;
+  crg: string;
+}
+
+// interfaces para entradas de top artists
+export interface TopTrendingArtist {
+  rk: string;
+  artist: string;
+  monthly_listeners: number;
+  followers_total: number;
+  popularity: number;
+  streams_total: number;
+  playlists: number;
+  playlist_reach: number;
+  followers_total_instagram: number;
+  followers_total_tiktok: number;
+  videos_views_total_youtube: number;
+  followers_total_facebook: number;
+  followers_total_twitter: number;
+  spotify_streams: number;
+}
 
 // Clase principal para manejar las conexiones API
 export class ApiClient {
@@ -81,7 +128,9 @@ export class ApiClient {
   }
 
   // Método privado para construir headers
-  private buildHeaders(customHeaders?: Record<string, string>): Record<string, string> {
+  private buildHeaders(
+    customHeaders?: Record<string, string>
+  ): Record<string, string> {
     return {
       ...this.defaultHeaders,
       ...customHeaders,
@@ -90,12 +139,15 @@ export class ApiClient {
 
   // Método privado para manejar respuestas
   private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
-    const isJson = response.headers.get('content-type')?.includes('application/json');
+    const isJson = response.headers
+      .get("content-type")
+      ?.includes("application/json");
     const data = isJson ? await response.json() : await response.text();
 
     if (!response.ok) {
       throw {
-        message: data.message || `Error ${response.status}: ${response.statusText}`,
+        message:
+          data.message || `Error ${response.status}: ${response.statusText}`,
         status: response.status,
         code: data.code,
       } as ApiError;
@@ -116,9 +168,9 @@ export class ApiClient {
     headers?: Record<string, string>
   ): Promise<ApiResponse<T>> {
     const url = new URL(endpoint, this.baseURL);
-    
+
     if (params) {
-      Object.keys(params).forEach(key => {
+      Object.keys(params).forEach((key) => {
         if (params[key] !== undefined && params[key] !== null) {
           url.searchParams.append(key, String(params[key]));
         }
@@ -126,7 +178,7 @@ export class ApiClient {
     }
 
     const response = await fetch(url.toString(), {
-      method: 'GET',
+      method: "GET",
       headers: this.buildHeaders(headers),
     });
 
@@ -142,7 +194,7 @@ export class ApiClient {
     const url = new URL(endpoint, this.baseURL);
 
     const response = await fetch(url.toString(), {
-      method: 'POST',
+      method: "POST",
       headers: this.buildHeaders(headers),
       body: data ? JSON.stringify(data) : undefined,
     });
@@ -159,7 +211,7 @@ export class ApiClient {
     const url = new URL(endpoint, this.baseURL);
 
     const response = await fetch(url.toString(), {
-      method: 'PUT',
+      method: "PUT",
       headers: this.buildHeaders(headers),
       body: data ? JSON.stringify(data) : undefined,
     });
@@ -175,7 +227,7 @@ export class ApiClient {
     const url = new URL(endpoint, this.baseURL);
 
     const response = await fetch(url.toString(), {
-      method: 'DELETE',
+      method: "DELETE",
       headers: this.buildHeaders(headers),
     });
 
@@ -184,12 +236,12 @@ export class ApiClient {
 
   // Método para establecer token de autenticación
   setAuthToken(token: string) {
-    this.defaultHeaders['Authorization'] = `Bearer ${token}`;
+    this.defaultHeaders["Authorization"] = `Bearer ${token}`;
   }
 
   // Método para remover token de autenticación
   removeAuthToken() {
-    delete this.defaultHeaders['Authorization'];
+    delete this.defaultHeaders["Authorization"];
   }
 
   // Método para cambiar la URL base
@@ -203,15 +255,24 @@ export const apiClient = new ApiClient();
 
 // Funciones de conveniencia para uso directo
 export const api = {
-  get: <T = any>(endpoint: string, params?: Record<string, any>, headers?: Record<string, string>) =>
-    apiClient.get<T>(endpoint, params, headers),
-  
-  post: <T = any>(endpoint: string, data?: any, headers?: Record<string, string>) =>
-    apiClient.post<T>(endpoint, data, headers),
-  
-  put: <T = any>(endpoint: string, data?: any, headers?: Record<string, string>) =>
-    apiClient.put<T>(endpoint, data, headers),
-  
+  get: <T = any>(
+    endpoint: string,
+    params?: Record<string, any>,
+    headers?: Record<string, string>
+  ) => apiClient.get<T>(endpoint, params, headers),
+
+  post: <T = any>(
+    endpoint: string,
+    data?: any,
+    headers?: Record<string, string>
+  ) => apiClient.post<T>(endpoint, data, headers),
+
+  put: <T = any>(
+    endpoint: string,
+    data?: any,
+    headers?: Record<string, string>
+  ) => apiClient.put<T>(endpoint, data, headers),
+
   delete: <T = any>(endpoint: string, headers?: Record<string, string>) =>
     apiClient.delete<T>(endpoint, headers),
 };
@@ -219,19 +280,64 @@ export const api = {
 // Funciones específicas para Digital Latino API
 export const digitalLatinoApi = {
   // Obtener lista de países
-  getCountries: (): Promise<ApiResponse<Country[]>> => 
-    api.get<Country[]>('report/getCountries'),
-  
+  getCountries: (): Promise<ApiResponse<Country[]>> =>
+    api.get<Country[]>("report/getCountries"),
+
   // Obtener formatos por país
-  getFormatsByCountry: (countryId: number): Promise<ApiResponse<Format[]>> => 
+  getFormatsByCountry: (countryId: number): Promise<ApiResponse<Format[]>> =>
     api.get<Format[]>(`report/getFormatbyCountry/${countryId}`),
-  
+
   // Obtener ciudades por país (CRG siempre es "C")
-  getCitiesByCountry: (countryId: number): Promise<ApiResponse<City[]>> => 
+  getCitiesByCountry: (countryId: number): Promise<ApiResponse<City[]>> =>
     api.get<City[]>(`report/getCities/${countryId}/C`),
 
-  getChartDigital: (formatId: number, countryId: number, CRG: String, city: number): Promise<ApiResponse<Song[]>> => 
-    api.get<Song[]>(`report/getChartDigital/${formatId}/${countryId}/${CRG}/${city}`),
+  getChartDigital: (
+    formatId: number,
+    countryId: number,
+    CRG: String,
+    city: number
+  ): Promise<ApiResponse<Song[]>> =>
+    api.get<Song[]>(
+      `report/getChartDigital/${formatId}/${countryId}/${CRG}/${city}`
+    ),
+
+  // Obtener Trending Top Songs
+  getTrendingTopSongs: (
+    rk: string,
+    artist: string,
+    monthly_listeners: number,
+    format: string,
+    country: string
+  ): Promise<ApiResponse<TrendingSong[]>> =>
+    api.get<TrendingSong[]>(`report/getTrendingSongs/${format}/${country}`),
+
+  // Obtener Trending Top Platfomrs  trendingPlatforms
+  getTrendingTopPlatforms: (
+    platform: string,
+    format: number,
+    country: string
+  ): Promise<ApiResponse<TopTrendingPlatforms[]>> =>
+    api.get<TopTrendingPlatforms[]>(
+      `report/getTopPlatform/${platform}/${format}/${country}`
+    ),
+
+  // Obtener Trending Top Artists
+  getTrendingTopArtists: (
+    format: string,
+    country: string
+  ): Promise<ApiResponse<TrendingSong[]>> =>
+    api.get<TrendingSong[]>(`report/getTopArtist/${format}/${country}`),
+
+  //// Obtener Trending Debut Songs  debutSongs
+  getDebutSongs: (
+    format: number,
+    country: number,
+    CRG: string,
+    city: number
+  ): Promise<ApiResponse<DebutSongs[]>> =>
+    api.get<DebutSongs[]>(
+      `report/getTrendingDebut/${format}/${country}/${CRG}/${city}`
+    ),
 };
 
 // Ejemplo de uso:
