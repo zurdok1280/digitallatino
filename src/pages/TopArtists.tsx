@@ -574,8 +574,7 @@ export default function TopArtists() {
     }
     const query = chartSearchQuery.toLowerCase().trim();
     return trendingArtists.filter(song => {
-      const songMatch = song.song?.toLowerCase().includes(query) ||
-        song.song?.toLowerCase().includes(query);
+      const songMatch = song.artist?.toLowerCase().includes(query)
       const artistMatch = song.artist?.toLowerCase().includes(query);
 
       return songMatch || artistMatch;
@@ -953,6 +952,17 @@ export default function TopArtists() {
 
   }, [currentlyPlaying]);
 
+  // Función para formatear los números (para followers)
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1).replace(/\.0$/, '') + ' M';
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1).replace(/\.0$/, '') + ' K';
+    }
+    return num.toLocaleString();
+  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
@@ -1306,7 +1316,7 @@ export default function TopArtists() {
                           {row.artist}
                         </h3>
                         <p className="text-sm font-medium text-gray-600 truncate">
-                          • Followers: {row.followers_total.toLocaleString()}
+                          • Followers: {formatNumber(row.followers_total)}
                         </p>
                       </div>
                     </div>
