@@ -24,6 +24,7 @@ import chappellRoanCover from "@/assets/covers/chappell-roan-good-luck.jpg";
 import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
 import { time } from "console";
 import { useApiWithLoading } from '@/hooks/useApiWithLoading';
+import { ButtonBigNumber } from "@/components/ui/button-big-number";
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -1238,23 +1239,10 @@ export default function TopPlatforms() {
                       </div>
                     </div>
 
-                    {/* Streams y Views */}
-                    <div className="col-span-2 text-right">
-                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-1">
-                            <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                            <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Streams / Views </span>
-                          </div>
-                          <Star className="w-2.5 h-2.5 text-yellow-500 fill-current" />
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                            {row.data_res.toLocaleString()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    {/* Botón views components */}
+                    <ButtonBigNumber name=" Streams / Views " quantity={row.data_res} />
+
+
                   </div>
 
                   {expandedRows.has(index) && (

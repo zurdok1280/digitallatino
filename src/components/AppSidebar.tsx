@@ -14,9 +14,8 @@ import {
 } from '@/components/ui/sidebar';
 
 const navigation = [
-  { title: "Charts", url: "/", icon: Home },
+  { title: "Weekly Top Songs", url: "/weekly-top-songs", icon: Home },
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, requiresAuth: true },
-  { title: "Weekly Top Songs", url: "/weekly-top-songs", icon: Music },
   { title: "Top Platforms", url: "/top-platforms", icon: BarChart3 },
   { title: "Top Artists", url: "/top-artists", icon: Headphones },
   { title: "Debut", url: "/debut", icon: Sparkles },
@@ -44,9 +43,9 @@ export function AppSidebar() {
         {/* Logo Section */}
         <div className="p-6 border-b border-white/10">
           {!isCollapsed ? (
-            <img 
-              src="/lovable-uploads/9f002b3b-a058-45e4-9078-ed8fe5e40320.png" 
-              alt="Digital Latino" 
+            <img
+              src="/lovable-uploads/9f002b3b-a058-45e4-9078-ed8fe5e40320.png"
+              alt="Digital Latino"
               className="h-8 w-auto"
             />
           ) : (
@@ -60,32 +59,32 @@ export function AppSidebar() {
           <SidebarGroupLabel className="text-white/60 text-xs uppercase tracking-wider px-6 py-4">
             {!isCollapsed && "Navegación"}
           </SidebarGroupLabel>
-          
+
           <SidebarGroupContent className="px-3">
             <SidebarMenu>
               {navigation
                 .filter(item => !item.requiresAuth || user) // Mostrar Dashboard solo si está loggeado
                 .map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
-                    className={`
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      className={`
                       group transition-all duration-200 rounded-lg mb-1
-                      ${isActive(item.url) 
-                        ? 'bg-white/20 text-white shadow-glass border border-white/20' 
-                        : 'text-white/70 hover:text-white hover:bg-white/10'
-                      }
+                      ${isActive(item.url)
+                          ? 'bg-white/20 text-white shadow-glass border border-white/20'
+                          : 'text-white/70 hover:text-white hover:bg-white/10'
+                        }
                     `}
-                  >
-                    <NavLink to={item.url} end={item.url === '/'}>
-                      <item.icon className={`${isCollapsed ? 'mx-auto' : 'mr-3'} h-5 w-5 transition-colors`} />
-                      {!isCollapsed && (
-                        <span className="font-medium">{item.title}</span>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+                    >
+                      <NavLink to={item.url} end={item.url === '/'}>
+                        <item.icon className={`${isCollapsed ? 'mx-auto' : 'mr-3'} h-5 w-5 transition-colors`} />
+                        {!isCollapsed && (
+                          <span className="font-medium">{item.title}</span>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

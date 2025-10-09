@@ -24,6 +24,7 @@ import chappellRoanCover from "@/assets/covers/chappell-roan-good-luck.jpg";
 import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
 import { time } from "console";
 import { useApiWithLoading } from '@/hooks/useApiWithLoading';
+import { ButtonBigNumber } from "@/components/ui/button-big-number";
 
 
 // Agregar más entradas para llegar a 40
@@ -1314,87 +1315,16 @@ export default function TopArtists() {
                     <div className="col-span-7 place-items-stretch">
                       <div className="flex gap-2 overflow-x-auto pb-1">
                         {/* Monthly Listeners */}
-                        <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all min-w-[140px]">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-1">
-                              <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                              <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Monthly Listeners</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                              {row.monthly_listeners.toLocaleString()}
-                            </div>
-                            {/*
-                          <button
-                            onClick={() => toggleRow(index)}
-                            className="bg-gradient-to-r from-slate-50 to-gray-50 hover:from-slate-100 hover:to-gray-100 border border-white/50 text-slate-600 p-1 rounded-lg text-xs transition-all duration-200 hover:scale-105 shadow-sm ml-2"
-                          >
-                            {expandedRows.has(index) ? (
-                              <ChevronUp className="w-3 h-3" />
-                            ) : (
-                              <Plus className="w-3 h-3" />
-                            )}
-                          </button>
-                          */}
-                          </div>
-                        </div>
+                        <ButtonBigNumber name="Monthly Listeners" quantity={row.monthly_listeners} />
                         {/* Instagram Followers */}
-                        <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-1">
-                              <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                              <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Ig Follows</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                              {row.followers_total_instagram.toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
+                        <ButtonBigNumber name="Instagram Follows" quantity={row.followers_total_instagram} />
                         {/* Facebook Followers */}
-                        <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-1">
-                              <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                              <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Fb Follows</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                              {row.followers_total_facebook.toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
+                        <ButtonBigNumber name="Facebook Follows" quantity={row.followers_total_facebook} />
                         {/* TitkTok Followers */}
-                        <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-1">
-                              <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                              <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">TitkTok Follows</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                              {row.followers_total_tiktok.toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
+                        <ButtonBigNumber name="TitkTok Follows" quantity={row.followers_total_tiktok} />
                         {/* Playlist */}
-                        <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-1">
-                              <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                              <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Playlist</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                              {row.playlists.toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
+                        <ButtonBigNumber name="Playlist" quantity={row.playlists} />
+
                       </div>
                     </div>
                   </div>
