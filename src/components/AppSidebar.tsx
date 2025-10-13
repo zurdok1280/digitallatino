@@ -56,11 +56,11 @@ export function AppSidebar() {
         </div>
 
         <SidebarGroup>
-          <SidebarGroupLabel className="text-white/60 text-xs uppercase tracking-wider px-6 py-4">
+          <SidebarGroupLabel className="text-white/60 text-xs uppercase tracking-wider px-4 py-4">
             {!isCollapsed && "Navegación"}
           </SidebarGroupLabel>
 
-          <SidebarGroupContent className="px-3">
+          <SidebarGroupContent className="px-1">
             <SidebarMenu>
               {navigation
                 .filter(item => !item.requiresAuth || user) // Mostrar Dashboard solo si está loggeado

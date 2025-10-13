@@ -18,8 +18,8 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
     };
 
     return (
-        <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
-            <div className="flex items-center gap-4" onClick={handleClick}>
+        <Card className="p-0 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
+            <div className="flex items-center gap-2" onClick={handleClick}>
                 <div className="relative">
                     <img
                         src={track.album.images[0]?.url}

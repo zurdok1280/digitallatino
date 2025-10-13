@@ -84,6 +84,7 @@ export interface TopTrendingPlatforms {
   label: string;
   data_res: number;
   cs_song: number;
+  img: string;
 }
 
 // interfaces para entradas de Debut Songs
@@ -115,6 +116,7 @@ export interface TopTrendingArtist {
   followers_total_facebook: number;
   followers_total_twitter: number;
   spotify_streams: number;
+  img: string;
 }
 
 // Clase principal para manejar las conexiones API

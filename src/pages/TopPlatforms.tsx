@@ -714,7 +714,8 @@ export default function TopPlatforms() {
         setLoadingSongs(true);
         //console.log('Fetch songs with format ' + selectedFormat + ' country ' + selectedCountry + ' platform ' + selectedPlatform);
         const response = await digitalLatinoApi.getTrendingTopPlatforms((selectedPlatform), parseInt(selectedFormat), (selectedCountry));
-        console.log('Link fetched:', response);
+        console.log((selectedPlatform), parseInt(selectedFormat), (selectedCountry))
+        //console.log('Link fetched:', digitalLatinoApi.getTrendingTopPlatforms((selectedPlatform), parseInt(selectedFormat), (selectedCountry)));
         setTrendingPlatforms(response.data);
 
       } catch (error) {
@@ -1205,6 +1206,11 @@ export default function TopPlatforms() {
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
                         <div className="relative">
                           <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
+                            <AvatarImage
+                              src={row.img}
+                              alt={row.img}
+                              className="rounded-lg object-cover"
+                            />
                             <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
                               {row.song.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                             </AvatarFallback>

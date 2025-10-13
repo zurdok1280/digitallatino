@@ -1294,8 +1294,8 @@ export default function TopArtists() {
                         <div className="relative">
                           <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
                             <AvatarImage
-                              src={row.artist}
-                              alt={row.artist}
+                              src={row.img}
+                              alt={row.img}
                               className="rounded-lg object-cover"
                             />
                             <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
