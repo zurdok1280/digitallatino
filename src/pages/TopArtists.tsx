@@ -1003,11 +1003,11 @@ export default function TopArtists() {
       )}*/}
 
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-8 flex flex-col gap-0 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 md:gap-4">
+            <div className="flex items-center gap-0 md:gap-0">
               <div className="relative flex-shrink-0">
                 <div className="absolute -inset-2 bg-gradient-to-r from-slate-400 to-blue-500 rounded-2xl opacity-15 blur-lg"></div>
               </div>
@@ -1015,7 +1015,7 @@ export default function TopArtists() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 relative z-30">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-2 relative z-30">
             {/* Filtro por País/Región */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
@@ -1172,7 +1172,7 @@ export default function TopArtists() {
 
 
         {/* Lista de Charts */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
+        <div className="mb-8 flex flex-col gap-2 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
           {/* Fab button de MUI para buscar */}
           <div className="absolute -top-4 -right-4 z-20">
             <Fab
@@ -1245,7 +1245,7 @@ export default function TopArtists() {
             {/* Lista de artistas filtradas */}
             {loadingArtists ? (
               <div className="text-center py-8">
-                <div className="inline-flex items-center gap-2 text-slate-600">
+                <div className="inline-flex items-center gap-0 text-slate-600">
                   <div className="w-4 h-4 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
                   Cargando artistas...
                 </div>

@@ -1126,7 +1126,7 @@ export default function Charts() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-8 flex flex-col gap-0 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
