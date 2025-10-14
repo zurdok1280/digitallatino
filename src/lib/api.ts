@@ -98,6 +98,7 @@ export interface DebutSongs {
   dif_score: number;
   rk_trending: number;
   crg: string;
+  img?: string;
 }
 
 // interfaces para entradas de top artists
