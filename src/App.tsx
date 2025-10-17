@@ -19,7 +19,8 @@ const TopPlatforms = lazy(() => import("./pages/TopPlatforms"));
 const TopArtists = lazy(() => import("./pages/TopArtists"));
 const Debut = lazy(() => import("./pages/Debut"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-
+const Payment = lazy(() => import("./pages/PaymentPage"));
+const AuthCallback = lazy(() => import("./pages/AuthCallbackPage"));
 // QueryClient optimizado para rendimiento
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -77,6 +78,22 @@ const App = () => (
               element={
                 <Suspense fallback={<PageLoader />}>
                   <NotFound />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/auth/callback"
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <AuthCallback />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/payment"
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <Payment />
                 </Suspense>
               }
             />

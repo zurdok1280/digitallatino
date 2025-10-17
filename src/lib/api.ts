@@ -1,6 +1,7 @@
 // Configuración base para conexiones API
 const API_CONFIG = {
   baseURL: "https://backend.digital-latino.com/api/",
+  //baseURL: 'http://localhost:8084/api/',
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
@@ -27,6 +28,13 @@ export interface City {
   country_code: string;
 }
 
+export interface TrendingSong {
+  id: number;
+  rank: string;
+  artist: string;
+  song: string;
+}
+
 export interface Song {
   cs_song: number;
   spotify_streams_total: number;
@@ -50,8 +58,9 @@ export interface Song {
   label: string;
   artists: string;
   crg: string;
-  avatar?: string;
-  url?: string;
+  avatar: string;
+  url: string;
+  spotifyid: string;
 }
 
 // Tipos básicos para las respuestas
@@ -66,6 +75,52 @@ export interface ApiError {
   message: string;
   status: number;
   code?: string;
+}
+// interfaces para entradas de top plataforms
+export interface TopTrendingPlatforms {
+  rk: string;
+  song: string;
+  artist: string;
+  label: string;
+  data_res: number;
+  cs_song: number;
+}
+
+// interfaces para entradas de Debut Songs
+export interface DebutSongs {
+  cs_song: number;
+  song: string;
+  artists: string;
+  label: string;
+  tw_score: number;
+  lw_score: number;
+  dif_score: number;
+  rk_trending: number;
+  crg: string;
+}
+
+// interfaces para entradas de top artists
+export interface TopTrendingArtist {
+  rk: string;
+  artist: string;
+  monthly_listeners: number;
+  followers_total: number;
+  popularity: number;
+  streams_total: number;
+  playlists: number;
+  playlist_reach: number;
+  followers_total_instagram: number;
+  followers_total_tiktok: number;
+  videos_views_total_youtube: number;
+  followers_total_facebook: number;
+  followers_total_twitter: number;
+  spotify_streams: number;
+}
+
+//Interface Contry para buttonSongInfo/boxElementsDisplay
+export interface cityDataForSong {
+  countryId: number;
+  csSong: number;
 }
 
 // Clase principal para manejar las conexiones API
@@ -251,6 +306,50 @@ export const digitalLatinoApi = {
     api.get<Song[]>(
       `report/getChartDigital/${formatId}/${countryId}/${CRG}/${city}`
     ),
+
+  // Obtener Trending Top Songs
+  getTrendingTopSongs: (
+    rk: string,
+    artist: string,
+    monthly_listeners: number,
+    format: string,
+    country: string
+  ): Promise<ApiResponse<TrendingSong[]>> =>
+    api.get<TrendingSong[]>(`report/getTrendingSongs/${format}/${country}`),
+
+  // Obtener Trending Top Platfomrs  trendingPlatforms
+  getTrendingTopPlatforms: (
+    platform: string,
+    format: number,
+    country: string
+  ): Promise<ApiResponse<TopTrendingPlatforms[]>> =>
+    api.get<TopTrendingPlatforms[]>(
+      `report/getTopPlatform/${platform}/${format}/${country}`
+    ),
+
+  // Obtener Trending Top Artists
+  getTrendingTopArtists: (
+    format: string,
+    country: string
+  ): Promise<ApiResponse<TrendingSong[]>> =>
+    api.get<TrendingSong[]>(`report/getTopArtist/${format}/${country}`),
+
+  //// Obtener Trending Debut Songs  debutSongs
+  getDebutSongs: (
+    format: number,
+    country: number,
+    CRG: string,
+    city: number
+  ): Promise<ApiResponse<DebutSongs[]>> =>
+    api.get<DebutSongs[]>(
+      `report/getTrendingDebut/${format}/${country}/${CRG}/${city}`
+    ),
+  //Contry para buttonSongInfo/boxElementsDisplay
+  getCityData: (
+    countryId: number,
+    csSong: number
+  ): Promise<ApiResponse<cityDataForSong[]>> =>
+    api.get<cityDataForSong[]>(`report/getCityData/${csSong}/${countryId}`),
 };
 
 // Ejemplo de uso:
