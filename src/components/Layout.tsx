@@ -15,7 +15,7 @@ export function Layout({ children }: LayoutProps) {
 
         <main className="flex-1">
           {/* Header with sidebar trigger and login */}
-          <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-white/20 p-1">
+          <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-white/20 p-4">
             <div className="flex items-center justify-between">
               <SidebarTrigger />
               <SearchArtist />
