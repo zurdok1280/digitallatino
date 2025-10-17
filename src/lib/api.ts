@@ -120,6 +120,12 @@ export interface TopTrendingArtist {
   img: string;
 }
 
+//Interface Contry para buttonSongInfo/boxElementsDisplay
+export interface cityDataForSong {
+  countryId: number;
+  csSong: number;
+}
+
 // Clase principal para manejar las conexiones API
 export class ApiClient {
   private baseURL: string;
@@ -341,6 +347,12 @@ export const digitalLatinoApi = {
     api.get<DebutSongs[]>(
       `report/getTrendingDebut/${format}/${country}/${CRG}/${city}`
     ),
+  //Contry para buttonSongInfo/boxElementsDisplay
+  getCityData: (
+    countryId: number,
+    csSong: number
+  ): Promise<ApiResponse<cityDataForSong[]>> =>
+    api.get<cityDataForSong[]>(`report/getCityData/${csSong}/${countryId}`),
 };
 
 // Ejemplo de uso:
