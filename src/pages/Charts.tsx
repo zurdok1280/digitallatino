@@ -128,7 +128,115 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
         <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-br from-transparent to-background/5" />
 
         {/* Unlock overlay compacto con colores Digital Latino */}
+        <div className="absolute inset-0 z-20 flex items-center justify-center p-4">
+          <div className="text-center p-4 bg-gradient-to-br from-background/85 to-background/80 rounded-xl shadow-xl border border-primary/30 max-w-[240px] w-full">
+            <div className="w-8 h-8 mx-auto mb-3 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <div className="text-sm">🔓</div>
+            </div>
+            <h3 className="text-xs font-bold text-foreground mb-2 leading-tight">Desbloquea Analytics</h3>
+            <p className="text-[10px] text-muted-foreground mb-3 leading-tight">
+              Métricas detalladas y herramientas profesionales
+            </p>
+            <div className="grid grid-cols-1 gap-1 mb-3 text-[9px]">
+              <div className="flex items-center text-primary justify-center">
+                <div className="w-1 h-1 rounded-full bg-primary mr-1.5"></div>
+                Dashboard + Analytics + Promoción
+              </div>
+            </div>
+            {/* Clear Two-Tier Options */}
+            <div className="grid md:grid-cols-2 gap-4 mb-6">
+              {/* Premium Tier */}
+              <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4">
+                <div className="text-center mb-3">
+                  <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                    <span className="text-white font-bold text-sm">👑</span>
+                  </div>
+                  <h4 className="font-bold text-foreground text-sm">Premium</h4>
+                  <p className="text-xs text-muted-foreground">Solo Charts & Analytics</p>
+                  <div className="text-lg font-bold text-foreground mt-1">$14.99/mes</div>
+                </div>
 
+                <div className="space-y-1 mb-4 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Charts Completos</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Analytics Básicos</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-primary">✓</span>
+                    <span>Datos de Audiencia</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    // TODO: Integrar con Stripe cuando esté listo
+                    console.log('Redirect to premium subscription');
+                  }}
+                  className="w-full bg-gradient-primary text-white text-xs font-bold px-3 py-2 rounded-full hover:shadow-md hover:scale-105 transition-all duration-300"
+                >
+                  Suscribirse Premium
+                </button>
+              </div>
+
+              {/* Campaign Tier */}
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 relative">
+                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    INCLUYE TODO
+                  </span>
+                </div>
+
+                <div className="text-center mb-3 pt-1">
+                  <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2">
+                    <span className="text-white font-bold text-sm">🚀</span>
+                  </div>
+                  <h4 className="font-bold text-foreground text-sm">Campaña Completa</h4>
+                  <p className="text-xs text-muted-foreground">Premium + Promoción</p>
+                  <div className="text-lg font-bold text-foreground mt-1">Desde $750</div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-0.5 mb-4 text-[10px]">
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Todo Premium</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Pitch Curadores</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Redes Sociales</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Analytics Pro</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Dashboard Full</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600">✓</span>
+                    <span>Revenue Reports</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => onNavigate('/campaign')}
+                  className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white text-xs font-bold px-3 py-2 rounded-full hover:shadow-md hover:scale-105 transition-all duration-300"
+                >
+                  Crear Campaña
+                </button>
+              </div>
+            </div>
+            <p className="text-[9px] text-muted-foreground mt-2 leading-tight">ROI: +347% en 30 días</p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -802,9 +910,9 @@ export default function Charts() {
       )}*/}
 
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-0 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -814,7 +922,7 @@ export default function Charts() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-2 relative z-30">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 relative z-30">
             {/* Filtro por País/Región */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">

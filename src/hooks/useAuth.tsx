@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+/*import { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -81,6 +81,79 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+  */
+
+// src/hooks/useAuth.tsx
+
+import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import { jwtDecode } from 'jwt-decode'; 
+
+
+interface AuthContextType {
+  token: string | null;
+  isAuthenticated: boolean;
+  user: { email: string; role: string } | null; 
+  login: (token: string) => void;
+  logout: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<{ email: string; role: string } | null>(null);
+
+  
+  useEffect(() => {
+    const storedToken = localStorage.getItem('authToken');
+    if (storedToken) {
+      try {
+        const decoded: { sub: string; role: string } = jwtDecode(storedToken);
+        setUser({ email: decoded.sub, role: decoded.role });
+        setToken(storedToken);
+      } catch (error) {
+        
+        localStorage.removeItem('authToken');
+      }
+    }
+  }, []);
+
+  
+  const login = (newToken: string) => {
+    localStorage.setItem('authToken', newToken); 
+    try {
+      const decoded: { sub: string; role: string } = jwtDecode(newToken);
+      setUser({ email: decoded.sub, role: decoded.role });
+      setToken(newToken); 
+    } catch (error) {
+      console.error("Token JWT inválido:", error);
+    }
+  };
+
+  
+  const logout = () => {
+    localStorage.removeItem('authToken');
+    setToken(null);
+    setUser(null);
+  };
+
+  const isAuthenticated = !!token;
+
+  
+  const value = { token, isAuthenticated, user, login, logout };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
 
 export function useAuth() {
   const context = useContext(AuthContext);

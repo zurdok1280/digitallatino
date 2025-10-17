@@ -714,8 +714,7 @@ export default function TopPlatforms() {
         setLoadingSongs(true);
         //console.log('Fetch songs with format ' + selectedFormat + ' country ' + selectedCountry + ' platform ' + selectedPlatform);
         const response = await digitalLatinoApi.getTrendingTopPlatforms((selectedPlatform), parseInt(selectedFormat), (selectedCountry));
-        console.log((selectedPlatform), parseInt(selectedFormat), (selectedCountry))
-        //console.log('Link fetched:', digitalLatinoApi.getTrendingTopPlatforms((selectedPlatform), parseInt(selectedFormat), (selectedCountry)));
+        console.log('Link fetched:', response);
         setTrendingPlatforms(response.data);
 
       } catch (error) {
@@ -994,9 +993,9 @@ export default function TopPlatforms() {
       )}*/}
 
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-0 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -1206,11 +1205,6 @@ export default function TopPlatforms() {
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
                         <div className="relative">
                           <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
-                            <AvatarImage
-                              src={row.img}
-                              alt={row.img}
-                              className="rounded-lg object-cover"
-                            />
                             <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
                               {row.song.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                             </AvatarFallback>
