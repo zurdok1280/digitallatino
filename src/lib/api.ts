@@ -84,6 +84,7 @@ export interface TopTrendingPlatforms {
   label: string;
   data_res: number;
   cs_song: number;
+  img: string;
 }
 
 // interfaces para entradas de Debut Songs
@@ -97,6 +98,7 @@ export interface DebutSongs {
   dif_score: number;
   rk_trending: number;
   crg: string;
+  img: string;
 }
 
 // interfaces para entradas de top artists
@@ -115,6 +117,7 @@ export interface TopTrendingArtist {
   followers_total_facebook: number;
   followers_total_twitter: number;
   spotify_streams: number;
+  img: string;
 }
 
 //Interface Contry para buttonSongInfo/boxElementsDisplay

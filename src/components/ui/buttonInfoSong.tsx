@@ -1,9 +1,10 @@
-import { Country, Song } from "@/lib/api";
+import { CityDataForSong, Country, Song } from "@/lib/api";
 import { ChevronUp, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BoxElementsDisplay from "./buttonInfoSong-components/boxElementsDisplay";
 import BoxDisplayInfoPlatform from "./buttonInfoSong-components/boxDisplayInfoPlatform";
+import WorldMap from "./buttonInfoSong-components/worldMap";
 
 
 export interface ButtonInfoSongProps {
@@ -19,11 +20,14 @@ interface ExpandRowProps {
     selectedCountry?: string;
     selectedFormat?: string
     countries?: Country[];
+    isExpanded: boolean;
+    cityDataForSong: CityDataForSong[];
+    loadingCityData: boolean;
+
 }
 
-export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, countries, isExpanded }: ExpandRowProps & { countries: Country[]; isExpanded: boolean }) {
+export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, countries, isExpanded, cityDataForSong, loadingCityData }: ExpandRowProps & { countries: Country[]; isExpanded: boolean }) {
     const [cityData, setCityData] = useState<any[]>([]);
-
     const [loadTimestamp, setLoadTimestamp] = useState(Date.now());
     const handleCityDataLoaded = (data: any[]) => {
         setCityData(data);
@@ -35,6 +39,8 @@ export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, cou
             setLoadTimestamp(Date.now());
         }
     }, [isExpanded]);
+
+
 
     return (
         <div className="border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
@@ -52,6 +58,9 @@ export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, cou
                 formatId={selectedFormat ? parseInt(selectedFormat) : 0}
                 loadTimestamp={loadTimestamp}
             />
+
+            {/* World Map con datos de ciudades */}
+            <WorldMap cities={cityDataForSong} loading={loadingCityData} />
 
         </div>
     );
