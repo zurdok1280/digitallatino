@@ -1,13 +1,7 @@
-// boxElementsDisplay.tsx
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Paper, styled, FormControl, Select, MenuItem, Typography, CircularProgress } from "@mui/material";
+import { Box, FormControl, Select, MenuItem, Typography, CircularProgress, Chip, Stack, Paper, Tooltip } from "@mui/material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import { digitalLatinoApi } from "@/lib/api";
-
-export interface Country {
-    code: string;
-    name: string;
-}
+import { CityDataForSong, Country, digitalLatinoApi } from "@/lib/api";
 
 export interface ElementItem {
     name: string;
@@ -18,85 +12,188 @@ export interface ElementItem {
 export interface BoxElementsDisplayProps {
     label: string;
     csSong: string;
-    countryId: string;
+    countries: Country[]; // Lista de países para el dropdown
     onDataLoaded?: (data: ElementItem[]) => void;
 }
 
-const Item = styled(Paper)(({ theme }) => ({
-    backgroundColor: "#fff",
-    ...theme.typography.body2,
-    padding: theme.spacing(1.5),
-    textAlign: "center",
-    borderRadius: "12px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-    color: (theme.vars ?? theme).palette.text.secondary,
-    border: "1px solid #f0f0f0",
-    transition: "all 0.2s ease",
-    "&:hover": {
-        boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-        transform: "translateY(-2px)",
-    },
-    ...theme.applyStyles("dark", {
-        backgroundColor: "#1A2027",
-    }),
-}));
+//Funcion para truncar el texto de las ciudades si es muy largo
+const truncateText = (text: string, maxLength: number): string => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+};
+
+// Componente para mostrar cada ciudad como chip
+const CityChip = ({ city, rank }: { city: ElementItem, rank: number }) => {
+    const getRankColor = (rank: number) => {
+        switch (rank) {
+            case 1: return "#FFD700"; // Oro
+            case 2: return "#C0C0C0"; // Plata
+            case 3: return "#CD7F32"; // Bronce
+            default: return "#6C63FF"; // Morado por defecto
+        }
+    };
+
+    const truncatedName = truncateText(city.name, 30);
+
+    return (
+
+        <Tooltip
+            title={city.name}
+            arrow
+            placement="top"
+            componentsProps={{
+                tooltip: {
+                    sx: {
+                        backgroundColor: 'white',
+                        color: 'text.primary',
+                        boxShadow: '0 4px 14px rgba(0,0,0,0.1)',
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        fontSize: '12px',
+                        fontWeight: '500',
+                        '& .MuiTooltip-arrow': {
+                            color: 'white',
+                        }
+                    }
+                }
+            }}
+        >
+            <Paper
+                elevation={1}
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '10px 16px',
+                    borderRadius: '20px',
+                    backgroundColor: 'white',
+                    border: `2px solid ${getRankColor(rank)}`,
+                    minWidth: '140px',
+                    maxWidth: '190px',
+                    width: '100%',
+                    gap: 1,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 6px 16px rgba(0,0,0,0.15)',
+                    }
+                }}
+            >
+                <Box
+                    sx={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: '50%',
+                        backgroundColor: getRankColor(rank),
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontSize: '0.8rem',
+                        fontWeight: 'bold',
+                        flexShrink: 0
+                    }}
+                >
+                    #{rank}
+                </Box>
+                <Typography
+                    variant="body2"
+                    sx={{
+                        fontWeight: 600,
+                        color: "#333",
+                        flex: 1,
+                        minWidth: 0,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        cursor: 'help',
+                        fontSize: '0.9rem'
+                    }}
+                >
+                    {truncatedName}
+                </Typography>
+            </Paper>
+        </Tooltip>
+
+    );
+};
 
 export default function BoxElementsDisplay({
     label,
     csSong,
-    countryId,
+    countries,
     onDataLoaded,
 }: BoxElementsDisplayProps) {
     const [elements, setElements] = useState<ElementItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [selectedCountry, setSelectedCountry] = useState<string>(
+        countries.length > 0 ? countries[0].id.toString() : ''
+    );
 
+    // Función para obtener datos de ciudades
+    const fetchCityData = async (countryId: string) => {
+        if (!csSong || !countryId) {
+            setLoading(false);
+            return;
+        }
+
+        try {
+            setLoading(true);
+            setError(null);
+
+            console.log('Fetching city data for:', { csSong, countryId });
+
+            // Llamar a la API para obtener datos de ciudades
+            const response = await digitalLatinoApi.getCityData(parseInt(csSong), parseInt(countryId));
+            console.log('City data response:', response.data);
+            // Transformar los datos de la API al formato que necesita el componente
+            const cityData: ElementItem[] = response.data.map((city: CityDataForSong, index: number) => ({
+                name: city.cityname || `Ciudad ${index + 1}`,
+                rank: index + 1,
+                value: city.listeners || city.streams || 0,
+                latitude: city.citylat || '',
+                longitude: city.citylng || ''
+            }));
+
+            const top8Cities = cityData.slice(0, 8); // Mostrar solo las top 8 ciudades
+            setElements(top8Cities);
+
+            if (onDataLoaded) {
+                onDataLoaded(cityData);
+            }
+        } catch (err) {
+            console.error('Error fetching city data:', err);
+            setError("No se pudieron cargar los datos de ciudades");
+
+
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Efecto para cargar datos cuando cambia el país seleccionado o la canción
     useEffect(() => {
-        const fetchCityData = async () => {
-            if (!csSong || !countryId) {
-                setLoading(false);
-                return;
-            }
+        if (selectedCountry) {
+            fetchCityData(selectedCountry);
+        }
+    }, [selectedCountry, csSong]);
 
-            try {
-                setLoading(true);
-                setError(null);
+    // useEffect para seleccionar el primer país por defecto cuando se cargan los países
+    useEffect(() => {
+        if (countries.length > 0 && !selectedCountry) {
+            setSelectedCountry(countries[0].id.toString());
+        }
+    }, [countries]);
 
-                // Llamar a la API para obtener datos de ciudades
-                const response = await digitalLatinoApi.getCityData(csSong, parseInt(countryId));
+    const handleCountryChange = (event: any) => {
+        setSelectedCountry(event.target.value);
+    };
 
-                // Transformar los datos de la API al formato que necesita el componente
-                const cityData: ElementItem[] = response.data.map((city: any, index: number) => ({
-                    name: city.city_name || `Ciudad ${index + 1}`,
-                    rank: index + 1,
-                    value: city.percentage || city.value || 0
-                }));
+    // Dividir elementos en dos filas 
+    const firstRow = elements.slice(0, 4);
+    const secondRow = elements.slice(4, 8);
 
-                setElements(cityData.slice(0, 6)); // Mostrar solo las top 6 ciudades
-
-                if (onDataLoaded) {
-                    onDataLoaded(cityData);
-                }
-            } catch (err) {
-                console.error('Error fetching city data:', err);
-                setError("No se pudieron cargar los datos de ciudades");
-                // Datos de ejemplo para desarrollo
-                const sampleData: ElementItem[] = [
-                    { name: "Ciudad de México", rank: 1, value: 24 },
-                    { name: "Buenos Aires", rank: 2, value: 18 },
-                    { name: "Madrid", rank: 3, value: 15 },
-                    { name: "Bogotá", rank: 4, value: 12 },
-                    { name: "Lima", rank: 5, value: 9 },
-                    { name: "Santiago", rank: 6, value: 7 },
-                ];
-                setElements(sampleData);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchCityData();
-    }, [csSong, countryId, onDataLoaded]);
 
     if (loading) {
         return (
@@ -161,13 +258,15 @@ export default function BoxElementsDisplay({
                 mb: 3,
             }}
         >
-            {/* Header */}
+            {/* Header con dropdown de países */}
             <Box
                 sx={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    mb: 2,
+                    mb: 3,
+                    flexWrap: 'wrap',
+                    gap: 2
                 }}
             >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -185,60 +284,100 @@ export default function BoxElementsDisplay({
                     </Typography>
                 </Box>
 
-                <Typography
-                    variant="caption"
-                    sx={{
-                        color: "#666",
-                        fontStyle: "italic"
-                    }}
-                >
-                    Top {elements.length} ciudades
-                </Typography>
+                <FormControl size="small" sx={{ minWidth: 200 }}>
+                    <Select
+                        value={selectedCountry}
+                        onChange={handleCountryChange}
+                        sx={{
+                            fontSize: "0.85rem",
+                            borderRadius: "8px",
+                            "& .MuiOutlinedInput-notchedOutline": { borderColor: "#ccc" },
+                        }}
+                    >
+                        {countries.map((country) => (
+                            <MenuItem key={country.id} value={country.id.toString()}>
+                                {country.country_name || country.country || country.description}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
             </Box>
 
-            {/* Content Grid */}
-            <Grid container spacing={2}>
-                {elements.map((item, index) => (
-                    <Grid item xs={12} sm={6} md={4} key={index}>
-                        <Item>
-                            <Typography
-                                variant="body2"
-                                sx={{
-                                    fontWeight: 600,
-                                    color: "#333",
-                                    mb: 0.5
-                                }}
-                            >
-                                {item.name}
-                            </Typography>
-                            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                <Typography
-                                    variant="caption"
-                                    sx={{
-                                        color: "#6C63FF",
-                                        fontWeight: "bold",
-                                        fontSize: "0.75rem"
-                                    }}
-                                >
-                                    #{item.rank}
-                                </Typography>
-                                {item.value && (
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            color: "#4CAF50",
-                                            fontWeight: "bold",
-                                            fontSize: "0.7rem"
-                                        }}
-                                    >
-                                        {item.value}%
-                                    </Typography>
-                                )}
-                            </Box>
-                        </Item>
-                    </Grid>
-                ))}
-            </Grid>
+            {/* Lista horizontal de ciudades */}
+            <Box sx={{ width: '100%' }}>
+
+                {/* Primera fila - Top 5 ciudades */}
+                <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{
+                        justifyContent: 'center',
+                        mb: 2,
+                        flexWrap: 'wrap',
+                        gap: 2
+                    }}
+                >
+                    {firstRow.map((city) => (
+                        <CityChip key={city.rank} city={city} rank={city.rank} />
+                    ))}
+                </Stack>
+
+                {/* Segunda fila - Ciudades 6-10 */}
+                <Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{
+                        justifyContent: 'center',
+                        flexWrap: 'wrap',
+                        gap: 2
+                    }}
+                >
+                    {secondRow.map((city) => (
+                        <CityChip key={city.rank} city={city} rank={city.rank} />
+                    ))}
+                </Stack>
+
+                {/* Lista Horizontal de ciudades */}
+                {/*<Stack
+                    direction="row"
+                    spacing={2}
+                    sx={{
+                        overflowX: 'auto',
+                        pb: 2,
+                        '&::-webkit-scrollbar': {
+                            height: 8,
+                        },
+                        '&::-webkit-scrollbar-track': {
+                            backgroundColor: '#f1f1f1',
+                            borderRadius: 4,
+                        },
+                        '&::-webkit-scrollbar-thumb': {
+                            backgroundColor: '#c1c1c1',
+                            borderRadius: 4,
+                        },
+                        '&::-webkit-scrollbar-thumb:hover': {
+                            backgroundColor: '#a8a8a8',
+                        }
+                    }}
+                >
+                    {elements.map((city) => (
+                        <CityChip key={city.rank} city={city} rank={city.rank} />
+                    ))}
+                </Stack>*/}
+
+                {elements.length === 0 && (
+                    <Typography
+                        variant="body2"
+                        sx={{
+                            textAlign: 'center',
+                            color: '#666',
+                            py: 2
+                        }}
+                    >
+                        No hay datos de ciudades disponibles
+                    </Typography>
+                )}
+            </Box>
         </Box>
     );
 }

@@ -1163,6 +1163,9 @@ export default function Charts() {
                         row={row}
                         onPromote={() => handlePromote(row.artists, row.song, row.avatar, row.url)}
                         selectedCountry={selectedCountry}
+                        selectedFormat={selectedFormat}
+                        countries={countries as any}
+                        isExpanded={isExpanded(index)}
                       />
                     </div>
                   )}

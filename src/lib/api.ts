@@ -118,9 +118,85 @@ export interface TopTrendingArtist {
 }
 
 //Interface Contry para buttonSongInfo/boxElementsDisplay
-export interface cityDataForSong {
+export interface CityDataForSong {
+  audience?: number;
+  cityid?: number;
+  citylat?: number;
+  citylng?: number;
+  cityname?: string;
+  listeners?: number;
+  rnk?: number;
+  spins?: number;
+  sts?: number;
+
   countryId: number;
   csSong: number;
+  country_code?: string;
+  streams?: number;
+}
+
+//Interface SongInfo para buttonSongInfo/boxDisplayInfoPlatform.tsx
+export interface SongInfoPlatform {
+  rk: number;
+  song: string;
+  artists: string;
+  label: string;
+  score: number;
+  cs_song: number;
+  spotify_streams_total: number;
+  spotify_popularity_current: number;
+  spotify_playlists_current: number;
+  spotify_playlists_reach_current: number;
+  spotify_playlists_reach_total: number;
+  spotify_charts_total: number;
+  apple_playlists_current: number;
+  apple_playlists_total: number;
+  apple_charts_currents: number;
+  apple_charts_total: number;
+  amazon_playlists_current: number;
+  amazon_paylists_total: number;
+  amazon_charts_current: number;
+  amazon_charts_total: number;
+  deezer_popularity_current: number;
+  deezer_playlists_current: number;
+  deezer_playlists_total: number;
+  deezer_playlist_reach_current: number;
+  deezer_playlist_reach_total: number;
+  deezer_charts_current: number;
+  deezer_charts_total: number;
+  tiktok_videos_total: number;
+  tiktok_views_total: number;
+  tiktok_likes_total: number;
+  tiktok_shares_total: number;
+  tiktok_comments_total: number;
+  tiktok_engagement_rate_total: number;
+  youtube_videos_total: number;
+  youtube_video_views_total: number;
+  youtube_video_likes_total: number;
+  youtube_video_comments_total: number;
+  youtube_shorts_total: number;
+  youtube_short_views_total: number;
+  youtube_short_likes_total: number;
+  youtube_short_comments_total: number;
+  youtube_engagement_rate_total: number;
+  shazam_shazams_total: number;
+  shazam_charts_current: number;
+  shazam_charts_total: number;
+  tidal_popularity_current: number;
+  tidal_playlists_current: number;
+  tidal_playlists_total: number;
+  soundcloud_streams_total: number;
+  soundcloud_favorites_total: number;
+  soundcloud_reposts_total: number;
+  soundcloud_engagement_rate_total: number;
+  rk_spotify: number;
+  rk_tiktok: number;
+  rk_youtube: number;
+  rk_shorts: number;
+  rk_shazam: number;
+  rk_soundcloud: number;
+  rk_pandora: number;
+  pan_streams: number;
 }
 
 // Clase principal para manejar las conexiones API
@@ -346,10 +422,16 @@ export const digitalLatinoApi = {
     ),
   //Contry para buttonSongInfo/boxElementsDisplay
   getCityData: (
-    countryId: number,
-    csSong: number
-  ): Promise<ApiResponse<cityDataForSong[]>> =>
-    api.get<cityDataForSong[]>(`report/getCityData/${csSong}/${countryId}`),
+    csSong: number,
+    countryId: number
+  ): Promise<ApiResponse<CityDataForSong[]>> =>
+    api.get<CityDataForSong[]>(`report/getCityData/${csSong}/${countryId}`),
+
+  getSongPlatformData: (
+    csSong: number,
+    formatId: number
+  ): Promise<ApiResponse<SongInfoPlatform[]>> =>
+    api.get<SongInfoPlatform[]>(`report/getSongDigital/${csSong}/${formatId}`),
 };
 
 // Ejemplo de uso:

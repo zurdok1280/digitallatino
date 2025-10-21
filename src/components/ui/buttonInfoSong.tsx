@@ -1,8 +1,10 @@
-import { Song } from "@/lib/api";
+import { Country, Song } from "@/lib/api";
 import { ChevronUp, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BoxElementsDisplay from "./buttonInfoSong-components/boxElementsDisplay";
+import BoxDisplayInfoPlatform from "./buttonInfoSong-components/boxDisplayInfoPlatform";
+
 
 export interface ButtonInfoSongProps {
     index: number;
@@ -15,24 +17,41 @@ interface ExpandRowProps {
     row: Song;
     onPromote: () => void;
     selectedCountry?: string;
+    selectedFormat?: string
+    countries?: Country[];
 }
 
-export function ExpandRow({ row, onPromote, selectedCountry }: ExpandRowProps) {
+export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, countries, isExpanded }: ExpandRowProps & { countries: Country[]; isExpanded: boolean; }) {
     const [cityData, setCityData] = useState<any[]>([]);
+
+    const [expansionTrigger, setExpansionTrigger] = useState(0);
 
     const handleCityDataLoaded = (data: any[]) => {
         setCityData(data);
     };
+    useEffect(() => {
+        if (isExpanded) {
+            setExpansionTrigger(prev => prev + 1);
+        }
+    }, [isExpanded]);
 
     return (
         <div className="border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
+            {/* Top de ciudades */}
             <BoxElementsDisplay
                 label={"Top Cities Digital"}
                 csSong={row.cs_song.toString()}
-                countryId={selectedCountry}
+                countries={countries} // Pasar la lista de países del componente padre
                 onDataLoaded={handleCityDataLoaded}
             />
 
+            {/* Estadísticas de Plataformas */}
+            <BoxDisplayInfoPlatform
+                key={`platform-${row.cs_song}-${selectedFormat}`}
+                csSong={row.cs_song}
+                formatId={selectedFormat ? parseInt(selectedFormat) : 0}
+                triggerReload={expansionTrigger}
+            />
             {/* Top Markets - Horizontal compact display */}
             <div className="mb-4 bg-black border border-green-500/30 rounded-xl p-3">
                 <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Top Markets Performance</div>
