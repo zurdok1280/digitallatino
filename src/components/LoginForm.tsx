@@ -313,7 +313,7 @@ export function LoginForm({ onClose }: LoginFormProps) {
                 type="submit"
                 className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 disabled={isSignUpDisabled}
-              >
+              >PasswordStrength.tsx
 
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">

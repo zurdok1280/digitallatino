@@ -56,11 +56,12 @@ const withLazy = (Component: React.LazyExoticComponent<() => JSX.Element>) => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <BrowserRouter>
     <AuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        
           <ScrollToTop />
           <Routes>
             <Route path="/" element={withLazy(Charts)} />
@@ -98,9 +99,10 @@ const App = () => (
               }
             />
           </Routes>
-        </BrowserRouter>
+        
       </TooltipProvider>
     </AuthProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

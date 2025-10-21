@@ -1,5 +1,5 @@
 import { Home, Music, BarChart3, Settings, Headphones, Sparkles, LayoutDashboard } from 'lucide-react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation} from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Sidebar,
@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+
 
 const navigation = [
   { title: "Weekly Top Songs", url: "/weekly-top-songs", icon: Home },
