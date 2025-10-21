@@ -33,6 +33,12 @@ export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, cou
         setCityData(data);
     };
 
+    console.log('🔵 ExpandRow rendering with:', {
+        csSong: row.cs_song,
+        selectedFormat,
+        hasRow: !!row
+    });
+
     // Resetear timestamp cuando se expande
     useEffect(() => {
         if (isExpanded) {
@@ -56,11 +62,9 @@ export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, cou
             <BoxDisplayInfoPlatform
                 csSong={row.cs_song}
                 formatId={selectedFormat ? parseInt(selectedFormat) : 0}
-                loadTimestamp={loadTimestamp}
+
             />
 
-            {/* World Map con datos de ciudades */}
-            <WorldMap cities={cityDataForSong} loading={loadingCityData} />
 
         </div>
     );

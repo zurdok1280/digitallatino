@@ -6,7 +6,7 @@ import Grid from "@mui/material/Grid";
 export interface BoxDisplayInfoPlatformProps {
     csSong: number;
     formatId: number;
-    loadTimestamp?: number;
+
 }
 
 // Interface para los datos de la plataforma
@@ -162,7 +162,7 @@ const formatPercentage = (value: number): string => {
     return (value * 100).toFixed(1) + '%';
 };
 
-export default function BoxDisplayInfoPlatform({ csSong, formatId, loadTimestamp = Date.now() }: BoxDisplayInfoPlatformProps) {
+export default function BoxDisplayInfoPlatform({ csSong, formatId }: BoxDisplayInfoPlatformProps) {
     const [selectedPlatform, setSelectedPlatform] = useState(platforms[0]);
     const [platformData, setPlatformData] = useState<SongInfoPlatform[] | null>(null);
     const [loading, setLoading] = useState(true);
@@ -170,6 +170,8 @@ export default function BoxDisplayInfoPlatform({ csSong, formatId, loadTimestamp
 
     const lastFetchRef = useRef<string>('');
 
+
+    // Función para obtener datos de la API
     const fetchPlatformData = async () => {
         if (!csSong || !formatId) {
             setLoading(false);

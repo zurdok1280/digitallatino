@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Box, FormControl, Select, MenuItem, Typography, CircularProgress, Chip, Stack, Paper, Tooltip } from "@mui/material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { CityDataForSong, Country, digitalLatinoApi } from "@/lib/api";
+import WorldMap from "./worldMap";
 
 export interface ElementItem {
     name: string;
@@ -380,6 +381,7 @@ export default function BoxElementsDisplay({ label, csSong, countries, onDataLoa
                     </Typography>
                 )}
             </Box>
+            <WorldMap cities={citiesData} loading={loading} />
         </Box>
     );
 }

@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LatinAmericaMap } from "@/components/LatinAmericaMap";
 import { SpotifyTrack } from "@/types/spotify";
 import { useAuth } from "@/hooks/useAuth";
-import { digitalLatinoApi, Country, Format, City, Song } from "@/lib/api";
+import { digitalLatinoApi, Country, Format, City, Song, CityDataForSong } from "@/lib/api";
 // Import album covers
 import { Backdrop, CircularProgress, Fab } from '@mui/material';
 import teddySwimsCover from "@/assets/covers/teddy-swims-lose-control.jpg";
@@ -280,6 +280,12 @@ export default function Charts() {
   const [openDropdown, setOpenDropdown] = useState<'country' | 'format' | 'city' | null>(null);
   const [dropdownSearch, setDropdownSearch] = useState('');
 
+  // Almacenar Data de ciudades por pais para el mapa 
+  const [cityData, setCityData] = useState<CityDataForSong[]>([]);
+  const [loadingCityData, setLoadingCityData] = useState(false);
+
+
+
   const filteredSongs = useMemo(() => {
     console.log('Filtrando canciones...', chartSearchQuery, songs.length);
 
@@ -435,6 +441,47 @@ export default function Charts() {
     });
   };
 
+  //Fetch para obtener datos de ciudades para una canción específica
+  const fetchCityData = async (csSong: string, countryId: string) => {
+    if (!csSong || !countryId) {
+      setCityData([]);
+      return;
+    }
+
+    try {
+      setLoadingCityData(true);
+      console.log('Fetching city data for:', { csSong, countryId });
+
+      const response = await digitalLatinoApi.getCityData(
+        parseInt(csSong),
+        parseInt(countryId)
+      );
+
+      console.log('City data response:', response.data);
+      setCityData(response.data);
+    } catch (error) {
+      console.error('Error fetching city data:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los datos de ciudades",
+        variant: "destructive"
+      });
+      setCityData([]);
+    } finally {
+      setLoadingCityData(false);
+    }
+  };
+  // Función para manejar la expansión de filas
+  const handleToggleRow = (index: number, row: Song) => {
+    toggleRow(index);
+
+    // Si la fila se está expandiendo, cargar datos de ciudades
+    if (!isExpanded(index)) {
+      fetchCityData(row.cs_song.toString(), selectedCountry);
+    }
+  };
+
+
   // Fetch countries from API
   useEffect(() => {
     fetchCountries();
@@ -513,80 +560,6 @@ export default function Charts() {
 
     fetchSongs();
   }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
-
-  /*
-  useEffect(() => {
-    console.log('Run spotify api to update images for each song ' +accessToken); 
-    const updateSongsWithImages = async () => {
-      const updatedSongs = await Promise.all(
-        songs.map(async song => {
-          try {
-            // ✅ Extraer el ID del track desde la URL
-            //const idMatch = song.url.match(/track\/([a-zA-Z0-9]+)/);
-            //if (!idMatch) return song;
-
-            const spotifyId = song.spotify_id;//idMatch[1];
-
-            // ✅ Llamada a la API de Spotify
-            const res = await fetch(
-              `https://api.spotify.com/v1/tracks/${spotifyId}`,
-              {
-                headers: { Authorization: `Bearer ${accessToken}` }
-              }
-            );
-            const data = await res.json();
-
-            // ✅ Devolver el objeto Song con la portada en avatar
-            return { ...song, avatar: data.album.images[0].url };
-          } catch (err) {
-            console.error("Error con la canción:", song.song, err);
-            return song; // Devolver igual en caso de error
-          }
-        })
-      );
-      console.log('Update image for each song'); 
-      setSongs(updatedSongs);
-    };
-
-    updateSongsWithImages();
-  }, [selectedSong, toast] );
-  */
-
-  /* // Fetch Songs when format changes
-  useEffect(() => {
-    console.log("start loading chart :" + selectedFormat);
-    if (selectedFormat !== '0') {
-      const fetchSongs = async () => {
-        if (!selectedCountry) {
-          setSongs([]);
-          return;
-        }
-
-        try {
-          setLoadingSongs(true);
-          if (Number.isNaN(selectedFormat)) setSelectedFormat('0');
-          const response = await digitalLatinoApi.getChartDigital(parseInt(selectedFormat), parseInt(selectedCountry), "C", 0);
-          setSongs(response.data);
-
-        } catch (error) {
-          console.error('Error fetching songs:', error);
-          toast({
-            title: "Error",
-            description: "No se pudieron cargar las canciones. Intenta de nuevo.",
-            variant: "destructive"
-          });
-          setSongs([]);
-        } finally {
-          setLoadingSongs(false);
-        }
-      };
-
-      fetchSongs();
-    }
-
-  }, [selectedFormat, toast]); */
-
-
 
   // Handle Spotify OAuth callback
   useEffect(() => {
@@ -687,39 +660,6 @@ export default function Charts() {
     e.target.selectedIndex = 0;
   };
 
-  /* const handlePlayPreview = useCallback((trackRank: number, audioUrl: string) => {
-    console.log('handlePlayPreview called for rank:', audioUrl);
-    if (currentlyPlaying === trackRank) {
-      // Pausar audio actual
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-      setCurrentlyPlaying(null);
-    } else {
-      // Pausar cualquier audio que esté reproduciéndose
-      if (audioRef.current) {
-        audioRef.current.pause();
-      }
-
-      // Crear nuevo audio (simulado para demo)
-      const audio = new Audio();
-      // En producción aquí usarías la URL real del preview de Spotify
-      // audio.src = audioUrl;
-
-      // Para demo, simular reproducción
-      audioRef.current = audio;
-      setCurrentlyPlaying(trackRank);
-
-      // Simular que el audio termina después de 30 segundos
-      setTimeout(() => {
-        setCurrentlyPlaying(null);
-        audioRef.current = null;
-      }, 30000);
-    }
-  }, [currentlyPlaying]); */
-
-
   const handlePlayPreview = useCallback((trackRank: number, audioUrl: string) => {
     console.log("handlePlayPreview called for:", trackRank, audioUrl);
 
@@ -771,36 +711,6 @@ export default function Charts() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-400/15 to-slate-400/15 rounded-full blur-3xl"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-gray-300/10 to-blue-300/10 rounded-full blur-3xl"></div>
       </div>
-
-      {/* Header para usuarios loggeados habilitar despues del login */}
-      {/*
-      {user && (
-        <div className="relative z-10 bg-gradient-to-r from-green-50 to-blue-50 border-b border-green-200 px-6 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">✓</span>
-              </div>
-              <div>
-                <h2 className="font-bold text-green-800">
-                  {user.email === 'garciafix4@gmail.com' ? '🎯 Demo Exclusivo Activo' : '🎵 Acceso Premium Desbloqueado'}
-                </h2>
-                <p className="text-sm text-green-600">
-                  {user.email === 'garciafix4@gmail.com'
-                    ? 'Tienes acceso completo + estadísticas de campaña en tiempo real'
-                    : `Top 40 completo desbloqueado • ${user.email}`
-                  }
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm font-semibold text-green-700">Top 40 Completo</div>
-              <div className="text-xs text-green-600">Todos los géneros</div>
-            </div>
-          </div>
-        </div>
-      )}*/}
-
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
@@ -1164,7 +1074,10 @@ export default function Charts() {
                         onPromote={() => handlePromote(row.artists, row.song, row.avatar, row.url)}
                         selectedCountry={selectedCountry}
                         selectedFormat={selectedFormat}
-                        countries={countries as any}
+                        countries={countries}
+                        isExpanded={isExpanded(index)}
+                        cityDataForSong={cityData}
+                        loadingCityData={loadingCityData}
                       />
                     </div>
                   )}

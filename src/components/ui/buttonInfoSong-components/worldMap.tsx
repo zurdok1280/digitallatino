@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Box, Typography, Paper } from "@mui/material";
+import { Box, Typography, Paper, CircularProgress } from "@mui/material";
 import { CityDataForSong } from "@/lib/api";
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -12,7 +12,7 @@ L.Icon.Default.mergeOptions({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-interface WorldMapLeafletProps {
+interface WorldMapProps {
     cities: CityDataForSong[];
     title?: string;
     height?: number;
@@ -65,12 +65,12 @@ const formatNumber = (num: number): string => {
     return num.toString();
 };
 
-export default function WorldMapLeaflet({
+export default function WorldMap({
     cities,
     title = "📍 Distribución Global de la Canción",
     height = 400,
     loading = false
-}: WorldMapLeafletProps) {
+}: WorldMapProps) {
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<L.Map | null>(null);
     const markersRef = useRef<L.LayerGroup | null>(null);
@@ -165,6 +165,42 @@ export default function WorldMapLeaflet({
       `);
         });
     };
+    //Estado de carga
+    if (loading) {
+        return (
+            <Box sx={{ mt: 3 }}>
+                <Typography
+                    variant="subtitle2"
+                    sx={{
+                        color: "#6C63FF",
+                        fontWeight: "bold",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                        mb: 2
+                    }}
+                >
+                    {title}
+                </Typography>
+                <Paper
+                    elevation={1}
+                    sx={{
+                        backgroundColor: 'white',
+                        borderRadius: '12px',
+                        p: 3,
+                        border: '1px solid #E0E0E0',
+                        boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+                        textAlign: 'center',
+                        py: 6
+                    }}
+                >
+                    <CircularProgress size={24} sx={{ color: "#6C63FF", mb: 2 }} />
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        Cargando datos del mapa...
+                    </Typography>
+                </Paper>
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ mt: 3 }}>
@@ -213,19 +249,47 @@ export default function WorldMapLeaflet({
                     flexWrap: 'wrap'
                 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: '#FFD700', border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
+                        <Box sx={{
+                            width: 16,
+                            height: 16,
+                            borderRadius: '50%',
+                            backgroundColor: '#FFD700',
+                            border: '2px solid white',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                        }} />
                         <Typography variant="caption" sx={{ fontWeight: 'bold' }}>#1 Oro</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: '#C0C0C0', border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
+                        <Box sx={{
+                            width: 16,
+                            height: 16,
+                            borderRadius: '50%',
+                            backgroundColor: '#C0C0C0',
+                            border: '2px solid white',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                        }} />
                         <Typography variant="caption" sx={{ fontWeight: 'bold' }}>#2 Plata</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: '#CD7F32', border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
+                        <Box sx={{
+                            width: 16,
+                            height: 16,
+                            borderRadius: '50%',
+                            backgroundColor: '#CD7F32',
+                            border: '2px solid white',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                        }} />
                         <Typography variant="caption" sx={{ fontWeight: 'bold' }}>#3 Bronce</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: '#6C63FF', border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
+                        <Box sx={{
+                            width: 16,
+                            height: 16,
+                            borderRadius: '50%',
+                            backgroundColor: '#6C63FF',
+                            border: '2px solid white',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                        }} />
                         <Typography variant="caption" sx={{ fontWeight: 'bold' }}>Otros</Typography>
                     </Box>
                 </Box>
@@ -238,7 +302,7 @@ export default function WorldMapLeaflet({
                 }}>
                     {validCities.slice(0, 5).map((city) => (
                         <Paper
-                            key={city.cityid}
+                            key={city.cityid || city.cityname}
                             elevation={0}
                             sx={{
                                 backgroundColor: 'grey.50',
@@ -248,7 +312,17 @@ export default function WorldMapLeaflet({
                                 borderColor: 'grey.200',
                             }}
                         >
-                            <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'text.primary', display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    fontWeight: 'bold',
+                                    color: 'text.primary',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 0.5,
+                                    mb: 0.5
+                                }}
+                            >
                                 <Box
                                     sx={{
                                         width: 8,
