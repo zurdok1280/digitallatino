@@ -6,7 +6,7 @@ import Grid from "@mui/material/Grid";
 export interface BoxDisplayInfoPlatformProps {
     csSong: number;
     formatId: number;
-    triggerReload?: any;
+    loadTimestamp?: number;
 }
 
 // Interface para los datos de la plataforma
@@ -145,10 +145,9 @@ const platforms = [
     },
 ];
 
-
 // Función para formatear números
 const formatNumber = (value: number): string => {
-    if (!value && value !== 0) return 'N/A';
+    if (value === null || value === undefined || isNaN(value)) return 'N/A';
     if (value >= 1000000) {
         return (value / 1000000).toFixed(1) + 'M';
     } else if (value >= 1000) {
@@ -159,74 +158,72 @@ const formatNumber = (value: number): string => {
 
 // Función para formatear porcentajes
 const formatPercentage = (value: number): string => {
-    if (!value && value !== 0) return 'N/A';
+    if (value === null || value === undefined || isNaN(value)) return 'N/A';
     return (value * 100).toFixed(1) + '%';
 };
 
-export default function BoxDisplayInfoPlatform({ csSong, formatId, triggerReload = false }: BoxDisplayInfoPlatformProps) {
+export default function BoxDisplayInfoPlatform({ csSong, formatId, loadTimestamp = Date.now() }: BoxDisplayInfoPlatformProps) {
     const [selectedPlatform, setSelectedPlatform] = useState(platforms[0]);
     const [platformData, setPlatformData] = useState<SongInfoPlatform[] | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // Referencias para trackear cambios
-    const previousTrigger = useRef<any>(null);
-    const hasLoaded = useRef(false);
+    const lastFetchRef = useRef<string>('');
 
-    // Función para obtener datos de la API
     const fetchPlatformData = async () => {
         if (!csSong || !formatId) {
             setLoading(false);
             return;
         }
 
+        // Crear una clave única para esta solicitud
+        const requestKey = `${csSong}-${formatId}`;
+
+        // Evitar solicitudes duplicadas
+        if (lastFetchRef.current === requestKey) {
+            console.log('⏭️ Skipping duplicate request:', requestKey);
+            return;
+        }
+
         try {
+            console.log('🟡 FETCHING DATA for:', requestKey);
             setLoading(true);
             setError(null);
-
-            console.log('Fetching platform data for:', { csSong, formatId });
+            lastFetchRef.current = requestKey;
 
             const response = await digitalLatinoApi.getSongPlatformData(csSong, formatId);
-            console.log('Platform data response:', response.data);
+            console.log('✅ DATA RECEIVED:', response.data);
 
             setPlatformData(response.data);
-            hasLoaded.current = true;
         } catch (err) {
-            console.error('Error fetching platform data:', err);
+            console.error('❌ Error:', err);
             setError("No se pudieron cargar los datos de plataformas");
+            lastFetchRef.current = ''; // Reset para permitir reintento
         } finally {
             setLoading(false);
         }
     };
 
-    // useEffect para cargar datos cuando cambia la canción o el formato
+    // Efecto MUY AGRESIVO - se ejecuta en cada render cuando las props son válidas
     useEffect(() => {
-        const shouldLoadData =
-            // Primera carga
-            !hasLoaded.current ||
-            // Cambió el trigger
-            triggerReload !== previousTrigger.current ||
-            // Cambió la canción o formato
-            (csSong && formatId && (!platformData || platformData.cs_song !== csSong));
+        console.log('🎯 EFFECT RUNNING - csSong:', csSong, 'formatId:', formatId);
 
-        if (shouldLoadData && csSong && formatId) {
-            console.log('Loading platform data because:', {
-                hasLoaded: hasLoaded.current,
-                triggerChanged: triggerReload !== previousTrigger.current,
-                songChanged: platformData?.cs_song !== csSong
-            });
-
+        if (csSong && formatId) {
             fetchPlatformData();
-            previousTrigger.current = triggerReload;
+        } else {
+            setLoading(false);
         }
-    }, [csSong, formatId, triggerReload]);
+    }, [csSong, formatId]);
 
-    // Efecto para carga inicial cuando el componente se monta
+    // Efecto AGGRESIVO - se ejecuta siempre que el componente se renderiza
     useEffect(() => {
-        if (csSong && formatId && !hasLoaded.current) {
-            fetchPlatformData();
-        }
-    }, []);
+        console.log('🟣 Component rendered, current state:', {
+            loading,
+            hasData: !!platformData,
+            csSong,
+            formatId
+        });
+    });
 
     const handlePlatformChange = (event: any) => {
         const platformKey = event.target.value;

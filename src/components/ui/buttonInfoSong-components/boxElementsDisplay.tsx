@@ -118,18 +118,15 @@ const CityChip = ({ city, rank }: { city: ElementItem, rank: number }) => {
     );
 };
 
-export default function BoxElementsDisplay({
-    label,
-    csSong,
-    countries,
-    onDataLoaded,
-}: BoxElementsDisplayProps) {
+export default function BoxElementsDisplay({ label, csSong, countries, onDataLoaded }: BoxElementsDisplayProps) {
     const [elements, setElements] = useState<ElementItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedCountry, setSelectedCountry] = useState<string>(
         countries.length > 0 ? countries[0].id.toString() : ''
     );
+    const [citiesData, setCitiesData] = useState<CityDataForSong[]>([]);
+    const [activeTab, setActiveTab] = useState(0);
 
     // Función para obtener datos de ciudades
     const fetchCityData = async (countryId: string) => {
@@ -147,13 +144,15 @@ export default function BoxElementsDisplay({
             // Llamar a la API para obtener datos de ciudades
             const response = await digitalLatinoApi.getCityData(parseInt(csSong), parseInt(countryId));
             console.log('City data response:', response.data);
+
+            // Guardar datos completos para el mapa
+            setCitiesData(response.data);
+
             // Transformar los datos de la API al formato que necesita el componente
             const cityData: ElementItem[] = response.data.map((city: CityDataForSong, index: number) => ({
                 name: city.cityname || `Ciudad ${index + 1}`,
-                rank: index + 1,
+                rank: city.rnk || index + 1,
                 value: city.listeners || city.streams || 0,
-                latitude: city.citylat || '',
-                longitude: city.citylng || ''
             }));
 
             const top8Cities = cityData.slice(0, 8); // Mostrar solo las top 8 ciudades
@@ -189,6 +188,8 @@ export default function BoxElementsDisplay({
     const handleCountryChange = (event: any) => {
         setSelectedCountry(event.target.value);
     };
+
+
 
     // Dividir elementos en dos filas 
     const firstRow = elements.slice(0, 4);
@@ -302,6 +303,7 @@ export default function BoxElementsDisplay({
                     </Select>
                 </FormControl>
             </Box>
+
 
             {/* Lista horizontal de ciudades */}
             <Box sx={{ width: '100%' }}>
