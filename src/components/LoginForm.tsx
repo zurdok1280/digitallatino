@@ -1,4 +1,3 @@
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, User, Sparkles, Music } from 'lucide-react';
 import { PasswordStrength } from './PasswordStrength';
 import { useState, useEffect } from 'react';
-
 
 interface LoginFormProps {
   onClose: () => void;
@@ -21,12 +19,10 @@ export function LoginForm({ onClose }: LoginFormProps) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordError, setPasswordError] = useState('');
-  //const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const { toast } = useToast();
 
-  //User Efect to validate in real time the passwords
   useEffect(() => {
     if (confirmPassword && password !== confirmPassword) {
       setPasswordError('Las contraseñas no coinciden.');
@@ -43,13 +39,19 @@ export function LoginForm({ onClose }: LoginFormProps) {
     try {
       const response = await fetch('http://localhost:8082/api/auth/login', {
         method: 'POST',
-        headers: { 'Contecnt-Type': 'application/json' },
+        headers: {
+          
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({ email, password }),
       });
 
+     
       if (!response.ok) {
-        throw new Error('Credenciales inválidas. Verifica tu email y contraseña.');
+        const errorData = await response.json(); 
+        throw new Error(errorData.error || 'Error al iniciar sesión.');
       }
+      
       const data = await response.json();
       login(data.token);
 
@@ -58,10 +60,14 @@ export function LoginForm({ onClose }: LoginFormProps) {
         description: "Has iniciado sesión correctamente.",
       });
       onClose();
-    } catch (error: any) {
+    } catch (error: unknown) {
+      let errorMessage = "Ocurrió un error desconocido.";
+      if (error instanceof Error) { 
+        errorMessage = error.message; 
+      }
       toast({
         title: "Error al iniciar sesión",
-        description: error.message,
+        description: errorMessage, 
         variant: "destructive",
       });
     } finally {
@@ -85,23 +91,35 @@ export function LoginForm({ onClose }: LoginFormProps) {
         }),
       });
 
-
-
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Error al crear cuenta');
+        throw new Error(errorData.error || 'Error al crear cuenta');
       }
       const data = await response.json();
       toast({
         title: "¡Cuenta creada!",
         description: data.message,
       });
-      onClose(); //close  page register
+      setEmail('');
+      setPassword('');
+      setFirstName('');
+      setLastName('');
+      setConfirmPassword('');
+      onClose(); 
+      toast({
+        title: "Verifica tu email",
+        description: "¡Revisa tu bandeja de entrada para continuar!",
+      });
+
     }
-    catch (error: any) {
+    catch (error: unknown) {
+let errorMessage = "Ocurrió un error desconocido.";
+      if (error instanceof Error) { 
+        errorMessage = error.message; 
+      }
       toast({
         title: "Error al crear cuenta",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
 
@@ -110,7 +128,7 @@ export function LoginForm({ onClose }: LoginFormProps) {
     }
   };
 
-
+  
   const isSignUpDisabled =
     loading ||
     password.length < 10 ||
@@ -313,7 +331,7 @@ export function LoginForm({ onClose }: LoginFormProps) {
                 type="submit"
                 className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 disabled={isSignUpDisabled}
-              >PasswordStrength.tsx
+              >
 
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">
