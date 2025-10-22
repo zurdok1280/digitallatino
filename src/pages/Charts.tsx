@@ -353,7 +353,7 @@ export default function Charts() {
     setDropdownSearch('');
   };
 
-  // Efecto para manejar la tecla Escape
+  // useEffect para manejar la tecla Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -556,7 +556,6 @@ export default function Charts() {
 
   // Fetch Songs when country changes
   useEffect(() => {
-
 
     fetchSongs();
   }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
