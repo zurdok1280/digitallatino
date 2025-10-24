@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User, Sparkles, Music } from 'lucide-react';
+import { Mail, Lock, User, Sparkles, Music,Phone } from 'lucide-react';
 import { PasswordStrength } from './PasswordStrength';
 import { useState, useEffect } from 'react';
 
@@ -18,6 +18,7 @@ export function LoginForm({ onClose }: LoginFormProps) {
   const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [phone, setPhone] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -37,7 +38,7 @@ export function LoginForm({ onClose }: LoginFormProps) {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8082/api/auth/login', {
+      const response = await fetch('https://backend.digital-latino.com/api/auth/login', {
         method: 'POST',
         headers: {
           
@@ -80,7 +81,7 @@ export function LoginForm({ onClose }: LoginFormProps) {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8082/api/auth/register', {
+      const response = await fetch('https://backend.digital-latino.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -88,6 +89,7 @@ export function LoginForm({ onClose }: LoginFormProps) {
           lastName,
           email,
           password,
+          phone,
         }),
       });
 
@@ -264,6 +266,22 @@ let errorMessage = "Ocurrió un error desconocido.";
                     className="pl-12 h-12 bg-white/50 border-blue-200 focus:border-blue-500 focus:ring-blue-500"
                     placeholder="Apellidos"
                     required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="signup-phone" className="text-sm font-medium text-gray-700">
+                  Teléfono (Opcional)
+                </Label>
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Input
+                    id="signup-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="pl-12 h-12 bg-white/50 border-blue-200 focus:border-blue-500 focus:ring-blue-500"
+                    placeholder="Tu número de teléfono"
                   />
                 </div>
               </div>
