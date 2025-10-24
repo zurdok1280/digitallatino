@@ -16,13 +16,15 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/hooks/useAuth';
 import { LoginForm } from './LoginForm';
+import { AuthProvider } from '@/hooks/useAuth';
+import { BrowserRouter } from 'react-router-dom';
 
 export function LoginButton() {
-  const { user, signOut } = useAuth();
+  const { user, logout } = useAuth();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   const handleSignOut = async () => {
-    await signOut();
+    await logout();
   };
 
   if (user) {

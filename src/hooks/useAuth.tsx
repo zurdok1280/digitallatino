@@ -95,7 +95,7 @@ export function useAuth() {
 
 import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
 import { jwtDecode } from 'jwt-decode'; 
-
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   token: string | null;
@@ -111,6 +111,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<{ email: string; role: string } | null>(null);
+  const navigate = useNavigate();
 
   
   useEffect(() => {
@@ -144,6 +145,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('authToken');
     setToken(null);
     setUser(null);
+    navigate('/', { replace: true });
   };
 
   const isAuthenticated = !!token;
