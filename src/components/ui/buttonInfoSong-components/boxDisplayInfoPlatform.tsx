@@ -173,7 +173,9 @@ export default function BoxDisplayInfoPlatform({ csSong, formatId }: BoxDisplayI
 
     // Función para obtener datos de la API
     const fetchPlatformData = async () => {
-        if (!csSong || !formatId) {
+        // CORREGIDO: Permitir formatId = 0 (General)
+        if (!csSong || formatId === undefined || formatId === null) {
+
             setLoading(false);
             return;
         }
@@ -183,18 +185,15 @@ export default function BoxDisplayInfoPlatform({ csSong, formatId }: BoxDisplayI
 
         // Evitar solicitudes duplicadas
         if (lastFetchRef.current === requestKey) {
-            console.log('⏭️ Skipping duplicate request:', requestKey);
             return;
         }
 
         try {
-            console.log('🟡 FETCHING DATA for:', requestKey);
             setLoading(true);
             setError(null);
             lastFetchRef.current = requestKey;
 
             const response = await digitalLatinoApi.getSongPlatformData(csSong, formatId);
-            console.log('✅ DATA RECEIVED:', response.data);
 
             setPlatformData(response.data);
         } catch (err) {
@@ -206,26 +205,16 @@ export default function BoxDisplayInfoPlatform({ csSong, formatId }: BoxDisplayI
         }
     };
 
-    // Efecto MUY AGRESIVO - se ejecuta en cada render cuando las props son válidas
+    // Effect CORREGIDO: Manejar formatId = 0
     useEffect(() => {
-        console.log('🎯 EFFECT RUNNING - csSong:', csSong, 'formatId:', formatId);
 
-        if (csSong && formatId) {
+        // CORREGIDO: formatId puede ser 0 (General)
+        if (csSong && (formatId === 0 || formatId)) {
             fetchPlatformData();
         } else {
             setLoading(false);
         }
     }, [csSong, formatId]);
-
-    // Efecto AGGRESIVO - se ejecuta siempre que el componente se renderiza
-    useEffect(() => {
-        console.log('🟣 Component rendered, current state:', {
-            loading,
-            hasData: !!platformData,
-            csSong,
-            formatId
-        });
-    });
 
     const handlePlatformChange = (event: any) => {
         const platformKey = event.target.value;
