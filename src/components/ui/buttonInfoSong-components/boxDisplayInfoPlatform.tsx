@@ -312,7 +312,7 @@ export default function BoxDisplayInfoPlatform({ csSong, formatId }: BoxDisplayI
                     gap: 2
                 }}
             >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", flexWrap: 'wrap', alignItems: "center", mb: 2, gap: 2 }}>
                     <Typography variant="h4" sx={{ fontSize: '2rem' }}>
                         {selectedPlatform.logo}
                     </Typography>
@@ -370,8 +370,9 @@ export default function BoxDisplayInfoPlatform({ csSong, formatId }: BoxDisplayI
                     const value = platformData ? platformData[field.key] as number : null;
                     const formattedValue = value !== null && value !== undefined ? formatValue(field.key, value) : 'N/A';
 
+
                     return (
-                        <Grid item xs={12} sm={6} md={4} key={field.key as string}>
+                        <Grid item xs={12} sm={6} md={4} key={field.key as string} sx={{ display: 'flex' }}>
                             <Paper
                                 elevation={1}
                                 sx={{
@@ -386,8 +387,10 @@ export default function BoxDisplayInfoPlatform({ csSong, formatId }: BoxDisplayI
                                     },
                                     height: '100%',
                                     display: 'flex',
+                                    flex: 1,
                                     flexDirection: 'column',
                                     justifyContent: 'center',
+                                    minHeight: '100px',
                                 }}
                             >
                                 <Typography
@@ -418,6 +421,7 @@ export default function BoxDisplayInfoPlatform({ csSong, formatId }: BoxDisplayI
                     );
                 })}
             </Grid>
+
 
             {/* Mensaje si no hay datos */}
             {platformData && selectedPlatform.fields.every(field =>

@@ -202,6 +202,17 @@ export interface SongInfoPlatform {
   pan_streams: number;
 }
 
+// Interface para manejar info de la canción por cs_song
+export interface SongBasicInfo {
+  id: string;
+  avatar: string;
+  background: string;
+  title: string;
+  artist: string;
+  label: string;
+  url: string;
+}
+
 // Clase principal para manejar las conexiones API
 export class ApiClient {
   private baseURL: string;
@@ -429,12 +440,15 @@ export const digitalLatinoApi = {
     countryId: number
   ): Promise<ApiResponse<CityDataForSong[]>> =>
     api.get<CityDataForSong[]>(`report/getCityData/${csSong}/${countryId}`),
-
+  // Obtener información de la canción por plataforma
   getSongPlatformData: (
     csSong: number,
     formatId: number
   ): Promise<ApiResponse<SongInfoPlatform[]>> =>
     api.get<SongInfoPlatform[]>(`report/getSongDigital/${csSong}/${formatId}`),
+  // Obtener información básica de la canción por cs_song
+  getSongById: (csSong: number): Promise<ApiResponse<SongBasicInfo>> =>
+    api.get<SongBasicInfo>(`report/getSongbyId/${csSong}`),
 };
 
 // Ejemplo de uso:

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import BoxElementsDisplay from "./buttonInfoSong-components/boxElementsDisplay";
 import BoxDisplayInfoPlatform from "./buttonInfoSong-components/boxDisplayInfoPlatform";
 import WorldMap from "./buttonInfoSong-components/worldMap";
+import SongHeaderInfo from "./buttonInfoSong-components/songHeaderInfo";
 
 
 export interface ButtonInfoSongProps {
@@ -50,6 +51,9 @@ export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, cou
 
     return (
         <div className="border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
+            {/* Información de la canción */}
+            <SongHeaderInfo csSong={row.cs_song} />
+
             {/* Top de ciudades */}
             <BoxElementsDisplay
                 label={"Top Cities Digital"}

@@ -88,8 +88,15 @@ export default function WorldMap({
         mapInstanceRef.current = map;
 
         // Agregar capa de tiles (puedes usar diferentes proveedores)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
+        }).addTo(map);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 20
         }).addTo(map);
 
         // Crear grupo de marcadores
@@ -97,13 +104,42 @@ export default function WorldMap({
 
         // Agregar marcadores si hay ciudades válidas
         if (validCities.length > 0) {
-            addMarkersToMap(map, markersRef.current, validCities);
+            validCities.forEach(city => {
+                const marker = L.marker([city.citylat!, city.citylng!], {
+                    icon: createCustomIcon(city.rnk || 1)
+                }).addTo(markersRef.current!);
+
+                // Tooltip en hover
+                marker.bindTooltip(`
+        <div style="font-weight: bold; color: #333;">${city.cityname}</div>
+        <div style="color: #666;">Rank: #${city.rnk}</div>
+        <div style="color: #666;">Oyentes: ${city.listeners ? formatNumber(city.listeners) : '0'}</div>
+      `, {
+                    permanent: false,
+                    direction: 'top',
+                    className: 'custom-tooltip'
+                });
+
+                // Popup al hacer click
+                marker.bindPopup(`
+        <div style="min-width: 200px;">
+          <h4 style="margin: 0 0 8px 0; color: #333;">${city.cityname}</h4>
+          <p style="margin: 4px 0; color: #666;">
+            <strong>Rank:</strong> #${city.rnk}<br/>
+            <strong>Oyentes:</strong> ${city.listeners ? formatNumber(city.listeners) : '0'}<br/>
+            <strong>Coordenadas:</strong> ${city.citylat?.toFixed(4)}, ${city.citylng?.toFixed(4)}
+          </p>
+        </div>
+      `);
+            });
 
             // Ajustar el zoom para mostrar todos los marcadores
-            const group = L.featureGroup(
-                validCities.map(city => L.marker([city.citylat!, city.citylng!]))
-            );
-            map.fitBounds(group.getBounds().pad(0.1));
+            if (validCities.length > 0) {
+                const group = L.featureGroup(
+                    validCities.map(city => L.marker([city.citylat!, city.citylng!]))
+                );
+                map.fitBounds(group.getBounds().pad(0.1));
+            }
         }
 
         // Cleanup
