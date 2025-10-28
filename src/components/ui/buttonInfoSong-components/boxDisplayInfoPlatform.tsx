@@ -3,6 +3,19 @@ import { Box, FormControl, Select, MenuItem, Typography, Paper, Stack, CircularP
 import { digitalLatinoApi, Song, SongInfoPlatform } from "@/lib/api";
 import Grid from "@mui/material/Grid";
 
+import amazonmusicIcon from '/src/assets/covers/icons/amazonmusic-icon.svg';
+import applemusicIcon from '/src/assets/covers/icons/applemusic-icon.png';
+import deezerIcon from '/src/assets/covers/icons/deezer-icon.png';
+import pandoraIcon from '/src/assets/covers/icons/pandora-icon.png';
+import soundcloudIcon from '/src/assets/covers/icons/soundcloud-icon.svg';
+import spotifyIcon from '/src/assets/covers/icons/spotify-icon.png';
+import tidalIcon from '/src/assets/covers/icons/tidal-icon.png';
+import tiktokIcon from '/src/assets/covers/icons/tiktok-icon.png';
+import youtubeIcon from '/src/assets/covers/icons/youtube-icon.svg';
+import shazamIcon from '/src/assets/covers/icons/shazam-icon.svg';
+
+
+
 export interface BoxDisplayInfoPlatformProps {
     csSong: number;
     formatId: number;
@@ -19,7 +32,7 @@ const platforms = [
     {
         key: "spotify",
         name: "Spotify",
-        logo: "🟢",
+        logo: spotifyIcon,
         rankKey: "rk_spotify" as keyof SongInfoPlatform,
         fields: [
             { key: "spotify_streams_total" as keyof SongInfoPlatform, label: "Total Streams" },
@@ -33,7 +46,7 @@ const platforms = [
     {
         key: "apple",
         name: "Apple Music",
-        logo: "🔴",
+        logo: applemusicIcon,
         rankKey: "rk_apple" as keyof SongInfoPlatform,
         fields: [
             { key: "apple_playlists_current" as keyof SongInfoPlatform, label: "Playlists Current" },
@@ -45,7 +58,7 @@ const platforms = [
     {
         key: "amazon",
         name: "Amazon Music",
-        logo: "🟡",
+        logo: amazonmusicIcon,
         rankKey: "rk_amazon" as keyof SongInfoPlatform,
         fields: [
             { key: "amazon_playlists_current" as keyof SongInfoPlatform, label: "Playlists Current" },
@@ -57,7 +70,7 @@ const platforms = [
     {
         key: "deezer",
         name: "Deezer",
-        logo: "🟣",
+        logo: deezerIcon,
         rankKey: "rk_deezer" as keyof SongInfoPlatform,
         fields: [
             { key: "deezer_popularity_current" as keyof SongInfoPlatform, label: "Popularity Current" },
@@ -72,7 +85,7 @@ const platforms = [
     {
         key: "tiktok",
         name: "TikTok",
-        logo: "⚫",
+        logo: tiktokIcon,
         rankKey: "rk_tiktok" as keyof SongInfoPlatform,
         fields: [
             { key: "tiktok_videos_total" as keyof SongInfoPlatform, label: "Videos Total" },
@@ -86,7 +99,7 @@ const platforms = [
     {
         key: "youtube",
         name: "YouTube",
-        logo: "🔴",
+        logo: youtubeIcon,
         rankKey: "rk_youtube" as keyof SongInfoPlatform,
         fields: [
             { key: "youtube_videos_total" as keyof SongInfoPlatform, label: "Videos Total" },
@@ -103,7 +116,7 @@ const platforms = [
     {
         key: "shazam",
         name: "Shazam",
-        logo: "🔵",
+        logo: shazamIcon,
         rankKey: "rk_shazam" as keyof SongInfoPlatform,
         fields: [
             { key: "shazam_shazams_total" as keyof SongInfoPlatform, label: "Shazams Total" },
@@ -114,7 +127,7 @@ const platforms = [
     {
         key: "tidal",
         name: "Tidal",
-        logo: "🌊",
+        logo: tidalIcon,
         rankKey: "rk_tidal" as keyof SongInfoPlatform,
         fields: [
             { key: "tidal_popularity_current" as keyof SongInfoPlatform, label: "Popularity Current" },
@@ -125,7 +138,7 @@ const platforms = [
     {
         key: "soundcloud",
         name: "SoundCloud",
-        logo: "🟠",
+        logo: soundcloudIcon,
         rankKey: "rk_soundcloud" as keyof SongInfoPlatform,
         fields: [
             { key: "soundcloud_streams_total" as keyof SongInfoPlatform, label: "Streams Total" },
@@ -137,7 +150,7 @@ const platforms = [
     {
         key: "pandora",
         name: "Pandora",
-        logo: "🎵",
+        logo: pandoraIcon,
         rankKey: "rk_pandora" as keyof SongInfoPlatform,
         fields: [
             { key: "pan_streams" as keyof SongInfoPlatform, label: "Streams" },
@@ -309,22 +322,45 @@ export default function BoxDisplayInfoPlatform({ csSong, formatId }: BoxDisplayI
                     alignItems: "center",
                     mb: 3,
                     flexWrap: 'wrap',
-                    gap: 2
+                    gap: 2,
+                    backgroundColor: 'rgba(248, 249, 250, 0.8)',
+                    borderRadius: '12px',
+                    p: 2,
+                    border: '1px solid rgba(224, 224, 224, 0.5)',
                 }}
             >
-                <Box sx={{ display: "flex", justifyContent: "space-between", flexWrap: 'wrap', alignItems: "center", mb: 2, gap: 2 }}>
-                    <Typography variant="h4" sx={{ fontSize: '2rem' }}>
-                        {selectedPlatform.logo}
-                    </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Box
+                        component="img"
+                        src={selectedPlatform.logo}
+                        alt={selectedPlatform.name}
+                        sx={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: '10px',
+                            objectFit: 'contain',
+                            backgroundColor: 'white',
+                            padding: '6px',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                            border: '2px solid #f0f0f0',
+                            transition: 'all 0.3s ease',
+                            '&:hover': {
+                                transform: 'scale(1.05)',
+                                boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+                            }
+                        }}
+                        onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'none';
+                        }}
+                    />
                     <Box>
                         <Typography
-                            variant="subtitle2"
+                            variant="h6"
                             sx={{
-                                color: "#6C63FF",
+                                color: "#1a1a1a",
                                 fontWeight: "bold",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.05em",
-                                fontSize: '1.1rem'
+                                fontSize: '1.3rem'
                             }}
                         >
                             {selectedPlatform.name}
@@ -332,31 +368,58 @@ export default function BoxDisplayInfoPlatform({ csSong, formatId }: BoxDisplayI
                         <Typography
                             variant="body2"
                             sx={{
-                                color: "#666",
+                                color: "#6C63FF",
                                 fontSize: '0.9rem',
-                                fontWeight: 600
+                                fontWeight: 700,
+                                backgroundColor: 'rgba(108, 99, 255, 0.1)',
+                                padding: '2px 8px',
+                                borderRadius: '12px',
+                                display: 'inline-block',
                             }}
                         >
-                            Rank: #{rankValue ? formatNumber(rankValue) : 'N/A'}
+                            Rank #{rankValue ? formatNumber(rankValue) : 'N/A'}
                         </Typography>
                     </Box>
                 </Box>
 
-                <FormControl size="small" sx={{ minWidth: 200 }}>
+                <FormControl size="small" sx={{ minWidth: 220 }}>
                     <Select
                         value={selectedPlatform.key}
                         onChange={handlePlatformChange}
                         sx={{
-                            fontSize: "0.85rem",
-                            borderRadius: "8px",
-                            "& .MuiOutlinedInput-notchedOutline": { borderColor: "#ccc" },
+                            fontSize: "0.9rem",
+                            borderRadius: "10px",
+                            backgroundColor: 'white',
+                            "& .MuiOutlinedInput-notchedOutline": {
+                                borderColor: "#ddd",
+                                borderWidth: '2px',
+                            },
+                            "&:hover .MuiOutlinedInput-notchedOutline": {
+                                borderColor: "#6C63FF",
+                            },
                         }}
                     >
                         {platforms.map((platform) => (
                             <MenuItem key={platform.key} value={platform.key}>
-                                <Stack direction="row" alignItems="center" gap={1}>
-                                    <Typography variant="inherit">{platform.logo}</Typography>
-                                    <Typography variant="inherit">{platform.name}</Typography>
+                                <Stack direction="row" alignItems="center" gap={1.5}>
+                                    <Box
+                                        component="img"
+                                        src={platform.logo}
+                                        alt={platform.name}
+                                        sx={{
+                                            width: 24,
+                                            height: 24,
+                                            borderRadius: '6px',
+                                            objectFit: 'contain',
+                                        }}
+                                        onError={(e) => {
+                                            const target = e.target as HTMLImageElement;
+                                            target.style.display = 'none';
+                                        }}
+                                    />
+                                    <Typography variant="inherit" sx={{ fontWeight: 500 }}>
+                                        {platform.name}
+                                    </Typography>
                                 </Stack>
                             </MenuItem>
                         ))}
