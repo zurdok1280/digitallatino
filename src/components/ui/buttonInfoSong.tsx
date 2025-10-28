@@ -6,6 +6,7 @@ import BoxElementsDisplay from "./buttonInfoSong-components/boxElementsDisplay";
 import BoxDisplayInfoPlatform from "./buttonInfoSong-components/boxDisplayInfoPlatform";
 import WorldMap from "./buttonInfoSong-components/worldMap";
 import SongHeaderInfo from "./buttonInfoSong-components/songHeaderInfo";
+import BoxElementsDisplaySpins from "./buttonInfoSong-components/boxElementsDisplaySpins";
 
 
 export interface ButtonInfoSongProps {
@@ -68,6 +69,22 @@ export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, cou
                 formatId={selectedFormat ? parseInt(selectedFormat) : 0}
 
             />
+            {/* Estadisticas de Radio */}
+            <BoxElementsDisplaySpins
+                csSong={row.cs_song}
+                title="Top Países en Radio"
+                label="países"
+                type="countries"
+            />
+            {selectedCountry && selectedCountry !== '0' && (
+                <BoxElementsDisplaySpins
+                    csSong={row.cs_song}
+                    countryId={parseInt(selectedCountry)}
+                    title="Top Mercados en Radio"
+                    label="mercados"
+                    type="markets"
+                />
+            )}
 
 
         </div>

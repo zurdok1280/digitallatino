@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { Box, FormControl, Select, MenuItem, Typography, Paper, Stack, CircularProgress, } from "@mui/material";
 import { digitalLatinoApi, Song, SongInfoPlatform } from "@/lib/api";
 import Grid from "@mui/material/Grid";
-
+//imports icons
 import amazonmusicIcon from '/src/assets/covers/icons/amazonmusic-icon.svg';
 import applemusicIcon from '/src/assets/covers/icons/applemusic-icon.png';
 import deezerIcon from '/src/assets/covers/icons/deezer-icon.png';
@@ -13,8 +13,6 @@ import tidalIcon from '/src/assets/covers/icons/tidal-icon.png';
 import tiktokIcon from '/src/assets/covers/icons/tiktok-icon.png';
 import youtubeIcon from '/src/assets/covers/icons/youtube-icon.svg';
 import shazamIcon from '/src/assets/covers/icons/shazam-icon.svg';
-
-
 
 export interface BoxDisplayInfoPlatformProps {
     csSong: number;
