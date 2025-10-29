@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User, Sparkles, Music,Phone } from 'lucide-react';
+import { Mail, Lock, User, Sparkles, Music, Phone } from 'lucide-react';
 import { PasswordStrength } from './PasswordStrength';
 import { useState, useEffect } from 'react';
 
@@ -38,21 +38,21 @@ export function LoginForm({ onClose }: LoginFormProps) {
     setLoading(true);
 
     try {
-      const response = await fetch('https://backend.digital-latino.com/api/auth/login', {
+      const response = await fetch('http://security.digital-latino.com/api/auth/login', {
         method: 'POST',
         headers: {
-          
+
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password }),
       });
 
-     
+
       if (!response.ok) {
-        const errorData = await response.json(); 
+        const errorData = await response.json();
         throw new Error(errorData.error || 'Error al iniciar sesión.');
       }
-      
+
       const data = await response.json();
       login(data.token);
 
@@ -63,12 +63,12 @@ export function LoginForm({ onClose }: LoginFormProps) {
       onClose();
     } catch (error: unknown) {
       let errorMessage = "Ocurrió un error desconocido.";
-      if (error instanceof Error) { 
-        errorMessage = error.message; 
+      if (error instanceof Error) {
+        errorMessage = error.message;
       }
       toast({
         title: "Error al iniciar sesión",
-        description: errorMessage, 
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -81,7 +81,7 @@ export function LoginForm({ onClose }: LoginFormProps) {
     setLoading(true);
 
     try {
-      const response = await fetch('https://backend.digital-latino.com/api/auth/register', {
+      const response = await fetch('http://security.digital-latino.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -107,7 +107,7 @@ export function LoginForm({ onClose }: LoginFormProps) {
       setFirstName('');
       setLastName('');
       setConfirmPassword('');
-      onClose(); 
+      onClose();
       toast({
         title: "Verifica tu email",
         description: "¡Revisa tu bandeja de entrada para continuar!",
@@ -115,9 +115,9 @@ export function LoginForm({ onClose }: LoginFormProps) {
 
     }
     catch (error: unknown) {
-let errorMessage = "Ocurrió un error desconocido.";
-      if (error instanceof Error) { 
-        errorMessage = error.message; 
+      let errorMessage = "Ocurrió un error desconocido.";
+      if (error instanceof Error) {
+        errorMessage = error.message;
       }
       toast({
         title: "Error al crear cuenta",
@@ -130,7 +130,7 @@ let errorMessage = "Ocurrió un error desconocido.";
     }
   };
 
-  
+
   const isSignUpDisabled =
     loading ||
     password.length < 10 ||
