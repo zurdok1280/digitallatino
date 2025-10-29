@@ -219,6 +219,19 @@ export interface SpinData {
   spins: number;
   rank: number;
 }
+//Interface para manejar info de TopPlaylists
+export interface TopPlaylists {
+  rank: number;
+  spotify_id: string;
+  playlist_name: string;
+  owner_name: string;
+  artwork: string;
+  external_url: string;
+  current_position: number;
+  top_position: number;
+  followers: number;
+  type_name: string;
+}
 
 // Clase principal para manejar las conexiones API
 export class ApiClient {
@@ -465,6 +478,12 @@ export const digitalLatinoApi = {
     countryId: number
   ): Promise<ApiResponse<SpinData[]>> =>
     api.get<SpinData[]>(`report/getTopMarketRadio/${csSong}/${countryId}`),
+  //Obtener playlists por cs_song y tipo de playlist
+  getTopPlaylists: (
+    csSong: number,
+    typePlaylist: number
+  ): Promise<ApiResponse<TopPlaylists[]>> =>
+    api.get<TopPlaylists[]>(`report/getTopPlaylists/${csSong}/${typePlaylist}`),
 };
 
 // Ejemplo de uso:

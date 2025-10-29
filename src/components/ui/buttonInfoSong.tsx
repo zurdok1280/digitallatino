@@ -7,6 +7,7 @@ import BoxDisplayInfoPlatform from "./buttonInfoSong-components/boxDisplayInfoPl
 import WorldMap from "./buttonInfoSong-components/worldMap";
 import SongHeaderInfo from "./buttonInfoSong-components/songHeaderInfo";
 import BoxElementsDisplaySpins from "./buttonInfoSong-components/boxElementsDisplaySpins";
+import BoxPlaylistsDisplay from "./buttonInfoSong-components/boxPlaylistsDisplay";
 
 
 export interface ButtonInfoSongProps {
@@ -85,6 +86,8 @@ export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, cou
                     type="markets"
                 />
             )}
+            {/* Playlist Info */}
+            <BoxPlaylistsDisplay csSong={row.cs_song} />
 
 
         </div>
