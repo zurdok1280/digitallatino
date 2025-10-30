@@ -70,22 +70,7 @@ export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, cou
                 formatId={selectedFormat ? parseInt(selectedFormat) : 0}
 
             />
-            {/* Estadisticas de Radio */}
-            <BoxElementsDisplaySpins
-                csSong={row.cs_song}
-                title="Top Países en Radio"
-                label="países"
-                type="countries"
-            />
-            {selectedCountry && selectedCountry !== '0' && (
-                <BoxElementsDisplaySpins
-                    csSong={row.cs_song}
-                    countryId={parseInt(selectedCountry)}
-                    title="Top Mercados en Radio"
-                    label="mercados"
-                    type="markets"
-                />
-            )}
+
             {/* Playlist Info */}
             <BoxPlaylistsDisplay csSong={row.cs_song} />
 

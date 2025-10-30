@@ -82,7 +82,7 @@ const SpinItem = ({ item, rank }: { item: SpinData, rank: number }) => {
                         border: '1px solid',
                         borderColor: 'divider',
                         fontSize: '12px',
-                        fontWeight: '500',
+                        fontWeight: '450',
                         '& .MuiTooltip-arrow': {
                             color: 'white',
                         }
@@ -99,10 +99,10 @@ const SpinItem = ({ item, rank }: { item: SpinData, rank: number }) => {
                     borderRadius: '16px',
                     backgroundColor: 'white',
                     border: `2px solid ${getRankColor(rank)}`,
-                    minWidth: '160px',
-                    maxWidth: '200px',
+                    minWidth: '140px',
+                    maxWidth: '190px',
                     width: '100%',
-                    gap: 1.5,
+                    gap: 1,
                     cursor: 'pointer',
                     transition: 'all 0.2s ease',
                     '&:hover': {
@@ -308,6 +308,7 @@ export default function BoxElementsDisplaySpins({
                 boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
                 backgroundColor: "white",
                 mb: 3,
+                width: '100%'
             }}
         >
             {/* Header */}

@@ -856,7 +856,7 @@ export default function Charts() {
             </div>
 
             {/* Filtro por Periodo Musical */}
-            <div className="space-y-2">
+            {/*<div className="space-y-2">
               <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-2">
                 <span>⏰</span> Periodo Musical
               </label>
@@ -872,7 +872,7 @@ export default function Charts() {
                   <option value="G">🟠 Gold - Más de 3 años</option>
                 </select>
               </div>
-            </div>
+            </div>*/}
           </div>
         </div>
 

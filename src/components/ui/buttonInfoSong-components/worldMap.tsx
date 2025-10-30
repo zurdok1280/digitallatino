@@ -240,18 +240,7 @@ export default function WorldMap({
 
     return (
         <Box sx={{ mt: 3 }}>
-            <Typography
-                variant="subtitle2"
-                sx={{
-                    color: "#6C63FF",
-                    fontWeight: "bold",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                    mb: 2
-                }}
-            >
-                {title}
-            </Typography>
+
 
             <Paper
                 elevation={1}
@@ -263,6 +252,18 @@ export default function WorldMap({
                     boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                 }}
             >
+                <Typography
+                    variant="subtitle2"
+                    sx={{
+                        color: "#6C63FF",
+                        fontWeight: "bold",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
+                        mb: 2
+                    }}
+                >
+                    {title}
+                </Typography>
                 {/* Mapa Leaflet */}
                 <Box
                     ref={mapRef}

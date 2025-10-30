@@ -3,6 +3,7 @@ import { Box, FormControl, Select, MenuItem, Typography, CircularProgress, Chip,
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { CityDataForSong, Country, digitalLatinoApi } from "@/lib/api";
 import WorldMap from "./worldMap";
+import BoxElementsDisplaySpins from "./boxElementsDisplaySpins";
 
 export interface ElementItem {
     name: string;
@@ -260,126 +261,127 @@ export default function BoxElementsDisplay({ label, csSong, countries, onDataLoa
                 mb: 3,
             }}
         >
+
+            {/* Estadisticas de Radio */}
+            <BoxElementsDisplaySpins
+                csSong={Number(csSong)}
+                title="Top Países en Radio"
+                label="países"
+                type="countries"
+            />
+            {selectedCountry && selectedCountry !== '0' && (
+                <BoxElementsDisplaySpins
+                    csSong={Number(csSong)}
+                    countryId={parseInt(selectedCountry)}
+                    title="Top Mercados en Radio"
+                    label="mercados"
+                    type="markets"
+                />
+            )}
             {/* Header con dropdown de países */}
-            <Box
-                sx={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    mb: 3,
-                    flexWrap: 'wrap',
-                    gap: 2
-                }}
-            >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <EmojiEventsIcon sx={{ color: "#6C63FF" }} />
-                    <Typography
-                        variant="subtitle2"
-                        sx={{
-                            color: "#6C63FF",
-                            fontWeight: "bold",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.05em",
-                        }}
-                    >
-                        {label}
-                    </Typography>
+            <Box sx={{
+                border: "1px solid #E0E0E0",
+                borderRadius: "12px",
+                p: 3,
+                boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                backgroundColor: "white",
+                mb: 3,
+            }}>
+                {/* Header con dropdown de países */}
+                <Box
+                    sx={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        mb: 3,
+                        flexWrap: 'wrap',
+                        gap: 2
+                    }}
+                >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <EmojiEventsIcon sx={{ color: "#6C63FF" }} />
+                        <Typography
+                            variant="subtitle2"
+                            sx={{
+                                color: "#6C63FF",
+                                fontWeight: "bold",
+                                textTransform: "uppercase",
+                                letterSpacing: "0.05em",
+                            }}
+                        >
+                            {label}
+                        </Typography>
+                    </Box>
+                    {/* Dropdown de selección de país */}
+                    {/*<FormControl size="small" sx={{ minWidth: 200 }}>
+                        <Select
+                            value={selectedCountry}
+                            onChange={handleCountryChange}
+                            sx={{
+                                fontSize: "0.85rem",
+                                borderRadius: "8px",
+                                "& .MuiOutlinedInput-notchedOutline": { borderColor: "#ccc" },
+                            }}
+                        >
+                            {countries.map((country) => (
+                                <MenuItem key={country.id} value={country.id.toString()}>
+                                    {country.country_name || country.country || country.description}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>*/}
                 </Box>
 
-                <FormControl size="small" sx={{ minWidth: 200 }}>
-                    <Select
-                        value={selectedCountry}
-                        onChange={handleCountryChange}
+
+                {/* Lista horizontal de ciudades */}
+                <Box sx={{
+                    width: '100%'
+                }}>
+
+                    {/* Primera fila - Top 5 ciudades */}
+                    <Stack
+                        direction="row"
+                        spacing={2}
                         sx={{
-                            fontSize: "0.85rem",
-                            borderRadius: "8px",
-                            "& .MuiOutlinedInput-notchedOutline": { borderColor: "#ccc" },
+                            justifyContent: 'center',
+                            mb: 2,
+                            flexWrap: 'wrap',
+                            gap: 2
                         }}
                     >
-                        {countries.map((country) => (
-                            <MenuItem key={country.id} value={country.id.toString()}>
-                                {country.country_name || country.country || country.description}
-                            </MenuItem>
+                        {firstRow.map((city) => (
+                            <CityChip key={city.rank} city={city} rank={city.rank} />
                         ))}
-                    </Select>
-                </FormControl>
-            </Box>
+                    </Stack>
 
-
-            {/* Lista horizontal de ciudades */}
-            <Box sx={{ width: '100%' }}>
-
-                {/* Primera fila - Top 5 ciudades */}
-                <Stack
-                    direction="row"
-                    spacing={2}
-                    sx={{
-                        justifyContent: 'center',
-                        mb: 2,
-                        flexWrap: 'wrap',
-                        gap: 2
-                    }}
-                >
-                    {firstRow.map((city) => (
-                        <CityChip key={city.rank} city={city} rank={city.rank} />
-                    ))}
-                </Stack>
-
-                {/* Segunda fila - Ciudades 6-10 */}
-                <Stack
-                    direction="row"
-                    spacing={2}
-                    sx={{
-                        justifyContent: 'center',
-                        flexWrap: 'wrap',
-                        gap: 2
-                    }}
-                >
-                    {secondRow.map((city) => (
-                        <CityChip key={city.rank} city={city} rank={city.rank} />
-                    ))}
-                </Stack>
-
-                {/* Lista Horizontal de ciudades */}
-                {/*<Stack
-                    direction="row"
-                    spacing={2}
-                    sx={{
-                        overflowX: 'auto',
-                        pb: 2,
-                        '&::-webkit-scrollbar': {
-                            height: 8,
-                        },
-                        '&::-webkit-scrollbar-track': {
-                            backgroundColor: '#f1f1f1',
-                            borderRadius: 4,
-                        },
-                        '&::-webkit-scrollbar-thumb': {
-                            backgroundColor: '#c1c1c1',
-                            borderRadius: 4,
-                        },
-                        '&::-webkit-scrollbar-thumb:hover': {
-                            backgroundColor: '#a8a8a8',
-                        }
-                    }}
-                >
-                    {elements.map((city) => (
-                        <CityChip key={city.rank} city={city} rank={city.rank} />
-                    ))}
-                </Stack>*/}
-
-                {elements.length === 0 && (
-                    <Typography
-                        variant="body2"
+                    {/* Segunda fila - Ciudades 6-10 */}
+                    <Stack
+                        direction="row"
+                        spacing={2}
                         sx={{
-                            textAlign: 'center',
-                            color: '#666',
-                            py: 2
+                            justifyContent: 'center',
+                            flexWrap: 'wrap',
+                            gap: 2
                         }}
                     >
-                        No hay datos de ciudades disponibles
-                    </Typography>
-                )}
+                        {secondRow.map((city) => (
+                            <CityChip key={city.rank} city={city} rank={city.rank} />
+                        ))}
+                    </Stack>
+
+                    {elements.length === 0 && (
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                textAlign: 'center',
+                                color: '#666',
+                                py: 2
+                            }}
+                        >
+                            No hay datos de ciudades disponibles
+                        </Typography>
+                    )}
+                </Box>
             </Box>
             <WorldMap cities={citiesData} loading={loading} />
         </Box>
