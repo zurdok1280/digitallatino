@@ -1,6 +1,17 @@
 import React, { useState, useEffect } from "react";
 import BusinessIcon from '@mui/icons-material/Business';
 
+
+/*
+Componente que muestra la información básica de la canción, como:
+ título, 
+ artista, 
+ disquera  
+ avatar.
+En desuso momentáneamente.
+*/
+
+
 import {
     Box,
     Typography,
