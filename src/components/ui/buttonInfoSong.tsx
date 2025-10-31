@@ -1,4 +1,4 @@
-import { CityDataForSong, Country, Song } from "@/lib/api";
+import { CityDataForSong, Country, Song, TopTrendingPlatforms } from "@/lib/api";
 import { ChevronUp, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -10,30 +10,40 @@ import BoxCampaign from "./buttonInfoSong-components/boxCampaign";
 
 export interface ButtonInfoSongProps {
     index: number;
-    row: Song;
+    row: Song | TopTrendingPlatforms;
     selectedCountry?: string;
+    isExpanded: boolean;
+    onToggle: (index: number) => void;
 }
 
 // Componente para la fila expandida
 interface ExpandRowProps {
-    row: Song;
+    row?: Song;
     onPromote: () => void;
     selectedCountry?: string;
-    selectedFormat?: string
+    selectedFormat?: string;
     countries?: Country[];
-    isExpanded: boolean;
-    cityDataForSong: CityDataForSong[];
-    loadingCityData: boolean;
-
+    isExpanded?: boolean;
+    cityDataForSong?: CityDataForSong[];
+    loadingCityData?: boolean;
 }
 
-export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, countries, isExpanded, cityDataForSong, loadingCityData }: ExpandRowProps & { countries: Country[]; isExpanded: boolean }) {
+export function ExpandRow({
+    row,
+    onPromote,
+    selectedCountry,
+    selectedFormat,
+    countries,
+    isExpanded,
+    cityDataForSong,
+    loadingCityData
+}: ExpandRowProps) {
     const [cityData, setCityData] = useState<any[]>([]);
     const [loadTimestamp, setLoadTimestamp] = useState(Date.now());
+
     const handleCityDataLoaded = (data: any[]) => {
         setCityData(data);
     };
-
     console.log('🔵 ExpandRow rendering with:', {
         csSong: row.cs_song,
         selectedFormat,
@@ -79,10 +89,15 @@ export function ExpandRow({ row, onPromote, selectedCountry, selectedFormat, cou
 }
 
 // Componente que solo maneja el botón
-export function ButtonInfoSong({ index, row, isExpanded, onToggle, selectedCountry }: ButtonInfoSongProps & {
+export function ButtonInfoSong({
+    index,
+    row,
+    selectedCountry,
+    isExpanded,
+    onToggle
+}: ButtonInfoSongProps & {  // ← MANTENER este "&" para ButtonInfoSong
     isExpanded: boolean;
     onToggle: (index: number) => void;
-    selectedCountry: string;
 }) {
     return (
         <button

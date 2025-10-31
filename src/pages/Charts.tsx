@@ -25,7 +25,7 @@ import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
 import { time } from "console";
 import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 import { ButtonInfoSong, ExpandRow, useExpandableRows } from "@/components/ui/buttonInfoSong";
-import MusicWidget from "@/components/musicWidget";
+import MusicWidget from "@/components/MusicWidget";
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [

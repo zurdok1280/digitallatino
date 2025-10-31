@@ -7,6 +7,7 @@ const BoxCampaign: React.FC = () => {
 
     const handleGoToCampaign = () => {
         navigate('/Campaign');
+
     };
 
     return (

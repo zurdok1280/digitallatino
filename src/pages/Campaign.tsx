@@ -9,7 +9,6 @@ const SongToolsWidget = () => {
     const messageEvent = eventMethod === "attachEvent" ? "onmessage" : "message";
 
     const processParentEvent = (e) => {
-      // Aquí puedes manejar los eventos del iframe
       console.log('Evento recibido del iframe:', e);
     };
 

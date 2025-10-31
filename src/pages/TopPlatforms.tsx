@@ -25,6 +25,7 @@ import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
 import { time } from "console";
 import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 import { ButtonBigNumber } from "@/components/ui/button-big-number";
+import { ButtonInfoSong, useExpandableRows } from "@/components/ui/buttonInfoSong";
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -551,7 +552,7 @@ export default function TopPlatforms() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const { expandedRows, toggleRow, isExpanded } = useExpandableRows();
 
   // Spotify search state
   const [searchQuery, setSearchQuery] = useState('');     //Aislar
@@ -832,17 +833,6 @@ export default function TopPlatforms() {
     console.log('Redirecting to Spotify auth:', authUrl.toString());
     // Open Spotify auth in the same window
     window.location.href = authUrl.toString();
-  };
-
-  const toggleRow = (index: number) => {
-    console.log('Toggling row:', index);
-    const newExpanded = new Set(expandedRows);
-    if (newExpanded.has(index)) {
-      newExpanded.delete(index);
-    } else {
-      newExpanded.add(index);
-    }
-    setExpandedRows(newExpanded);
   };
 
   const handlePromote = (artist: string, track: string, coverUrl?: string, artistImageUrl?: string) => {
@@ -1244,14 +1234,35 @@ export default function TopPlatforms() {
                       </div>
                     </div>
 
-                    {/* Botón views components */}
-                    <ButtonBigNumber name=" Streams / Views " quantity={row.data_res} />
+                    {/* Digital Score - REEMPLAZAR ESTA SECCIÓN */}
+                    <div className="col-span-2 text-right">
+                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
+                        <div className="flex items-center justify-between">
 
+                          <ButtonBigNumber quantity={Number(row.data_res)} />
+                          {/* Agregar el ButtonInfoSong aquí */}
+                          <ButtonInfoSong
+                            index={index}
+                            row={row}
+                            isExpanded={isExpanded(index)}
+                            onToggle={toggleRow}
+                            selectedCountry={selectedCountry}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
                   </div>
 
-                  {expandedRows.has(index) && (
-                    <div className="bg-white/30 backdrop-blur-sm px-8 pb-6">
+                  {isExpanded(index) && (
+                    <div className="px-6 pb-4">
+                      {/* Aquí puedes agregar contenido expandido específico para TopPlatforms */}
+                      <div className="border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
+                        <p className="text-sm text-gray-600">
+                          Información detallada para {row.song} por {row.artist}
+                        </p>
+                        {/* Puedes agregar más componentes específicos aquí */}
+                      </div>
                     </div>
                   )}
                 </div>

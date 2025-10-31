@@ -16,6 +16,11 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
     const handleClick = () => {
         onSelect(track);
     };
+    // Función específica para el botón que previene la propagación del evento
+    const handleButtonClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onSelect(track);
+    };
 
     return (
         <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
@@ -183,7 +188,10 @@ export function SearchArtist() {
             previewUrl: track.preview_url || '',
             spotifyUrl: (track as any).external_urls?.spotify || ''
         });
-        navigate(`/campaign?${params.toString()}`);
+        //navigate(`/campaign?${params.toString()}`);
+        // Abre nueva pestaña en lugar de navegar en la misma como arriba con navigate
+        const campaignUrl = `/Campaign?${params.toString()}`;
+        window.open(campaignUrl, '_blank')
     };
 
     //useEffect para buscar cuando el query cambia
@@ -203,9 +211,9 @@ export function SearchArtist() {
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     {/*<div className="flex items-center gap-2">
-                        <span className="text-xl">🔍</span>
-                        <h2 className="text-lg font-semibold text-slate-700">¿No encuentras tu artista en los charts?</h2>
-                    </div>*/}
+                            <span className="text-xl">🔍</span>
+                            <h2 className="text-lg font-semibold text-slate-700">¿No encuentras tu artista en los charts?</h2>
+                        </div>*/}
                 </div>
 
                 <div className="relative">
