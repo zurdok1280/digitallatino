@@ -25,6 +25,7 @@ import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
 import { time } from "console";
 import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 import { ButtonInfoSong, ExpandRow, useExpandableRows } from "@/components/ui/buttonInfoSong";
+import MusicWidget from "@/components/musicWidget";
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -701,8 +702,6 @@ export default function Charts() {
 
   }, [currentlyPlaying]);
 
-
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
       {/* Decorative background elements */}
@@ -750,7 +749,6 @@ export default function Charts() {
                 )}
               </select>
             </div>
-
             {/* Filtro por Género */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-2">
@@ -777,8 +775,6 @@ export default function Charts() {
                 )}
               </select>
             </div>
-
-
             {/* Filtro por Ciudad */}
             <div className="space-y-2 relative">
               <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-2">
@@ -855,9 +851,9 @@ export default function Charts() {
                 )}
               </div>
             </div>
-
             {/* Filtro por Periodo Musical */}
-            {/*<div className="space-y-2">
+            {/*
+            <div className="space-y-2">
               <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-2">
                 <span>⏰</span> Periodo Musical
               </label>
@@ -1086,6 +1082,8 @@ export default function Charts() {
             )}
           </div>
         </div>
+        {/* Digital Widget Integration */}
+        <MusicWidget />
         {/* Sección para mostrar más del Top 10 - Solo si NO está autenticado */}
         {!user && (
           <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
