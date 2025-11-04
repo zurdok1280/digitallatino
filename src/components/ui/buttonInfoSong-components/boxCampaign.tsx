@@ -6,7 +6,9 @@ const BoxCampaign: React.FC = () => {
     const navigate = useNavigate();
 
     const handleGoToCampaign = () => {
-        navigate('/Campaign');
+        // navigate('/Campaign');
+        const campaignUrl = `/Campaign?`;
+        window.open(campaignUrl, '_blank')
 
     };
 
