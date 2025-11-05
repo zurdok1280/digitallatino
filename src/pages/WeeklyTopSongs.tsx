@@ -24,7 +24,6 @@ import chappellRoanCover from "@/assets/covers/chappell-roan-good-luck.jpg";
 import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
 import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 import { ButtonInfoSong, ExpandRow, useExpandableRows } from "@/components/ui/buttonInfoSong";
-import MusicWidget from "@/components/MusicWidget";
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -1081,8 +1080,6 @@ export default function Charts() {
             )}
           </div>
         </div>
-        {/* Digital Widget Integration */}
-        <MusicWidget />
         {/* Sección para mostrar más del Top 10 - Solo si NO está autenticado */}
         {!user && (
           <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
