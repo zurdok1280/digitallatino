@@ -188,6 +188,8 @@ export function SearchArtist() {
             previewUrl: track.preview_url || '',
             spotifyUrl: (track as any).external_urls?.spotify || ''
         });
+        //console.log('Navigating to campaign with params:', track);
+
         //navigate(`/campaign?${params.toString()}`);
         // Abre nueva pestaña en lugar de navegar en la misma como arriba con navigate
         const campaignUrl = `/Campaign?${params.toString()}`;

@@ -6,6 +6,7 @@ import BoxElementsDisplay from "./buttonInfoSong-components/boxElementsDisplay";
 import BoxDisplayInfoPlatform from "./buttonInfoSong-components/boxDisplayInfoPlatform";
 import BoxPlaylistsDisplay from "./buttonInfoSong-components/boxPlaylistsDisplay";
 import BoxCampaign from "./buttonInfoSong-components/boxCampaign";
+import BoxTikTokInfluencers from "./buttonInfoSong-components/boxTikTokInfluencers";
 
 
 export interface ButtonInfoSongProps {
@@ -83,7 +84,8 @@ export function ExpandRow({
             {/* Playlist Info */}
             <BoxPlaylistsDisplay csSong={row.cs_song} />
 
-
+            {/* TikTok Influencers */}
+            <BoxTikTokInfluencers csSong={row.cs_song} />
         </div>
     );
 }

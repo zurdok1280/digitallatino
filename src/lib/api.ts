@@ -232,6 +232,18 @@ export interface TopPlaylists {
   followers: number;
   type_name: string;
 }
+//Interface para manejar info de usos en Tiktok
+export interface TikTokUse {
+  rk: number;
+  video_id: string;
+  views_total: number;
+  likes_total: number;
+  comments_total: number;
+  shares_total: number;
+  tiktok_user_followers: number;
+  username: string;
+  user_handle: string;
+}
 
 // Clase principal para manejar las conexiones API
 export class ApiClient {
@@ -484,6 +496,9 @@ export const digitalLatinoApi = {
     typePlaylist: number
   ): Promise<ApiResponse<TopPlaylists[]>> =>
     api.get<TopPlaylists[]>(`report/getTopPlaylists/${csSong}/${typePlaylist}`),
+  //Obtener usos en Tiktok por cs_song
+  getTikTokUses: (csSong: number): Promise<ApiResponse<TikTokUse[]>> =>
+    api.get<TikTokUse[]>(`report/getTikTokUses/${csSong}`),
 };
 
 // Ejemplo de uso:
