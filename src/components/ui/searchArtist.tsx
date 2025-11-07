@@ -44,6 +44,7 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                     variant="outline"
                     size="sm"
                     className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
+                    onClick={handleButtonClick}
                 >
                     Ver Campaña
                 </Button>
@@ -178,22 +179,23 @@ export function SearchArtist() {
         }
     }, [accessToken, toast]);
 
-    // Handle search result selection
+    // Handle search result selection 
     const handleSearchResultSelect = (track: SpotifyTrack) => {
-        const params = new URLSearchParams({
-            artist: track.artists.map(artist => artist.name).join(', '),
-            track: track.name,
-            coverUrl: track.album.images[0]?.url || '',
-            artistImageUrl: track.artists[0]?.images?.[0]?.url || '',
-            previewUrl: track.preview_url || '',
-            spotifyUrl: (track as any).external_urls?.spotify || ''
-        });
-        //console.log('Navigating to campaign with params:', track);
-
-        //navigate(`/campaign?${params.toString()}`);
-        // Abre nueva pestaña en lugar de navegar en la misma como arriba con navigate
-        const campaignUrl = `/Campaign?${params.toString()}`;
-        window.open(campaignUrl, '_blank')
+        if (track.id) {
+            const campaignUrl = `/campaign?spotifyId=${track.id}`;
+            window.open(campaignUrl, '_blank');
+        } else {
+            // Fallback si no hay ID de Spotify, usar los parámetros anteriores
+            const params = new URLSearchParams({
+                artist: track.artists.map(artist => artist.name).join(', '),
+                track: track.name,
+                coverUrl: track.album.images[0]?.url || '',
+                artistImageUrl: track.artists[0]?.images?.[0]?.url || '',
+                previewUrl: track.preview_url || '',
+                spotifyUrl: track.external_urls?.spotify || ''
+            });
+            navigate(`/campaign?${params.toString()}`);
+        }
     };
 
     //useEffect para buscar cuando el query cambia

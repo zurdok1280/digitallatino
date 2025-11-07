@@ -2,13 +2,23 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Paper } from '@mui/material';
 
-const BoxCampaign: React.FC = () => {
+interface BoxCampaignProps {
+    spotifyId?: string;
+}
+
+const BoxCampaign: React.FC<BoxCampaignProps> = ({ spotifyId }) => {
     const navigate = useNavigate();
 
     const handleGoToCampaign = () => {
-        // navigate('/Campaign');
-        const campaignUrl = `/Campaign?`;
-        window.open(campaignUrl, '_blank')
+        if (spotifyId) {
+            //console.log('Spotify ID for campaign:', spotifyId); //Revisar porq man da imagen en lugar de id y preguntar si debe ser asi
+            const campaignUrl = `/campaign?spotifyId=${spotifyId}`;
+            //console.log('Navigating to campaign URL:', campaignUrl);
+            window.open(campaignUrl, '_blank');
+        } else {
+            // Fallback si no hay spotifyId
+            navigate('/campaign');
+        }
 
     };
 

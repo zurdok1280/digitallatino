@@ -63,7 +63,7 @@ export function ExpandRow({
     return (
         <div className="border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
             {/* Información campaña */}
-            <BoxCampaign />
+            <BoxCampaign spotifyId={row?.spotifyid} />
 
 
             {/* Top de ciudades */}
@@ -97,7 +97,7 @@ export function ButtonInfoSong({
     selectedCountry,
     isExpanded,
     onToggle
-}: ButtonInfoSongProps & {  // ← MANTENER este "&" para ButtonInfoSong
+}: ButtonInfoSongProps & {
     isExpanded: boolean;
     onToggle: (index: number) => void;
 }) {
