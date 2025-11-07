@@ -613,10 +613,11 @@ export default function Charts() {
     window.location.href = authUrl.toString();
   };
 
-  const handlePromote = (artist: string, track: string, coverUrl?: string, artistImageUrl?: string) => {
+  const handlePromote = (artist: string, track: string,spotifyId: string, coverUrl?: string, artistImageUrl?: string) => {
     const params = new URLSearchParams({
       artist,
       track,
+      spotifyId: spotifyId,
       ...(coverUrl && { coverUrl }),
       ...(artistImageUrl && { artistImageUrl })
     });
@@ -1066,7 +1067,7 @@ export default function Charts() {
                     <div className="px-6 pb-4">
                       <ExpandRow
                         row={row}
-                        onPromote={() => handlePromote(row.artists, row.song, row.avatar, row.url)}
+                        onPromote={() => handlePromote(row.artists, row.song,row.spotifyid, row.avatar, row.url)}
                         selectedCountry={selectedCountry}
                         selectedFormat={selectedFormat}
                         countries={countries}
