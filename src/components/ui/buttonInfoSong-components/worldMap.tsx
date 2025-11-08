@@ -27,30 +27,96 @@ const getMarkerColor = (rank: number): string => {
     return '#6C63FF'; // Morado por defecto
 };
 
+// Función para determinar el tamaño del marcador basado en el ranking
+const getMarkerSize = (rank: number): number => {
+    if (rank === 1) return 32; // Oro - más grande
+    if (rank === 2) return 28; // Plata - mediano
+    if (rank === 3) return 24; // Bronce - segundo más pequeño
+    return 22; // Default - más pequeño
+};
+
+// Función para determinar el tamaño de fuente basado en el ranking
+const getFontSize = (rank: number): string => {
+    if (rank === 1) return '14px';
+    if (rank === 2) return '12px';
+    if (rank === 3) return '11px';
+    return '10px';
+};
+
+// Crear panes para diferentes niveles
+const createMapPanes = (map: L.Map) => {
+    // Pane para marcadores normales (abajo)
+    if (!map.getPane('markers-normal')) {
+        map.createPane('markers-normal');
+        const normalPane = map.getPane('markers-normal');
+        if (normalPane) {
+            normalPane.style.zIndex = '300';
+        }
+    }
+
+    // Pane para bronce
+    if (!map.getPane('markers-bronze')) {
+        map.createPane('markers-bronze');
+        const bronzePane = map.getPane('markers-bronze');
+        if (bronzePane) {
+            bronzePane.style.zIndex = '400';
+        }
+    }
+
+    // Pane para plata
+    if (!map.getPane('markers-silver')) {
+        map.createPane('markers-silver');
+        const silverPane = map.getPane('markers-silver');
+        if (silverPane) {
+            silverPane.style.zIndex = '500';
+        }
+    }
+
+    // Pane para oro (más alto)
+    if (!map.getPane('markers-gold')) {
+        map.createPane('markers-gold');
+        const goldPane = map.getPane('markers-gold');
+        if (goldPane) {
+            goldPane.style.zIndex = '600';
+        }
+    }
+};
+
+// Función para obtener el nombre del pane según el rank
+const getPaneName = (rank: number): string => {
+    if (rank === 1) return 'markers-gold';
+    if (rank === 2) return 'markers-silver';
+    if (rank === 3) return 'markers-bronze';
+    return 'markers-normal';
+};
+
 // Crear iconos personalizados para cada ranking
 const createCustomIcon = (rank: number) => {
+    const size = getMarkerSize(rank);
+    const fontSize = getFontSize(rank);
+
     return L.divIcon({
         html: `
       <div style="
         background-color: ${getMarkerColor(rank)};
-        width: 24px;
-        height: 24px;
+        width: ${size}px;
+        height: ${size}px;
         border-radius: 50%;
         border: 3px solid white;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
         font-weight: bold;
-        font-size: 10px;
+        font-size: ${fontSize};
       ">
         ${rank}
       </div>
     `,
-        className: 'custom-marker',
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
+        className: `custom-marker rank-${rank}`,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
     });
 };
 
@@ -78,7 +144,7 @@ export default function WorldMap({
     // Filtrar ciudades con coordenadas válidas
     const validCities = cities
         .filter(city => city.citylat && city.citylng && city.cityname)
-        .slice(0, 10);
+        .slice(0, 30);
 
     useEffect(() => {
         if (!mapRef.current) return;
@@ -87,14 +153,15 @@ export default function WorldMap({
         const map = L.map(mapRef.current).setView([20, 0], 2);
         mapInstanceRef.current = map;
 
-        // Agregar capa de tiles (puedes usar diferentes proveedores)
+        // Crear panes para controlar z-index
+        createMapPanes(map);
+
+        // Agregar capa de tiles (se puede usar diferentes proveedores, mientras permita uso libre)
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
-            //attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
             maxZoom: 20
         }).addTo(map);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png', {
-            //attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
             subdomains: 'abcd',
             maxZoom: 20
         }).addTo(map);
@@ -105,8 +172,10 @@ export default function WorldMap({
         // Agregar marcadores si hay ciudades válidas
         if (validCities.length > 0) {
             validCities.forEach(city => {
+                const paneName = getPaneName(city.rnk || 1);
                 const marker = L.marker([city.citylat!, city.citylng!], {
-                    icon: createCustomIcon(city.rnk || 1)
+                    icon: createCustomIcon(city.rnk || 1),
+                    pane: paneName
                 }).addTo(markersRef.current!);
 
                 // Tooltip en hover
@@ -173,8 +242,10 @@ export default function WorldMap({
     // Función auxiliar para agregar marcadores al mapa
     const addMarkersToMap = (map: L.Map, layerGroup: L.LayerGroup, cities: CityDataForSong[]) => {
         cities.forEach((city) => {
+            const paneName = getPaneName(city.rnk || 1);
             const marker = L.marker([city.citylat!, city.citylng!], {
-                icon: createCustomIcon(city.rnk || 1)
+                icon: createCustomIcon(city.rnk || 1),
+                pane: paneName
             }).addTo(layerGroup);
 
             // Tooltip en hover
@@ -201,6 +272,7 @@ export default function WorldMap({
       `);
         });
     };
+
     //Estado de carga
     if (loading) {
         return (
@@ -240,8 +312,6 @@ export default function WorldMap({
 
     return (
         <Box sx={{ mt: 3 }}>
-
-
             <Paper
                 elevation={1}
                 sx={{
@@ -277,7 +347,7 @@ export default function WorldMap({
                     }}
                 />
 
-                {/* Leyenda del mapa */}
+                {/* Leyenda del mapa actualizada con tamaños */}
                 <Box sx={{
                     display: 'flex',
                     justifyContent: 'center',
@@ -287,14 +357,14 @@ export default function WorldMap({
                 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{
-                            width: 16,
-                            height: 16,
+                            width: 20,
+                            height: 20,
                             borderRadius: '50%',
                             backgroundColor: '#FFD700',
                             border: '2px solid white',
                             boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
                         }} />
-                        <Typography variant="caption" sx={{ fontWeight: 'bold' }}>#1 Oro</Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 'bold' }}>#1 Oro (Grande)</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{
@@ -305,12 +375,12 @@ export default function WorldMap({
                             border: '2px solid white',
                             boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
                         }} />
-                        <Typography variant="caption" sx={{ fontWeight: 'bold' }}>#2 Plata</Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 'bold' }}>#2 Plata (Mediano)</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{
-                            width: 16,
-                            height: 16,
+                            width: 14,
+                            height: 14,
                             borderRadius: '50%',
                             backgroundColor: '#CD7F32',
                             border: '2px solid white',
@@ -320,14 +390,14 @@ export default function WorldMap({
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{
-                            width: 16,
-                            height: 16,
+                            width: 12,
+                            height: 12,
                             borderRadius: '50%',
                             backgroundColor: '#6C63FF',
                             border: '2px solid white',
                             boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
                         }} />
-                        <Typography variant="caption" sx={{ fontWeight: 'bold' }}>Otros</Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 'bold' }}>Otros (Pequeño)</Typography>
                     </Box>
                 </Box>
 
