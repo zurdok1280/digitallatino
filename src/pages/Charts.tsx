@@ -25,6 +25,8 @@ import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
 import { time } from "console";
 import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 import { ButtonInfoSong, ExpandRow, useExpandableRows } from "@/components/ui/buttonInfoSong";
+import FloatingScrollButtons from "@/components/FloatingScrollButtons";
+import { LoginButton } from "@/components/LoginButton";
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -284,7 +286,21 @@ export default function Charts() {
   const [cityData, setCityData] = useState<CityDataForSong[]>([]);
   const [loadingCityData, setLoadingCityData] = useState(false);
 
+  const [showScoreTooltip, setShowScoreTooltip] = useState(false);
+  const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
+  const handleScoreInfoHover = (event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setTooltipPosition({
+      x: rect.right + 8,
+      y: rect.top + (rect.height / 2)
+    });
+    setShowScoreTooltip(true);
+  };
+
+  const handleScoreInfoLeave = () => {
+    setShowScoreTooltip(false);
+  };
 
   const filteredSongs = useMemo(() => {
     console.log('Filtrando canciones...', chartSearchQuery, songs.length);
@@ -480,7 +496,31 @@ export default function Charts() {
       fetchCityData(row.cs_song.toString(), selectedCountry);
     }
   };
+  //Tooltip para mostrar datos
+  const [tooltipState, setTooltipState] = useState<{
+    isVisible: boolean;
+    position: { x: number; y: number };
+  }>({
+    isVisible: false,
+    position: { x: 0, y: 0 }
+  });
 
+  // Función para mostrar el tooltip
+  const showTooltip = (event: React.MouseEvent) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setTooltipState({
+      isVisible: true,
+      position: {
+        x: rect.right + window.scrollX + 8, // 8px de margen
+        y: rect.top + window.scrollY + (rect.height / 2)
+      }
+    });
+  };
+
+  // Función para ocultar el tooltip
+  const hideTooltip = () => {
+    setTooltipState(prev => ({ ...prev, isVisible: false }));
+  };
 
   // Fetch countries from API
   useEffect(() => {
@@ -613,7 +653,7 @@ export default function Charts() {
     window.location.href = authUrl.toString();
   };
 
-  const handlePromote = (artist: string, track: string,spotifyId: string, coverUrl?: string, artistImageUrl?: string) => {
+  const handlePromote = (artist: string, track: string, spotifyId: string, coverUrl?: string, artistImageUrl?: string) => {
     const params = new URLSearchParams({
       artist,
       track,
@@ -704,6 +744,15 @@ export default function Charts() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
+      {/* Componente de navegación flotante */}
+      <FloatingScrollButtons
+        rightOffset={24}
+        topOffset={100}
+        bottomOffset={100}
+        showTopThreshold={300}
+        hideBottomThreshold={100}
+        className="your-custom-classes"
+      />
       {/* Decorative background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-slate-300/15 to-gray-400/15 rounded-full blur-3xl"></div>
@@ -1043,6 +1092,18 @@ export default function Charts() {
                           <div className="flex items-center gap-1">
                             <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
                             <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Score</span>
+                            {/* Botón de información de score digital con tooltip a la derecha */}
+                            <div className="relative group/info">
+                              <button
+                                className="w-3 h-3 rounded-full bg-gray-200 hover:bg-purple-500 flex items-center justify-center transition-all duration-200 text-[8px] font-bold text-gray-400 hover:text-white hover:scale-110"
+                                aria-label="Información sobre el Score Digital"
+                                onMouseEnter={handleScoreInfoHover}
+                                onMouseLeave={handleScoreInfoLeave}
+                              >
+                                ?
+                              </button>
+                            </div>
+
                           </div>
                           <Star className="w-2.5 h-2.5 text-yellow-500 fill-current" />
                         </div>
@@ -1067,7 +1128,7 @@ export default function Charts() {
                     <div className="px-6 pb-4">
                       <ExpandRow
                         row={row}
-                        onPromote={() => handlePromote(row.artists, row.song,row.spotifyid, row.avatar, row.url)}
+                        onPromote={() => handlePromote(row.artists, row.song, row.spotifyid, row.avatar, row.url)}
                         selectedCountry={selectedCountry}
                         selectedFormat={selectedFormat}
                         countries={countries}
@@ -1092,20 +1153,21 @@ export default function Charts() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-gray-900">
-                    ¿Quieres ver más allá del Top 10?
+                    ¿Quieres ver más allá del Top 20?
                   </h3>
-                  <p className="text-sm text-gray-600">
-                    Accede a rankings completos y métricas avanzadas
-                  </p>
                 </div>
+              </div>
+              {/* Boton de redireccion a iniciar sesión para acceder a más del Top 20 */}
+              <div className="text-center">
+                <LoginButton />
               </div>
 
               {/* Canciones borrosas simulando contenido bloqueado */}
               <div className="grid gap-2 opacity-50 pointer-events-none">
                 {[
-                  { rank: 11, artist: "Rauw Alejandro", track: "Touching The Sky", streams: "2.1M" },
-                  { rank: 12, artist: "Anuel AA", track: "Mcgregor", streams: "1.9M" },
-                  { rank: 13, artist: "J Balvin", track: "Doblexxó", streams: "1.8M" }
+                  { rank: 21, artist: "Rauw Alejandro", track: "Touching The Sky", streams: "2.1M" },
+                  { rank: 22, artist: "Anuel AA", track: "Mcgregor", streams: "1.9M" },
+                  { rank: 23, artist: "J Balvin", track: "Doblexxó", streams: "1.8M" }
                 ].map((song) => (
                   <div key={song.rank} className="flex items-center gap-3 p-3 bg-white/30 rounded-xl">
                     <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center">
@@ -1120,120 +1182,9 @@ export default function Charts() {
                   </div>
                 ))}
               </div>
-
-              {/* Dos ofertas principales con la misma jerarquía */}
-              <div className="grid md:grid-cols-2 gap-6">
-                {/* Oferta 1: Charts Completos */}
-                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-6 space-y-4">
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-2 mb-3">
-                      <Trophy className="w-6 h-6 text-purple-600" />
-                      <span className="font-bold text-purple-800 text-lg">Ver Top 40 Completo</span>
-                    </div>
-                    <p className="text-sm text-purple-600 mb-4">
-                      Accede a rankings completos y estadísticas avanzadas
-                    </p>
-
-                    {/* Precio */}
-                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-3 mb-4">
-                      <div className="flex items-center justify-center gap-2 mb-1">
-                        <div className="w-5 h-5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">$</span>
-                        </div>
-                        <span className="font-bold text-amber-800 text-sm">Oferta Limitada</span>
-                      </div>
-                      <div className="text-center">
-                        <span className="line-through text-amber-600 text-sm">$49 USD/mes</span>
-                        <span className="ml-2 text-xl font-bold text-amber-800">$14.99 USD/mes</span>
-                        <span className="ml-1 text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">70% OFF</span>
-                      </div>
-                    </div>
-
-                    <Button
-                      size="lg"
-                      className="w-full bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 hover:from-purple-700 hover:via-purple-800 hover:to-pink-700 text-white font-semibold shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300"
-                    >
-                      <Trophy className="mr-2 h-4 w-4" />
-                      Acceder Ahora
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Oferta 2: Campaña Promocional */}
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6 space-y-4">
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-2 mb-3">
-                      <Zap className="w-6 h-6 text-green-600" />
-                      <span className="font-bold text-green-800 text-lg">Campaña Promocional</span>
-                    </div>
-                    <p className="text-sm text-green-600 mb-4">
-                      Incluye pitching, promociones en redes sociales, analytics avanzados y reportes en tiempo real
-                    </p>
-
-                    {/* Precio */}
-                    <div className="bg-gradient-to-r from-green-100 to-emerald-100 border border-green-300 rounded-xl p-3 mb-4">
-                      <div className="flex items-center justify-center gap-2 mb-1">
-                        <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">🚀</span>
-                        </div>
-                        <span className="font-bold text-green-800 text-sm">Promoción Profesional</span>
-                      </div>
-                      <div className="text-center">
-                        <span className="text-2xl font-bold text-green-800">Desde $750 USD</span>
-                        <span className="text-sm text-green-600 block">campaña completa</span>
-                      </div>
-                    </div>
-
-                    <Button
-                      size="lg"
-                      className="w-full bg-gradient-to-r from-green-600 via-green-700 to-emerald-600 hover:from-green-700 hover:via-green-800 hover:to-emerald-700 text-white font-semibold shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300"
-                    >
-                      <Zap className="mr-2 h-4 w-4" />
-                      Crear Campaña
-                    </Button>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         )}
-      </div>
-
-      {/* Definición del Score Digital */}
-      <div className="max-w-7xl mx-auto px-6 pb-12">
-        <div className="bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-6 shadow-lg">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">📊</span>
-            </div>
-            <div className="flex-1 space-y-3">
-              <h3 className="text-lg font-bold text-gray-900">
-                ¿Qué es el Score Digital?
-              </h3>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
-              </p>
-              <div className="flex flex-wrap items-center gap-4 mt-3">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">0-25: Baja</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">26-50: Media</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">51-75: Alta</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">76-100: Máxima</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {
@@ -1312,6 +1263,18 @@ export default function Charts() {
       <Backdrop open={loading} sx={{ color: '#fff', zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-    </div >
+      {showScoreTooltip && (
+        <div
+          className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
+          style={{
+            left: tooltipPosition.x,
+            top: tooltipPosition.y - 20,
+          }}
+        >
+          El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
+          <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
+        </div>
+      )}
+    </div>
   );
 }

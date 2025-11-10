@@ -150,7 +150,11 @@ export default function WorldMap({
         if (!mapRef.current) return;
 
         // Inicializar el mapa
-        const map = L.map(mapRef.current).setView([20, 0], 2);
+        const map = L.map(mapRef.current, {
+            minZoom: 2, // Límite mínimo de zoom (zoom out)
+            maxZoom: 18, // Límite máximo de zoom (zoom in)
+            zoomControl: true
+        }).setView([20, 0], 2);
         mapInstanceRef.current = map;
 
         // Crear panes para controlar z-index
