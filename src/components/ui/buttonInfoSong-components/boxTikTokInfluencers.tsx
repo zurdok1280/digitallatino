@@ -256,7 +256,7 @@ export default function BoxTikTokInfluencers({ csSong }: BoxTikTokInfluencersPro
                                     }}
                                     onClick={() => handleOpenVideo(tiktokUse.user_handle, tiktokUse.video_id)}
                                 >
-                                    Video #{tiktokUse.rk}
+                                    #{tiktokUse.rk} - {tiktokUse.username}
                                 </Typography>
 
                                 {/* Información del usuario */}
@@ -294,19 +294,6 @@ export default function BoxTikTokInfluencers({ csSong }: BoxTikTokInfluencersPro
                                     onClick={() => handleOpenProfile(tiktokUse.user_handle)}
                                 >
                                     @{tiktokUse.user_handle}
-                                </Typography>
-
-                                {/* Nombre completo */}
-                                <Typography
-                                    variant="body2"
-                                    sx={{
-                                        color: "#333",
-                                        fontSize: '0.85rem',
-                                        fontWeight: 500,
-                                        mt: 0.5,
-                                    }}
-                                >
-                                    {tiktokUse.username}
                                 </Typography>
                             </Box>
 
@@ -513,54 +500,6 @@ export default function BoxTikTokInfluencers({ csSong }: BoxTikTokInfluencersPro
                                         }}
                                     >
                                         {formatNumber(tiktokUse.shares_total)}
-                                    </Typography>
-                                </Paper>
-
-                                {/* Abrir en TikTok */}
-                                <Paper
-                                    sx={{
-                                        p: 1.5,
-                                        borderRadius: "8px",
-                                        backgroundColor: "rgba(0, 0, 0, 0.1)",
-                                        border: "1px solid rgba(0, 0, 0, 0.2)",
-                                        textAlign: 'center',
-                                        minWidth: 100,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        justifyContent: 'center',
-                                        cursor: 'pointer',
-                                        transition: 'all 0.2s ease',
-                                        '&:hover': {
-                                            backgroundColor: "rgba(0, 0, 0, 0.2)",
-                                        },
-                                    }}
-                                    onClick={() => handleOpenVideo(tiktokUse.user_handle, tiktokUse.video_id)}
-                                >
-                                    <OpenInNewIcon
-                                        sx={{
-                                            fontSize: '1.2rem',
-                                            color: '#000000',
-                                            mb: 0.5,
-                                        }}
-                                    />
-                                    <Typography
-                                        variant="body2"
-                                        sx={{
-                                            fontWeight: "bold",
-                                            color: "#000000",
-                                            fontSize: '0.8rem',
-                                        }}
-                                    >
-                                        Abrir
-                                    </Typography>
-                                    <Typography
-                                        variant="caption"
-                                        sx={{
-                                            color: "#666",
-                                            fontSize: '0.6rem',
-                                        }}
-                                    >
-                                        en TikTok
                                     </Typography>
                                 </Paper>
                             </Box>
