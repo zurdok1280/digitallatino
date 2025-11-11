@@ -47,8 +47,8 @@ const demoRows = [
     soundcloud_stream_total: 17153,
     pan_streams: 0,
     audience_total: 37633256,
-    spins_total: 6038
-  }
+    spins_total: 6038,
+  },
 ];
 
 // Completar hasta el top 40
@@ -219,7 +219,9 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
         </div>
         <div className="flex-1">
           <h3 className="font-semibold text-slate-800 mb-1">{track.name}</h3>
-          <p className="text-sm text-slate-600 mb-2">{track.artists.map(artist => artist.name).join(', ')}</p>
+          <p className="text-sm text-slate-600 mb-2">
+            {track.artists.map((artist) => artist.name).join(", ")}
+          </p>
           <p className="text-xs text-slate-500">{track.album.name}</p>
         </div>
         <Button
@@ -238,13 +240,12 @@ export default function Charts() {
   const { loading, callApi } = useApiWithLoading();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, setShowLoginDialog } = useAuth();
   //const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const { expandedRows, toggleRow, isExpanded } = useExpandableRows();
 
-
   // Spotify search state
-  const [searchQuery, setSearchQuery] = useState('');     //Aislar
+  const [searchQuery, setSearchQuery] = useState(""); //Aislar
   const [accessToken, setAccessToken] = useState<string | null>(null); //Aislar
   const [isConnected, setIsConnected] = useState(false); //Aislar
 
@@ -318,6 +319,14 @@ export default function Charts() {
       return songMatch || artistMatch;
     });
   }, [songs, chartSearchQuery]);
+
+    //Limitar top 20
+  const songsToDisplay = useMemo(() => {
+    if (user) {
+      return filteredSongs;
+    }
+    return filteredSongs.slice(0, 20);
+  }, [filteredSongs, user]);
 
   // Función para alternar la visibilidad de la barra de búsqueda
   const toggleSearchBar = () => {
@@ -982,9 +991,10 @@ export default function Charts() {
                   {chartSearchQuery && (
                     <div className="mt-2 text-xs text-slate-600 flex justify-between items-center px-1">
                       <span className="font-medium">
-                        {filteredSongs.length} de {songs.length} canciones encontradas
+                        {songsToDisplay.length} de {songs.length} canciones
+                        encontradas
                       </span>
-                      {filteredSongs.length === 0 && (
+                      {songsToDisplay.length === 0 && (
                         <span className="text-orange-600 font-medium">
                           No hay resultados
                         </span>
@@ -1003,7 +1013,7 @@ export default function Charts() {
                   Cargando canciones...
                 </div>
               </div>
-            ) : filteredSongs.length === 0 && chartSearchQuery ? (
+            ) : songsToDisplay.length === 0 && chartSearchQuery ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="w-6 h-6 text-slate-400" />
@@ -1022,7 +1032,7 @@ export default function Charts() {
                 </button>
               </div>
             ) : (
-              filteredSongs.map((row, index) => (
+              songsToDisplay.map((row, index) => (
                 <div
                   key={`${row.cs_song}-${index}`}
                   className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
@@ -1155,126 +1165,301 @@ export default function Charts() {
                   <h3 className="text-xl font-bold text-gray-900">
                     ¿Quieres ver más allá del Top 20?
                   </h3>
+                  <p className="text-sm text-gray-600">
+                    Accede a rankings completos y métricas avanzadas
+                  </p>
                 </div>
-              </div>
-              {/* Boton de redireccion a iniciar sesión para acceder a más del Top 20 */}
-              <div className="text-center">
-                <LoginButton />
               </div>
 
               {/* Canciones borrosas simulando contenido bloqueado */}
               <div className="grid gap-2 opacity-50 pointer-events-none">
                 {[
-                  { rank: 21, artist: "Rauw Alejandro", track: "Touching The Sky", streams: "2.1M" },
-                  { rank: 22, artist: "Anuel AA", track: "Mcgregor", streams: "1.9M" },
-                  { rank: 23, artist: "J Balvin", track: "Doblexxó", streams: "1.8M" }
+                  {
+                    rank: 21,
+                    artist: "Rauw Alejandro",
+                    track: "Touching The Sky",
+                    streams: "2.1M",
+                  },
+                  {
+                    rank: 22,
+                    artist: "Anuel AA",
+                    track: "Mcgregor",
+                    streams: "1.9M",
+                  },
+                  {
+                    rank: 23,
+                    artist: "J Balvin",
+                    track: "Doblexxó",
+                    streams: "1.8M",
+                  },
                 ].map((song) => (
-                  <div key={song.rank} className="flex items-center gap-3 p-3 bg-white/30 rounded-xl">
+                  <div
+                    key={song.rank}
+                    className="flex items-center gap-3 p-3 bg-white/30 rounded-xl"
+                  >
                     <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center">
-                      <span className="text-sm font-bold text-gray-600">{song.rank}</span>
+                      <span className="text-sm font-bold text-gray-600">
+                        {song.rank}
+                      </span>
                     </div>
                     <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
                     <div className="flex-1">
-                      <div className="font-semibold text-gray-700">{song.track}</div>
+                      <div className="font-semibold text-gray-700">
+                        {song.track}
+                      </div>
                       <div className="text-sm text-gray-500">{song.artist}</div>
                     </div>
-                    <div className="text-sm font-medium text-gray-600">{song.streams}</div>
+                    <div className="text-sm font-medium text-gray-600">
+                      {song.streams}
+                    </div>
                   </div>
                 ))}
               </div>
+                <div className="flex justify-center">
+                  <Button
+                  size="lg"
+                    onClick={() => setShowLoginDialog(true)}
+                    className="px-10 bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 hover:from-purple-700 hover:via-purple-800 hover:to-pink-700 text-white font-semibold shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300"
+                    >
+                      <Trophy className="mr-2 h-4 w-4" />
+                      Accede ahora para ver más del top
+                    </Button>
+                    </div>
+
+              {/* Dos ofertas principales con la misma jerarquía 
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Oferta 1: Charts Completos 
+                <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-6 space-y-4">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Trophy className="w-6 h-6 text-purple-600" />
+                      <span className="font-bold text-purple-800 text-lg">
+                        Ver Top 40 Completo
+                      </span>
+                    </div>
+                    <p className="text-sm text-purple-600 mb-4">
+                      Accede a rankings completos y estadísticas avanzadas
+                    </p>
+
+                    {/* Precio *
+                    <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-3 mb-4">
+                      <div className="flex items-center justify-center gap-2 mb-1">
+                        <div className="w-5 h-5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">
+                            $
+                          </span>
+                        </div>
+                        <span className="font-bold text-amber-800 text-sm">
+                          Oferta Limitada
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <span className="line-through text-amber-600 text-sm">
+                          $49 USD/mes
+                        </span>
+                        <span className="ml-2 text-xl font-bold text-amber-800">
+                          $14.99 USD/mes
+                        </span>
+                        <span className="ml-1 text-xs bg-red-500 text-white px-1.5 py-0.5 rounded-full">
+                          70% OFF
+                        </span>
+                      </div>
+                    </div>
+
+                    <Button
+                      size="lg"
+                      className="w-full bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 hover:from-purple-700 hover:via-purple-800 hover:to-pink-700 text-white font-semibold shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300"
+                    >
+                      <Trophy className="mr-2 h-4 w-4" />
+                      Acceder Ahora
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Oferta 2: Campaña Promocional *
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6 space-y-4">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center gap-2 mb-3">
+                      <Zap className="w-6 h-6 text-green-600" />
+                      <span className="font-bold text-green-800 text-lg">
+                        Campaña Promocional
+                      </span>
+                    </div>
+                    <p className="text-sm text-green-600 mb-4">
+                      Incluye pitching, promociones en redes sociales, analytics
+                      avanzados y reportes en tiempo real
+                    </p>
+
+                    {/* Precio 
+                    <div className="bg-gradient-to-r from-green-100 to-emerald-100 border border-green-300 rounded-xl p-3 mb-4">
+                      <div className="flex items-center justify-center gap-2 mb-1">
+                        <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">
+                            🚀
+                          </span>
+                        </div>
+                        <span className="font-bold text-green-800 text-sm">
+                          Promoción Profesional
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <span className="text-2xl font-bold text-green-800">
+                          Desde $750 USD
+                        </span>
+                        <span className="text-sm text-green-600 block">
+                          campaña completa
+                        </span>
+                      </div>
+                    </div>
+
+                    <Button
+                      size="lg"
+                      className="w-full bg-gradient-to-r from-green-600 via-green-700 to-emerald-600 hover:from-green-700 hover:via-green-800 hover:to-emerald-700 text-white font-semibold shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300"
+                    >
+                      <Zap className="mr-2 h-4 w-4" />
+                      Crear Campaña
+                    </Button>
+                  </div>
+                </div>*/}
+              </div>
             </div>
-          </div>
         )}
       </div>
 
-      {
-        !user && (showGenreOverlay || showCrgOverlay) && (
-          <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
-              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <span className="text-3xl">🔒</span>
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-foreground">
-                {showGenreOverlay ? 'Filtros por Género' : 'Filtros por Plataforma'}
+      {/* Definición del Score Digital */}
+      <div className="max-w-7xl mx-auto px-6 pb-12">
+        <div className="bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-6 shadow-lg">
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+              <span className="text-2xl">📊</span>
+            </div>
+            <div className="flex-1 space-y-3">
+              <h3 className="text-lg font-bold text-gray-900">
+                ¿Qué es el Score Digital?
               </h3>
-              <p className="text-muted-foreground mb-4">
-                Esta función es parte de las herramientas avanzadas. Activa una campaña para desbloquearla.
+              <p className="text-sm text-gray-700 leading-relaxed">
+                El <strong>Score Digital</strong> es una métrica del 1 al 100
+                que evalúa el nivel de exposición de una canción basado en
+                streams, playlists, engagement social y distribución geográfica.
               </p>
-              <div className="grid md:grid-cols-2 gap-3">
-                <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
-                  <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
-                    <Crown className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="mb-3">
-                    <div className="text-sm font-bold text-foreground">Premium</div>
-                    <div className="text-xs text-muted-foreground mb-1">Solo Charts & Analytics</div>
-                    <div className="text-sm font-bold text-foreground">$14.99/mes</div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      // TODO: Integrar con Stripe cuando esté listo
-                      console.log('Redirect to premium subscription');
-                      setShowGenreOverlay(false);
-                      setShowCrgOverlay(false);
-                    }}
-                    className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                  >
-                    Suscribirse
-                  </button>
+              <div className="flex flex-wrap items-center gap-4 mt-3">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <span className="text-xs text-gray-600">0-25: Baja</span>
                 </div>
-
-                <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
-                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
-                      INCLUYE TODO
-                    </span>
-                  </div>
-
-                  <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
-                    <span className="text-white font-bold text-sm">🚀</span>
-                  </div>
-                  <div className="mb-3">
-                    <div className="text-sm font-bold text-foreground">Campaña Completa</div>
-                    <div className="text-xs text-muted-foreground mb-1">Premium + Promoción</div>
-                    <div className="text-sm font-bold text-foreground">Desde $750</div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      navigate('/campaign');
-                      setShowGenreOverlay(false);
-                      setShowCrgOverlay(false);
-                    }}
-                    className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                  >
-                    Crear Campaña
-                  </button>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <span className="text-xs text-gray-600">26-50: Media</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span className="text-xs text-gray-600">51-75: Alta</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-xs text-gray-600">76-100: Máxima</span>
                 </div>
               </div>
-              <button onClick={() => { setShowGenreOverlay(false); setShowCrgOverlay(false); }} className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm">
-                Cerrar
-              </button>
             </div>
           </div>
-        )
-      }
-      {/* Overlay global mientras se carga */}
-      <Backdrop open={loading} sx={{ color: '#fff', zIndex: 9999 }}>
-        <CircularProgress color="inherit" />
-      </Backdrop>
-      {showScoreTooltip && (
-        <div
-          className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
-          style={{
-            left: tooltipPosition.x,
-            top: tooltipPosition.y - 20,
-          }}
-        >
-          El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
-          <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
+        </div>
+      </div>
+
+      {!user && (showGenreOverlay || showCrgOverlay) && (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
+            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">🔒</span>
+            </div>
+            <h3 className="text-2xl font-bold mb-2 text-foreground">
+              {showGenreOverlay
+                ? "Filtros por Género"
+                : "Filtros por Plataforma"}
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              Esta función es parte de las herramientas avanzadas. Activa una
+              campaña para desbloquearla.
+            </p>
+            <div className="grid md:grid-cols-2 gap-3">
+              <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
+                <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                  <Crown className="w-4 h-4 text-white" />
+                </div>
+                <div className="mb-3">
+                  <div className="text-sm font-bold text-foreground">
+                    Premium
+                  </div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Solo Charts & Analytics
+                  </div>
+                  <div className="text-sm font-bold text-foreground">
+                    $14.99/mes
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    // TODO: Integrar con Stripe cuando esté listo
+                    console.log("Redirect to premium subscription");
+                    setShowGenreOverlay(false);
+                    setShowCrgOverlay(false);
+                  }}
+                  className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                >
+                  Suscribirse
+                </button>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
+                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    INCLUYE TODO
+                  </span>
+                </div>
+
+                <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
+                  <span className="text-white font-bold text-sm">🚀</span>
+                </div>
+                <div className="mb-3">
+                  <div className="text-sm font-bold text-foreground">
+                    Campaña Completa
+                  </div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Premium + Promoción
+                  </div>
+                  <div className="text-sm font-bold text-foreground">
+                    Desde $750
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    navigate("/campaign");
+                    setShowGenreOverlay(false);
+                    setShowCrgOverlay(false);
+                  }}
+                  className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                >
+                  Crear Campaña
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setShowGenreOverlay(false);
+                setShowCrgOverlay(false);
+              }}
+              className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm"
+            >
+              Cerrar
+            </button>
+          </div>
         </div>
       )}
+      {/* Overlay global mientras se carga */}
+      <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
+        <CircularProgress color="inherit" />
+      </Backdrop>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { User, LogOut, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,13 +19,17 @@ import { useAuth } from '@/hooks/useAuth';
 import { LoginForm } from './LoginForm';
 import { AuthProvider } from '@/hooks/useAuth';
 import { BrowserRouter } from 'react-router-dom';
+import { toast } from 'sonner';
 
 export function LoginButton() {
-  const { user, logout } = useAuth();
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const { user, logout, showLoginDialog, setShowLoginDialog } = useAuth();
+  //const [showLoginDialog, setShowLoginDialog] = useState(false);
 
-  const handleSignOut = async () => {
-    await logout();
+  const handleSignOut = () => {
+    toast.info("Cerrando sesión...");
+    setTimeout(async () => {
+      await logout();
+    }, 500)
   };
 
   if (user) {
@@ -42,6 +47,12 @@ export function LoginButton() {
             </div>
           </div>
           <DropdownMenuSeparator />
+          <DropdownMenuItem asChild>
+            <Link to="/mi-cuenta">
+                <User className="mr-2 h-4 w-4" />
+                <span>Mi cuenta</span>
+            </Link>
+          </DropdownMenuItem>
           <DropdownMenuItem onClick={handleSignOut}>
             <LogOut className="mr-2 h-4 w-4" />
             <span>Cerrar sesión</span>

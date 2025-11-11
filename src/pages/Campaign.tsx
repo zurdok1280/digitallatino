@@ -60,6 +60,7 @@ const SongToolsWidget = () => {
 
    try {
     const response = await fetch('https://security.digital-latino.com/api/auth/widget-token', {
+    //const response = await fetch('http://localhost:8085/api/auth/widget-token', {
      method: 'POST',
      headers: {
       'Content-Type': 'application/json',

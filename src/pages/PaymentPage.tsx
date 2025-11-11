@@ -1,5 +1,3 @@
-
-
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 import { CheckoutForm } from '@/components/CheckoutForm';
@@ -15,6 +13,11 @@ const PaymentPage = () => {
             <img src="/lovable-uploads/4e68bccf-80d3-468a-9ffe-3f3aee0bffdd.png" alt="Digital Latino" className="h-8 mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-gray-800">Completa tu Suscripción</h1>
             <p className="text-gray-500">Estás a un paso de activar tu cuenta.</p>
+        </div>
+        <div className="text-center border-t border-b py-4 my-6">
+          <p className="text-lg text-gray-600">Total a Pagar:</p>
+          <p className="text-4xl font-bold text-purple-700">100.00 USD</p>
+          <p className="text-sm text-gray-500">(Suscripción Mensual)</p>
         </div>
         <Elements stripe={stripePromise}>
           <CheckoutForm />
