@@ -351,10 +351,6 @@ export default function Charts() {
   const [cityData, setCityData] = useState<CityDataForSong[]>([]);
   const [loadingCityData, setLoadingCityData] = useState(false);
 
-  // Almacenar Data de ciudades por pais para el mapa 
-  const [cityData, setCityData] = useState<CityDataForSong[]>([]);
-  const [loadingCityData, setLoadingCityData] = useState(false);
-
   const [showScoreTooltip, setShowScoreTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
@@ -418,8 +414,9 @@ export default function Charts() {
   }, [showSearchBar]);
 
   // Función para filtrar opciones basado en la búsqueda
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  
   const getFilteredOptions = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options: any[],
     searchQuery: string,
     type: "country" | "format" | "city"
@@ -565,15 +562,8 @@ export default function Charts() {
 
       console.log("City data response:", response.data);
       setCityData(response.data);
-    } catch (error) {
-      console.error("Error fetching city data:", error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los datos de ciudades",
-        variant: "destructive",
-      console.log('City data response:', response.data);
-      setCityData(response.data);
-    } catch (error) {
+
+      }catch (error) {
       console.error('Error fetching city data:', error);
       toast({
         title: "Error",
@@ -1529,8 +1519,9 @@ export default function Charts() {
               Cerrar
             </button>
           </div>
-        </div>
-      )}
+       
+        )}
+        
       {/* Overlay global mientras se carga */}
       <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
         <CircularProgress color="inherit" />
@@ -1546,7 +1537,7 @@ export default function Charts() {
           El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
           <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
         </div>
-      )}
+      )} 
     </div>
   );
 }
