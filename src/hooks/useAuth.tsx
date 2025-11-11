@@ -103,6 +103,8 @@ interface AuthContextType {
   user: { email: string; role: string } | null; 
   login: (token: string) => void;
   logout: () => void;
+  showLoginDialog: boolean;
+  setShowLoginDialog: (isOpen: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -111,6 +113,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
   const [user, setUser] = useState<{ email: string; role: string } | null>(null);
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
   const navigate = useNavigate();
 
   
@@ -151,7 +154,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = !!token;
 
   
-  const value = { token, isAuthenticated, user, login, logout };
+  const value = { token, 
+    isAuthenticated,
+     user,
+      login,
+      logout,
+      showLoginDialog,
+      setShowLoginDialog
+     };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

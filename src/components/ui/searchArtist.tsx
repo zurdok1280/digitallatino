@@ -16,6 +16,11 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
     const handleClick = () => {
         onSelect(track);
     };
+    // Función específica para el botón que previene la propagación del evento
+    const handleButtonClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onSelect(track);
+    };
 
     return (
         <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
@@ -39,6 +44,7 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                     variant="outline"
                     size="sm"
                     className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
+                    onClick={handleButtonClick}
                 >
                     Ver Campaña
                 </Button>
@@ -173,17 +179,23 @@ export function SearchArtist() {
         }
     }, [accessToken, toast]);
 
-    // Handle search result selection
+    // Handle search result selection 
     const handleSearchResultSelect = (track: SpotifyTrack) => {
-        const params = new URLSearchParams({
-            artist: track.artists.map(artist => artist.name).join(', '),
-            track: track.name,
-            coverUrl: track.album.images[0]?.url || '',
-            artistImageUrl: track.artists[0]?.images?.[0]?.url || '',
-            previewUrl: track.preview_url || '',
-            spotifyUrl: (track as any).external_urls?.spotify || ''
-        });
-        navigate(`/campaign?${params.toString()}`);
+        if (track.id) {
+            const campaignUrl = `/campaign?spotifyId=${track.id}`;
+            window.open(campaignUrl, '_blank');
+        } else {
+            // Fallback si no hay ID de Spotify, usar los parámetros anteriores
+            const params = new URLSearchParams({
+                artist: track.artists.map(artist => artist.name).join(', '),
+                track: track.name,
+                coverUrl: track.album.images[0]?.url || '',
+                artistImageUrl: track.artists[0]?.images?.[0]?.url || '',
+                previewUrl: track.preview_url || '',
+                spotifyUrl: track.external_urls?.spotify || ''
+            });
+            navigate(`/campaign?${params.toString()}`);
+        }
     };
 
     //useEffect para buscar cuando el query cambia
@@ -203,9 +215,9 @@ export function SearchArtist() {
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     {/*<div className="flex items-center gap-2">
-                        <span className="text-xl">🔍</span>
-                        <h2 className="text-lg font-semibold text-slate-700">¿No encuentras tu artista en los charts?</h2>
-                    </div>*/}
+                            <span className="text-xl">🔍</span>
+                            <h2 className="text-lg font-semibold text-slate-700">¿No encuentras tu artista en los charts?</h2>
+                        </div>*/}
                 </div>
 
                 <div className="relative">

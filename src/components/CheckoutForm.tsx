@@ -26,7 +26,8 @@ export const CheckoutForm = () => {
         }
 
         try {
-            const createSubResponse = await fetch('http://localhost:8082/api/subscriptions/create', {
+            const createSubResponse = await fetch('https://security.digital-latino.com/api/subscriptions/create', {
+             //const createSubResponse = await fetch('http://localhost:8085/api/subscriptions/create', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -53,8 +54,9 @@ export const CheckoutForm = () => {
             }
             if (paymentIntent?.status === 'succeeded') {
                 toast({ title: "¡Pago exitoso!", description: "Tu suscripción está activa. Redirigiendo..." });
-                setTimeout(() => window.location.href = '/dashboard', 2000);
+                setTimeout(() => window.location.href = '/weekly-top-songs', 2000);
             }
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         } catch (err: any) {
             toast({ title: "Error", description: err.message, variant: "destructive" });
         } finally {
@@ -68,7 +70,7 @@ export const CheckoutForm = () => {
             <div className="p-4 border rounded-md bg-gray-50">
                 <CardElement options={{ style: { base: { fontSize: '16px', color: '#424770', '::placeholder': { color: '#aab7c4' } } } }} />
             </div>
-            <Button type="submit" disabled={!stripe || loading} className="w-full h-12 text-lg">
+            <Button type="submit" disabled={!stripe || loading} className="w-full h-12 text-lg bg-purple-600 text-white hover:bg-purple-700">
                 {loading ? 'Procesando...' : 'Pagar Suscripción'}
             </Button>
         </form>

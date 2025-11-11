@@ -21,6 +21,7 @@ const Debut = lazy(() => import("./pages/Debut"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const Payment = lazy(() => import("./pages/PaymentPage"));
 const AuthCallback = lazy(() => import("./pages/AuthCallbackPage"));
+const AccountPage = lazy(() => import("./pages/AccountPage"));
 // QueryClient optimizado para rendimiento
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -73,6 +74,7 @@ const App = () => (
             <Route path="/top-platforms" element={withLazy(TopPlatforms)} />
             <Route path="/top-artists" element={withLazy(TopArtists)} />
             <Route path="/debut" element={withLazy(Debut)} />
+            <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route
               path="*"

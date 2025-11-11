@@ -84,6 +84,7 @@ export interface TopTrendingPlatforms {
   label: string;
   data_res: number;
   cs_song: number;
+  img: string;
 }
 
 // interfaces para entradas de Debut Songs
@@ -97,6 +98,7 @@ export interface DebutSongs {
   dif_score: number;
   rk_trending: number;
   crg: string;
+  img: string;
 }
 
 // interfaces para entradas de top artists
@@ -115,6 +117,132 @@ export interface TopTrendingArtist {
   followers_total_facebook: number;
   followers_total_twitter: number;
   spotify_streams: number;
+  img: string;
+}
+
+//Interface Contry para buttonSongInfo/boxElementsDisplay
+export interface CityDataForSong {
+  audience?: number;
+  cityid?: number;
+  citylat?: number;
+  citylng?: number;
+  cityname?: string;
+  listeners?: number;
+  rnk?: number;
+  spins?: number;
+  sts?: number;
+
+  countryId: number;
+  csSong: number;
+  country_code?: string;
+  streams?: number;
+}
+
+//Interface SongInfo para buttonSongInfo/boxDisplayInfoPlatform.tsx
+export interface SongInfoPlatform {
+  rk: number;
+  song: string;
+  artists: string;
+  label: string;
+  score: number;
+  cs_song: number;
+  spotify_streams_total: number;
+  spotify_popularity_current: number;
+  spotify_playlists_current: number;
+  spotify_playlists_reach_current: number;
+  spotify_playlists_reach_total: number;
+  spotify_charts_total: number;
+  apple_playlists_current: number;
+  apple_playlists_total: number;
+  apple_charts_currents: number;
+  apple_charts_total: number;
+  amazon_playlists_current: number;
+  amazon_paylists_total: number;
+  amazon_charts_current: number;
+  amazon_charts_total: number;
+  deezer_popularity_current: number;
+  deezer_playlists_current: number;
+  deezer_playlists_total: number;
+  deezer_playlist_reach_current: number;
+  deezer_playlist_reach_total: number;
+  deezer_charts_current: number;
+  deezer_charts_total: number;
+  tiktok_videos_total: number;
+  tiktok_views_total: number;
+  tiktok_likes_total: number;
+  tiktok_shares_total: number;
+  tiktok_comments_total: number;
+  tiktok_engagement_rate_total: number;
+  youtube_videos_total: number;
+  youtube_video_views_total: number;
+  youtube_video_likes_total: number;
+  youtube_video_comments_total: number;
+  youtube_shorts_total: number;
+  youtube_short_views_total: number;
+  youtube_short_likes_total: number;
+  youtube_short_comments_total: number;
+  youtube_engagement_rate_total: number;
+  shazam_shazams_total: number;
+  shazam_charts_current: number;
+  shazam_charts_total: number;
+  tidal_popularity_current: number;
+  tidal_playlists_current: number;
+  tidal_playlists_total: number;
+  soundcloud_streams_total: number;
+  soundcloud_favorites_total: number;
+  soundcloud_reposts_total: number;
+  soundcloud_engagement_rate_total: number;
+  rk_spotify: number;
+  rk_tiktok: number;
+  rk_youtube: number;
+  rk_shorts: number;
+  rk_shazam: number;
+  rk_soundcloud: number;
+  rk_pandora: number;
+  pan_streams: number;
+}
+
+// Interface para manejar info de la canción por cs_song
+export interface SongBasicInfo {
+  id: string;
+  avatar: string;
+  background: string;
+  title: string;
+  artist: string;
+  label: string;
+  url: string;
+}
+// Interface para manejar info de radio (Countries & Markets con Spins)
+export interface SpinData {
+  country?: string;
+  market?: string;
+  spins: number;
+  rank: number;
+}
+//Interface para manejar info de TopPlaylists
+export interface TopPlaylists {
+  rank: number;
+  spotify_id: string;
+  playlist_name: string;
+  owner_name: string;
+  artwork: string;
+  external_url: string;
+  current_position: number;
+  top_position: number;
+  followers: number;
+  type_name: string;
+}
+//Interface para manejar info de usos en Tiktok
+export interface TikTokUse {
+  rk: number;
+  video_id: string;
+  views_total: number;
+  likes_total: number;
+  comments_total: number;
+  shares_total: number;
+  tiktok_user_followers: number;
+  username: string;
+  user_handle: string;
 }
 
 // Clase principal para manejar las conexiones API
@@ -338,6 +466,39 @@ export const digitalLatinoApi = {
     api.get<DebutSongs[]>(
       `report/getTrendingDebut/${format}/${country}/${CRG}/${city}`
     ),
+  //Contry para buttonSongInfo/boxElementsDisplay
+  getCityData: (
+    csSong: number,
+    countryId: number
+  ): Promise<ApiResponse<CityDataForSong[]>> =>
+    api.get<CityDataForSong[]>(`report/getCityData/${csSong}/${countryId}`),
+  // Obtener información de la canción por plataforma
+  getSongPlatformData: (
+    csSong: number,
+    formatId: number
+  ): Promise<ApiResponse<SongInfoPlatform[]>> =>
+    api.get<SongInfoPlatform[]>(`report/getSongDigital/${csSong}/${formatId}`),
+  // Obtener información básica de la canción por cs_song
+  getSongById: (csSong: number): Promise<ApiResponse<SongBasicInfo>> =>
+    api.get<SongBasicInfo>(`report/getSongbyId/${csSong}`),
+  // Obtener top países de radio por canción
+  getTopRadioCountries: (csSong: number): Promise<ApiResponse<SpinData[]>> =>
+    api.get<SpinData[]>(`report/getTopRadioCountries/${csSong}`),
+  // Obtener top mercados de radio por cs_song y país
+  getTopMarketRadio: (
+    csSong: number,
+    countryId: number
+  ): Promise<ApiResponse<SpinData[]>> =>
+    api.get<SpinData[]>(`report/getTopMarketRadio/${csSong}/${countryId}`),
+  //Obtener playlists por cs_song y tipo de playlist
+  getTopPlaylists: (
+    csSong: number,
+    typePlaylist: number
+  ): Promise<ApiResponse<TopPlaylists[]>> =>
+    api.get<TopPlaylists[]>(`report/getTopPlaylists/${csSong}/${typePlaylist}`),
+  //Obtener usos en Tiktok por cs_song
+  getTikTokUses: (csSong: number): Promise<ApiResponse<TikTokUse[]>> =>
+    api.get<TikTokUse[]>(`report/getTikTokUses/${csSong}`),
 };
 
 // Ejemplo de uso:

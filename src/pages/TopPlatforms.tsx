@@ -25,6 +25,40 @@ import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
 import { time } from "console";
 import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 import { ButtonBigNumber } from "@/components/ui/button-big-number";
+import { ButtonInfoSong, ExpandRow, useExpandableRows } from "@/components/ui/buttonInfoSong";
+
+
+// Función para convertir TopTrendingPlatforms a un formato compatible con Song, función temporal
+const adaptPlatformToSong = (platformSong: TopTrendingPlatforms): Song => {
+  return {
+    cs_song: platformSong.cs_song,
+    song: platformSong.song,
+    artists: platformSong.artist,
+    label: platformSong.label || '',
+    score: platformSong.data_res, // Usar data_res como score para esta prueba
+    rk: parseInt(platformSong.rk),
+    // Campos que pueden faltar en TopTrendingPlatforms pero se les asignan valores por defecto
+    spotify_streams_total: 0,
+    tiktok_views_total: 0,
+    youtube_video_views_total: 0,
+    youtube_short_views_total: 0,
+    shazams_total: 0,
+    soundcloud_stream_total: 0,
+    pan_streams: 0,
+    audience_total: 0,
+    spins_total: 0,
+    rk_total: 0,
+    tw_spins: 0,
+    tw_aud: 0,
+    spotify_streams: 0,
+    entid: 0,
+    length_sec: 0,
+    crg: '',
+    avatar: platformSong.img || '',
+    url: '',
+    spotifyid: ''
+  };
+};
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -297,206 +331,6 @@ interface ExpandRowProps {
   onPromote: () => void;
 }
 
-function ExpandRow({ row, onPromote }: ExpandRowProps) {
-  return (
-    <div className="mt-4 border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in relative overflow-visible">
-      {/* Blurred Content */}
-      <div className="blur-sm pointer-events-none">
-        {/* Compact Billboard-style Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-
-          {/* Debut Position */}
-          <div className="bg-black border border-green-500 rounded-xl p-3 text-center">
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">Debut Position</div>
-            <div className="text-3xl font-bold text-green-400 mb-1">{row.rk}</div>
-            <div className="text-xs text-gray-400">Debut Chart Date</div>
-            <div className="text-xs text-white">01/15/24</div>
-          </div>
-
-          {/* Peak Position */}
-          <div className="bg-black border border-green-500 rounded-xl p-3 text-center">
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">Peak Position</div>
-            <div className="text-3xl font-bold text-green-400 mb-1">{row.rk}</div>
-            <div className="text-xs text-gray-400">Peak Chart Date</div>
-            <div className="text-xs text-white">02/08/24</div>
-          </div>
-
-          {/* Performance Metrics */}
-          <div className="bg-black border border-green-500 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Platform Rankings</div>
-            <div className="grid grid-cols-2 gap-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">🟢 Spotify:</span>
-                <span className="text-white font-bold">#{row.spotify_streams_total}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">⚫ TikTok:</span>
-                <span className="text-white font-bold">#{row.tiktok_views_total}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">🔴 YouTube:</span>
-                <span className="text-white font-bold">#{row.youtube_video_views_total}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">🔵 Shazam:</span>
-                <span className="text-white font-bold">#{row.shazams_total}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Awards & Share */}
-          <div className="bg-black border border-green-500 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Awards</div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="bg-green-500 rounded-full p-1">
-                <span className="text-white text-xs">↗</span>
-              </div>
-              <span className="text-white text-xs">Gains In Performance</span>
-            </div>
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">Share</div>
-            <div className="flex gap-2">
-              <div className="w-6 h-6 bg-green-600 rounded border border-green-500 flex items-center justify-center">
-                <span className="text-white text-xs">f</span>
-              </div>
-              <div className="w-6 h-6 bg-green-600 rounded border border-green-500 flex items-center justify-center">
-                <span className="text-white text-xs">X</span>
-              </div>
-              <div className="w-6 h-6 bg-green-600 rounded border border-green-500 flex items-center justify-center">
-                <span className="text-white text-xs">🔗</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Top Markets - Horizontal compact display */}
-        <div className="mb-4 bg-black border border-green-500/30 rounded-xl p-3">
-          <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Top Markets Performance</div>
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
-            {/*  {row.topCountries.slice(0, 5).map((country, index) => (
-              <div key={country} className="flex justify-between items-center bg-white/5 rounded p-2">
-                <span className="text-gray-400">{index === 0 ? '🇺🇸' : index === 1 ? '🇲🇽' : index === 2 ? '🇨🇴' : index === 3 ? '🇦🇷' : '🇨🇱'} {country.split(' ')[0]}</span>
-                <span className="text-green-400 font-bold">{34 - (index * 6)}%</span>
-              </div>
-            ))} */}
-          </div>
-        </div>
-
-        {/* Detailed Analytics Preview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-          <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Revenue Analytics</div>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Total Streams:</span>
-                <span className="text-white font-bold">2.4M</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Revenue:</span>
-                <span className="text-green-400 font-bold">$8,420</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">RPM:</span>
-                <span className="text-white font-bold">$3.51</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Growth Metrics</div>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Weekly Growth:</span>
-                <span className="text-green-400 font-bold">+234%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">New Listeners:</span>
-                <span className="text-white font-bold">45.2K</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Retention:</span>
-                <span className="text-white font-bold">68%</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Demographic Data</div>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Age 18-24:</span>
-                <span className="text-white font-bold">42%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Age 25-34:</span>
-                <span className="text-white font-bold">35%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Male/Female:</span>
-                <span className="text-white font-bold">48/52</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Unlock Overlay - Digital Latino, sin oscurecer ni blur */}
-      <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="text-center p-6 bg-gradient-to-br from-background/90 to-background/85 border border-primary/20 rounded-2xl shadow-2xl max-w-md mx-4">
-          <div className="mb-5">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl">🔓</span>
-            </div>
-            <h3 className="text-xl font-bold text-foreground mb-1">
-              Desbloquea Analytics Completos
-            </h3>
-            <p className="text-muted-foreground text-sm">
-              Accede a métricas detalladas, datos demográficos y herramientas profesionales de promoción
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-5 text-xs">
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Dashboard Completo</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Analytics en Tiempo Real</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Datos Demográficos</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Reportes de Revenue</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Pitch con Curadores</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Promoción en Redes</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <button
-              onClick={onPromote}
-              className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground px-6 py-3 rounded-full font-bold text-base transition-all hover:shadow-lg hover:scale-105"
-            >
-              🚀 Comprar Campaña
-            </button>
-            <p className="text-xs text-muted-foreground">
-              ROI Promedio: <strong className="text-primary">+{row.score}%</strong> • Cancela en cualquier momento
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Spotify API configuration  
 const DEFAULT_CLIENT_ID = '5001fe1a36c8442781282c9112d599ca';
@@ -551,7 +385,7 @@ export default function TopPlatforms() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const { expandedRows, toggleRow, isExpanded } = useExpandableRows();
 
   // Spotify search state
   const [searchQuery, setSearchQuery] = useState('');     //Aislar
@@ -586,6 +420,11 @@ export default function TopPlatforms() {
   // Dropdown state keyboard navigation
   const [openDropdown, setOpenDropdown] = useState<'country' | 'format' | 'city' | null>(null);
   const [dropdownSearch, setDropdownSearch] = useState('');
+
+  // Función para manejar el toggle de filas para cada cancion
+  const handleToggleRow = (index: number, row: TopTrendingPlatforms) => {
+    toggleRow(index);
+  };
 
   const filteredSongs = useMemo(() => {
     console.log('Filtrando canciones...', chartSearchQuery, trendingPlatforms.length);
@@ -834,17 +673,6 @@ export default function TopPlatforms() {
     window.location.href = authUrl.toString();
   };
 
-  const toggleRow = (index: number) => {
-    console.log('Toggling row:', index);
-    const newExpanded = new Set(expandedRows);
-    if (newExpanded.has(index)) {
-      newExpanded.delete(index);
-    } else {
-      newExpanded.add(index);
-    }
-    setExpandedRows(newExpanded);
-  };
-
   const handlePromote = (artist: string, track: string, coverUrl?: string, artistImageUrl?: string) => {
     const params = new URLSearchParams({
       artist,
@@ -1005,7 +833,7 @@ export default function TopPlatforms() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 relative z-30">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
             {/* Filtro por País/Región */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
@@ -1205,6 +1033,11 @@ export default function TopPlatforms() {
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
                         <div className="relative">
                           <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
+                            <AvatarImage
+                              src={row.img}
+                              alt={row.img}
+                              className="rounded-lg object-cover"
+                            />
                             <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
                               {row.song.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                             </AvatarFallback>
@@ -1212,18 +1045,7 @@ export default function TopPlatforms() {
                           {/* Play Button Overlay */}
                           {/*<div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
                             <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handlePlayPreview(row.rk, `https://audios.monitorlatino.com/Iam/${row.entid}.mp3`);
-                              }}
-                              className="w-8 h-8 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors shadow-lg"
-                              aria-label={`Reproducir preview de ${row.cs_song}`}
-                            >
-                              {currentlyPlaying === row.rk ? (
-                                <Pause className="w-3 h-3" />
-                              ) : (
-                                <Play className="w-3 h-3 ml-0.5" />
-                              )}
+                              
                             </button>
                           </div>*/}
                         </div>
@@ -1239,14 +1061,37 @@ export default function TopPlatforms() {
                       </div>
                     </div>
 
-                    {/* Botón views components */}
-                    <ButtonBigNumber name=" Streams / Views " quantity={row.data_res} />
-
-
+                    {/* Digital Score - REEMPLAZAR ESTA SECCIÓN */}
+                    <div className="col-span-2 text-right">
+                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
+                        <div className="flex items-center justify-between">
+                          <ButtonBigNumber name=" Streams / Views " quantity={row.data_res} />
+                          {/* Agregar el ButtonInfoSong aquí */}
+                          <ButtonInfoSong
+                            index={index}
+                            row={adaptPlatformToSong(row)}
+                            isExpanded={isExpanded(index)}
+                            onToggle={() => handleToggleRow(index, row)}
+                            selectedCountry={selectedCountry}
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
 
-                  {expandedRows.has(index) && (
-                    <div className="bg-white/30 backdrop-blur-sm px-8 pb-6">
+                  {isExpanded(index) && (
+                    <div className="px-6 pb-4">
+                      {/* Usar el ExpandRow con datos adaptados */}
+                      <ExpandRow
+                        row={adaptPlatformToSong(row)}
+                        onPromote={() => handlePromote(row.artist, row.song, row.img)}
+                        selectedCountry={selectedCountry}
+                        selectedFormat={selectedFormat}
+                        countries={countries}
+                        isExpanded={isExpanded(index)}
+                        cityDataForSong={[]}
+                        loadingCityData={false}
+                      />
                     </div>
                   )}
                 </div>
