@@ -498,7 +498,7 @@ export const digitalLatinoApi = {
     api.get<TopPlaylists[]>(`report/getTopPlaylists/${csSong}/${typePlaylist}`),
   //Obtener usos en Tiktok por cs_song
   getTikTokUses: (csSong: number): Promise<ApiResponse<TikTokUse[]>> =>
-    api.get<TikTokUse[]>(`report/getTikTokUses/${csSong}`),
+    api.get<TikTokUse[]>(`report/getTopTiktok/${csSong}`),
 };
 
 // Ejemplo de uso:

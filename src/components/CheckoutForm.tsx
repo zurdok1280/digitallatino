@@ -27,7 +27,7 @@ export const CheckoutForm = () => {
 
         try {
             const createSubResponse = await fetch('https://security.digital-latino.com/api/subscriptions/create', {
-             //const createSubResponse = await fetch('http://localhost:8085/api/subscriptions/create', {
+
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
