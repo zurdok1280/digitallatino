@@ -244,6 +244,24 @@ export interface TikTokUse {
   username: string;
   user_handle: string;
 }
+//Interface para manejar info de Recomendaciones (recomendations.tsx)
+export interface Recommendation {
+  id: number;
+  artist: string;
+  followers_total_facebook: number;
+  followers_total_instagram: number;
+  followers_total_tiktok: number;
+  followers_total_twitter: number;
+  subscribers_total_youtube: number;
+  playlist_reach: number;
+  video_total_youtube: number;
+  monthly_listeners: number;
+  video_views_total_youtube: number;
+  video_reach_total_youtube: number;
+  engagement_rate_tiktok: number;
+  spotify_playlist_reach_current: number;
+  tiktok_engagement_rate_total: number;
+}
 
 // Clase principal para manejar las conexiones API
 export class ApiClient {
@@ -499,6 +517,11 @@ export const digitalLatinoApi = {
   //Obtener usos en Tiktok por cs_song
   getTikTokUses: (csSong: number): Promise<ApiResponse<TikTokUse[]>> =>
     api.get<TikTokUse[]>(`report/getTopTiktok/${csSong}`),
+  // Obtener recomendaciones de artistas similares
+  getArtistRecommendations: (
+    csSong: number
+  ): Promise<ApiResponse<Recommendation[]>> =>
+    api.get<Recommendation[]>(`report/getRecommendations/${csSong}`),
 };
 
 // Ejemplo de uso:
