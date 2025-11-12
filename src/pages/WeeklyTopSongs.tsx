@@ -583,7 +583,7 @@ export default function Charts() {
   };
   // Función para manejar la expansión de filas
   const handleToggleRow = (index: number, row: Song) => {
-    
+
     if (!user) {
       setShowLoginDialog(true);
       return;
@@ -966,16 +966,15 @@ export default function Charts() {
                     {loadingCities
                       ? "Cargando..."
                       : !selectedCountry
-                      ? "Selecciona país primero"
-                      : selectedCity !== "0" && cities.length > 0
-                      ? cities.find((c) => c.id.toString() === selectedCity)
-                          ?.city_name || "Todas las ciudades"
-                      : "Todas las ciudades"}
+                        ? "Selecciona país primero"
+                        : selectedCity !== "0" && cities.length > 0
+                          ? cities.find((c) => c.id.toString() === selectedCity)
+                            ?.city_name || "Todas las ciudades"
+                          : "Todas las ciudades"}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      openDropdown === "city" ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${openDropdown === "city" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -999,11 +998,10 @@ export default function Charts() {
                       {/* Opción "Todas las ciudades" */}
                       <button
                         onClick={() => handleOptionSelect("0", "city")}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                          selectedCity === "0"
+                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
                             ? "bg-orange-100 text-orange-700 font-semibold"
                             : "text-gray-700"
-                        }`}
+                          }`}
                       >
                         🎯 Todas las ciudades
                       </button>
@@ -1015,11 +1013,10 @@ export default function Charts() {
                             onClick={() =>
                               handleOptionSelect(city.id.toString(), "city")
                             }
-                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                              selectedCity === city.id.toString()
+                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
                                 ? "bg-orange-100 text-orange-700 font-semibold"
                                 : "text-gray-700"
-                            }`}
+                              }`}
                           >
                             🎯 {city.city_name}
                           </button>
@@ -1028,10 +1025,10 @@ export default function Charts() {
 
                       {getFilteredOptions(cities, dropdownSearch, "city")
                         .length === 0 && (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                          No se encontraron ciudades
-                        </div>
-                      )}
+                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                            No se encontraron ciudades
+                          </div>
+                        )}
                     </div>
                   </div>
                 )}
@@ -1470,44 +1467,7 @@ export default function Charts() {
         )}
       </div>
 
-      {/* Definición del Score Digital */}
-      <div className="max-w-7xl mx-auto px-6 pb-12">
-        <div className="bg-white/80 backdrop-blur-sm border border-white/30 rounded-2xl p-6 shadow-lg">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-              <span className="text-2xl">📊</span>
-            </div>
-            <div className="flex-1 space-y-3">
-              <h3 className="text-lg font-bold text-gray-900">
-                ¿Qué es el Score Digital?
-              </h3>
-              <p className="text-sm text-gray-700 leading-relaxed">
-                El <strong>Score Digital</strong> es una métrica del 1 al 100
-                que evalúa el nivel de exposición de una canción basado en
-                streams, playlists, engagement social y distribución geográfica.
-              </p>
-              <div className="flex flex-wrap items-center gap-4 mt-3">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">0-25: Baja</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">26-50: Media</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">51-75: Alta</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-gray-600">76-100: Máxima</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
 
       {!user && (showGenreOverlay || showCrgOverlay) && (
         <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
