@@ -413,7 +413,7 @@ const AccountPage = () => {
                     <AlertDialogHeader>
                       <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Realmente deseas cancelar tu suscripción? Tu acceso
+                        ¿Realmente deseas cancelar tu suscripción? Tu acceso
                         premium continuará hasta la fecha de expiración de tu
                         ciclo de facturación actual.
                       </AlertDialogDescription>
