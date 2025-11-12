@@ -572,8 +572,14 @@ export default function Charts() {
 
       console.log("City data response:", response.data);
       setCityData(response.data);
+<<<<<<< Updated upstream
     } catch (error) {
       console.error("Error fetching city data:", error);
+=======
+
+    } catch (error) {
+      console.error('Error fetching city data:', error);
+>>>>>>> Stashed changes
       toast({
         title: "Error",
         description: "No se pudieron cargar los datos de ciudades",
@@ -969,16 +975,15 @@ export default function Charts() {
                     {loadingCities
                       ? "Cargando..."
                       : !selectedCountry
-                      ? "Selecciona país primero"
-                      : selectedCity !== "0" && cities.length > 0
-                      ? cities.find((c) => c.id.toString() === selectedCity)
-                          ?.city_name || "Todas las ciudades"
-                      : "Todas las ciudades"}
+                        ? "Selecciona país primero"
+                        : selectedCity !== "0" && cities.length > 0
+                          ? cities.find((c) => c.id.toString() === selectedCity)
+                            ?.city_name || "Todas las ciudades"
+                          : "Todas las ciudades"}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      openDropdown === "city" ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${openDropdown === "city" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -1002,11 +1007,10 @@ export default function Charts() {
                       {/* Opción "Todas las ciudades" */}
                       <button
                         onClick={() => handleOptionSelect("0", "city")}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                          selectedCity === "0"
+                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
                             ? "bg-orange-100 text-orange-700 font-semibold"
                             : "text-gray-700"
-                        }`}
+                          }`}
                       >
                         🎯 Todas las ciudades
                       </button>
@@ -1018,11 +1022,10 @@ export default function Charts() {
                             onClick={() =>
                               handleOptionSelect(city.id.toString(), "city")
                             }
-                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                              selectedCity === city.id.toString()
+                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
                                 ? "bg-orange-100 text-orange-700 font-semibold"
                                 : "text-gray-700"
-                            }`}
+                              }`}
                           >
                             🎯 {city.city_name}
                           </button>
@@ -1031,10 +1034,10 @@ export default function Charts() {
 
                       {getFilteredOptions(cities, dropdownSearch, "city")
                         .length === 0 && (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                          No se encontraron ciudades
-                        </div>
-                      )}
+                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                            No se encontraron ciudades
+                          </div>
+                        )}
                     </div>
                   </div>
                 )}
@@ -1546,6 +1549,7 @@ export default function Charts() {
               </button>
             </div>
           </div>
+<<<<<<< Updated upstream
           <button
             onClick={() => {
               setShowGenreOverlay(false);
@@ -1557,6 +1561,10 @@ export default function Charts() {
           </button>
         </div>
       )}
+=======
+
+        )}
+>>>>>>> Stashed changes
 
       {/* Overlay global mientras se carga */}
       <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
