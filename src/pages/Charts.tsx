@@ -1224,6 +1224,9 @@ export default function Charts() {
                         <p className="text-sm font-medium text-gray-600 truncate">
                           {row.artists}
                         </p>
+                        <p className="text-sm font-medium text-gray-400 truncate">
+                          {row.label}
+                        </p>
                       </div>
                     </div>
 

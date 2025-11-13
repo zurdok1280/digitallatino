@@ -999,8 +999,8 @@ export default function Charts() {
                       <button
                         onClick={() => handleOptionSelect("0", "city")}
                         className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
-                            ? "bg-orange-100 text-orange-700 font-semibold"
-                            : "text-gray-700"
+                          ? "bg-orange-100 text-orange-700 font-semibold"
+                          : "text-gray-700"
                           }`}
                       >
                         🎯 Todas las ciudades
@@ -1014,8 +1014,8 @@ export default function Charts() {
                               handleOptionSelect(city.id.toString(), "city")
                             }
                             className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
-                                ? "bg-orange-100 text-orange-700 font-semibold"
-                                : "text-gray-700"
+                              ? "bg-orange-100 text-orange-700 font-semibold"
+                              : "text-gray-700"
                               }`}
                           >
                             🎯 {city.city_name}
@@ -1223,6 +1223,9 @@ export default function Charts() {
                         </h3>
                         <p className="text-sm font-medium text-gray-600 truncate">
                           {row.artists}
+                        </p>
+                        <p className="text-sm font-medium text-gray-400 truncate">
+                          {row.label}
                         </p>
                       </div>
                     </div>
