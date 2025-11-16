@@ -48,7 +48,6 @@ import taylorSwiftCover from "@/assets/covers/taylor-swift-fortnight.jpg";
 import eminemCover from "@/assets/covers/eminem-tobey.jpg";
 import chappellRoanCover from "@/assets/covers/chappell-roan-good-luck.jpg";
 import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
-import { time } from "console";
 import { useApiWithLoading } from "@/hooks/useApiWithLoading";
 import {
   ButtonInfoSong,
@@ -377,7 +376,6 @@ export default function Charts() {
   };
 
   const filteredSongs = useMemo(() => {
-    console.log("Filtrando canciones...", chartSearchQuery, songs.length);
 
     // Si no hay query de búsqueda, devolver todas las canciones
     if (!chartSearchQuery.trim()) {
@@ -560,14 +558,12 @@ export default function Charts() {
 
     try {
       setLoadingCityData(true);
-      console.log("Fetching city data for:", { csSong, countryId });
 
       const response = await digitalLatinoApi.getCityData(
         parseInt(csSong),
         parseInt(countryId)
       );
 
-      console.log("City data response:", response.data);
       setCityData(response.data);
     } catch (error) {
       console.error("Error fetching city data:", error);
@@ -746,7 +742,6 @@ export default function Charts() {
 
   // Connect to Spotify with OAuth
   const connectToSpotify = () => {
-    console.log("connectToSpotify called");
     // Generate a random state for security
     const state = Math.random().toString(36).substring(2, 15);
     window.localStorage.setItem("spotify_auth_state", state);
@@ -758,7 +753,6 @@ export default function Charts() {
     authUrl.searchParams.append("scope", SPOTIFY_CONFIG.scope);
     authUrl.searchParams.append("state", state);
 
-    console.log("Redirecting to Spotify auth:", authUrl.toString());
     // Open Spotify auth in the same window
     window.location.href = authUrl.toString();
   };
@@ -820,7 +814,6 @@ export default function Charts() {
 
   const handlePlayPreview = useCallback(
     (trackRank: number, audioUrl: string) => {
-      console.log("handlePlayPreview called for:", trackRank, audioUrl);
 
       // Si la misma canción está sonando, pausar y limpiar
       if (currentlyPlaying === trackRank) {

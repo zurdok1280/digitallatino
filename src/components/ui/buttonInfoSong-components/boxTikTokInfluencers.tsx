@@ -40,8 +40,8 @@ export default function BoxTikTokInfluencers({ csSong }: BoxTikTokInfluencersPro
             setError(null);
 
             console.log('Fetching TikTok uses for:', { csSong });
-
             const response = await digitalLatinoApi.getTikTokUses(csSong);
+            console.log(digitalLatinoApi.getTikTokUses(csSong));
             console.log('TikTok uses response:', response.data);
 
             setTiktokUses(response.data);

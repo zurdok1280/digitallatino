@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap } from "lucide-react";
+import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap, ChevronDownIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,7 +28,12 @@ import { ButtonBigNumber } from "@/components/ui/button-big-number";
 import { ButtonInfoSong, ExpandRow, useExpandableRows } from "@/components/ui/buttonInfoSong";
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
-
+//imports icons
+import pandoraIcon from '/src/assets/covers/icons/pandora-icon.png';
+import spotifyIcon from '/src/assets/covers/icons/spotify-icon.png';
+import tiktokIcon from '/src/assets/covers/icons/tiktok-icon.png';
+import youtubeIcon from '/src/assets/covers/icons/youtube-icon.svg';
+import shazamIcon from '/src/assets/covers/icons/shazam-icon.svg';
 
 // Función para convertir TopTrendingPlatforms a un formato compatible con Song, función temporal
 const adaptPlatformToSong = (platformSong: TopTrendingPlatforms): Song => {
@@ -62,6 +67,54 @@ const adaptPlatformToSong = (platformSong: TopTrendingPlatforms): Song => {
   };
 };
 
+// Función para obtener el label de la plataforma
+const getPlatformLabel = (platform: string) => {
+  const labels: { [key: string]: string } = {
+    spotify: "Spotify",
+    tiktok: "TikTok",
+    youtube: "YouTube",
+    shazam: "Shazam",
+    pandora: "Pandora",
+  };
+
+  return labels[platform] || platform;
+};
+
+// Componente para mostrar icono de plataforma
+interface PlatformIconProps {
+  platform: string;
+  size?: number;
+}
+
+function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
+  const getPlatformIcon = (platform: string) => {
+    const icons: { [key: string]: string } = {
+      spotify: spotifyIcon,
+      tiktok: tiktokIcon,
+      youtube: youtubeIcon,
+      shazam: shazamIcon,
+      pandora: pandoraIcon,
+    };
+
+    return icons[platform] || "🎵";
+  };
+
+  const iconSrc = getPlatformIcon(platform);
+
+  if (typeof iconSrc === 'string' && (iconSrc.includes('.svg') || iconSrc.includes('.png'))) {
+    return (
+      <img
+        src={iconSrc}
+        alt={platform}
+        className="object-contain flex-shrink-0"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
+  return <span style={{ fontSize: size }}>{iconSrc}</span>;
+}
+
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
   {
@@ -93,8 +146,6 @@ for (let i = 16; i <= 40; i++) {
   const covers = [teddySwimsCover, badBunnyCover, karolGCover, shaboozeyCover, sabrinaCarpenterCover, pesoPlumaCover, taylorSwiftCover, eminemCover, chappellRoanCover, billieEilishCover];
   const artists = ["Miley Cyrus", "Harry Styles", "Ariana Grande", "The Weeknd", "Drake", "Post Malone", "Rihanna", "Ed Sheeran", "Bruno Mars", "Adele"];
   const tracks = ["Flowers", "As It Was", "positions", "Blinding Lights", "God's Plan", "Circles", "Umbrella", "Shape of You", "Uptown Funk", "Hello"];
-
-
 }
 
 // El array final con 40 entradas
@@ -333,7 +384,6 @@ interface ExpandRowProps {
   onPromote: () => void;
 }
 
-
 // Spotify API configuration  
 const DEFAULT_CLIENT_ID = '5001fe1a36c8442781282c9112d599ca';
 const SPOTIFY_CONFIG = {
@@ -420,7 +470,7 @@ export default function TopPlatforms() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Dropdown state keyboard navigation
-  const [openDropdown, setOpenDropdown] = useState<'country' | 'format' | 'city' | null>(null);
+  const [openDropdown, setOpenDropdown] = useState<'country' | 'format' | 'platform' | 'city' | null>(null);
   const [dropdownSearch, setDropdownSearch] = useState('');
 
   // Función para manejar el toggle de filas para cada cancion
@@ -482,7 +532,6 @@ export default function TopPlatforms() {
     });
   };
 
-
   // Efecto para manejar la tecla Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -494,6 +543,18 @@ export default function TopPlatforms() {
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
   }, []);
+
+  // Efecto para cerrar dropdowns al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openDropdown && !(event.target as Element).closest('.dropdown-container')) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openDropdown]);
 
   //Debouncing para limitar las busquedas por API al usuario
   const useDebounce = (value: string, delay: number) => {
@@ -511,9 +572,6 @@ export default function TopPlatforms() {
   }
   // Usar el hook de debounce con 300ms de delay
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
-
-
-
 
   // Check for existing Spotify connection
   useEffect(() => {
@@ -541,8 +599,8 @@ export default function TopPlatforms() {
     } finally {
       setLoadingCountries(false);
     }
-
   };
+
   //ESTE FETCH PARA ASIGNAR EL PERIOD
   const fetchSongs = async () => {
     const data = await callApi(async () => {
@@ -613,13 +671,8 @@ export default function TopPlatforms() {
     fetchFormats();
   }, [selectedCountry, toast]);
 
-
-
-
   // Fetch Songs when country changes
   useEffect(() => {
-
-
     fetchSongs();
   }, [selectedCountry, selectedFormat, selectedPlatform, toast]);
 
@@ -696,10 +749,7 @@ export default function TopPlatforms() {
     setSelectedCountry(e.target.value);
     // Resetear el select a su valor inicial
     //e.target.selectedIndex = 0;
-
   };
-
-
 
   const handleCrgChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault();
@@ -748,8 +798,6 @@ export default function TopPlatforms() {
     });
 
   }, [currentlyPlaying]);
-
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
@@ -865,29 +913,30 @@ export default function TopPlatforms() {
               </select>
             </div>
 
-            {/* Filtro por Periodo Musical */}
+            {/* Filtro por Plataforma */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-2">
                 <span>🌐</span> Plataforma
               </label>
               <div className="relative">
+                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
+                  <PlatformIcon platform={selectedPlatform} size={16} />
+                </div>
                 <select
                   value={selectedPlatform}
                   onChange={(e) => setSelectedPlatform(e.target.value)}
-                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 cursor-pointer"
+                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm pl-10 pr-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 cursor-pointer appearance-none"
                 >
-                  <option value="spotify">🟢 Spotify</option>
-                  <option value="tiktok">⚫ TikTok</option>
-                  <option value="youtube">🔴 YouTube</option>
-                  <option value="shazam">🔵 Shazam</option>
-                  <option value="pandora">🟦 Pandora</option>
+                  <option value="spotify">Spotify</option>
+                  <option value="tiktok">TikTok</option>
+                  <option value="youtube">YouTube</option>
+                  <option value="shazam">Shazam</option>
+                  <option value="pandora">Pandora</option>
                 </select>
               </div>
             </div>
           </div>
         </div>
-
-
 
         {/* Lista de Charts */}
         <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">

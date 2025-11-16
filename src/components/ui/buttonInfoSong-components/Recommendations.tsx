@@ -89,7 +89,7 @@ const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[150] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
             onClick={handleBackdropClick}
         >
             <div className="bg-gradient-to-br from-purple-50 to-orange-50 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[85vh] flex flex-col overflow-hidden">
