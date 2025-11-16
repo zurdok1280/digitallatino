@@ -93,10 +93,21 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
       tiktok: tiktokIcon,
       youtube: youtubeIcon,
       shazam: shazamIcon,
-      pandora: pandoraIcon,
+      pandora: pandoraIcon
     };
 
     return icons[platform] || "🎵";
+  };
+  const getPlatformLabel = (platform: string) => {
+    const labels: { [key: string]: string } = {
+      spotify: "Spotify",
+      tiktok: "TikTok",
+      youtube: "YouTube",
+      shazam: "Shazam",
+      pandora: "Pandora"
+    };
+
+    return labels[platform] || platform;
   };
 
   const iconSrc = getPlatformIcon(platform);
@@ -472,6 +483,31 @@ export default function TopPlatforms() {
   // Dropdown state keyboard navigation
   const [openDropdown, setOpenDropdown] = useState<'country' | 'format' | 'platform' | 'city' | null>(null);
   const [dropdownSearch, setDropdownSearch] = useState('');
+  // Función para obtener el icono de la plataforma
+  const getPlatformIcon = (platform: string) => {
+    const icons: { [key: string]: string } = {
+      spotify: spotifyIcon,
+      tiktok: tiktokIcon,
+      youtube: youtubeIcon,
+      shazam: shazamIcon,
+      pandora: pandoraIcon
+    };
+
+    return icons[platform] || "🎵";
+  };
+
+  // Función para obtener el label de la plataforma
+  const getPlatformLabel = (platform: string) => {
+    const labels: { [key: string]: string } = {
+      spotify: "Spotify",
+      tiktok: "TikTok",
+      youtube: "YouTube",
+      shazam: "Shazam",
+      pandora: "Pandora"
+    };
+
+    return labels[platform] || platform;
+  };
 
   // Función para manejar el toggle de filas para cada cancion
   const handleToggleRow = (index: number, row: TopTrendingPlatforms) => {
@@ -547,7 +583,8 @@ export default function TopPlatforms() {
   // Efecto para cerrar dropdowns al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (openDropdown && !(event.target as Element).closest('.dropdown-container')) {
+      const target = event.target as Element;
+      if (openDropdown && !target.closest('.platform-filter')) {
         setOpenDropdown(null);
       }
     };
@@ -914,25 +951,62 @@ export default function TopPlatforms() {
             </div>
 
             {/* Filtro por Plataforma */}
-            <div className="space-y-2">
+            <div className="space-y-2 platform-filter">
               <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-2">
                 <span>🌐</span> Plataforma
               </label>
+
+              {/* Custom Select para Plataformas */}
               <div className="relative">
-                <div className="absolute left-3 top-1/2 transform -translate-y-1/2 z-10">
-                  <PlatformIcon platform={selectedPlatform} size={16} />
-                </div>
-                <select
-                  value={selectedPlatform}
-                  onChange={(e) => setSelectedPlatform(e.target.value)}
-                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm pl-10 pr-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 cursor-pointer appearance-none"
+                <button
+                  type="button"
+                  onClick={() => setOpenDropdown(openDropdown === 'platform' ? null : 'platform')}
+                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 cursor-pointer flex items-center gap-3 justify-between"
                 >
-                  <option value="spotify">Spotify</option>
-                  <option value="tiktok">TikTok</option>
-                  <option value="youtube">YouTube</option>
-                  <option value="shazam">Shazam</option>
-                  <option value="pandora">Pandora</option>
-                </select>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={getPlatformIcon(selectedPlatform)}
+                      alt={selectedPlatform}
+                      className="w-5 h-5 object-contain"
+                    />
+                    <span>{getPlatformLabel(selectedPlatform)}</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'platform' ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {openDropdown === 'platform' && (
+                  <div className="absolute z-50 mt-2 w-full rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg py-2 max-h-60 overflow-y-auto">
+                    {[
+                      { value: 'spotify', label: 'Spotify' },
+                      { value: 'tiktok', label: 'TikTok' },
+                      { value: 'youtube', label: 'YouTube' },
+                      { value: 'shazam', label: 'Shazam' },
+                      { value: 'pandora', label: 'Pandora' }
+                    ].map((platform) => (
+                      <button
+                        key={platform.value}
+                        type="button"
+                        onClick={() => {
+                          setSelectedPlatform(platform.value);
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-purple-50 transition-colors ${selectedPlatform === platform.value ? 'bg-purple-100 text-purple-700' : 'text-gray-800'
+                          }`}
+                      >
+                        <img
+                          src={getPlatformIcon(platform.value)}
+                          alt={platform.value}
+                          className="w-5 h-5 object-contain flex-shrink-0"
+                        />
+                        <span className="font-medium">{platform.label}</span>
+                        {selectedPlatform === platform.value && (
+                          <div className="ml-auto w-2 h-2 bg-purple-500 rounded-full" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -1083,7 +1157,7 @@ export default function TopPlatforms() {
                           {row.song}
                         </h3>
                         <p className="text-sm font-medium text-gray-600 truncate">
-                          {row.artist}
+                          {row.artists}
                         </p>
                       </div>
                     </div>
