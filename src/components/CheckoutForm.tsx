@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 
-export const CheckoutForm = () => {
+export const CheckoutForm = ({ priceId }: { priceId: string }) => {
     const stripe = useStripe();
     const elements = useElements();
     const { token } = useAuth();
@@ -33,7 +33,7 @@ export const CheckoutForm = () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ priceId: 'price_1SG7PeKFPi4gMQQnDVkxxBZD' }),
+                body: JSON.stringify({ priceId: priceId }),
             });
             if (!createSubResponse.ok) {
                 const errorBody = await createSubResponse.text();
