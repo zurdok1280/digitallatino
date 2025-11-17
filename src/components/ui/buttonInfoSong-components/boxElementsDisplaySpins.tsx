@@ -191,8 +191,6 @@ export default function BoxElementsDisplaySpins({
             setLoading(true);
             setError(null);
 
-            console.log(`Fetching ${type} spin data for:`, { csSong, countryId });
-
             let response;
 
             if (type === 'countries') {
@@ -205,8 +203,6 @@ export default function BoxElementsDisplaySpins({
                 }
                 response = await digitalLatinoApi.getTopMarketRadio(csSong, countryId);
             }
-
-            console.log(`${type} spin data response:`, response.data);
 
             // Ordenar por rank y tomar los top 8
             const sortedData = response.data

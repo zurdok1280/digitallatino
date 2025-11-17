@@ -28,7 +28,14 @@ import { useToast } from "@/hooks/use-toast";
 import { LatinAmericaMap } from "@/components/LatinAmericaMap";
 import { SpotifyTrack } from "@/types/spotify";
 import { useAuth } from "@/hooks/useAuth";
-import { digitalLatinoApi, Country, Format, City, Song, CityDataForSong } from "@/lib/api";
+import {
+  digitalLatinoApi,
+  Country,
+  Format,
+  City,
+  Song,
+  CityDataForSong,
+} from "@/lib/api";
 // Import album covers
 import { Backdrop, CircularProgress, Fab } from "@mui/material";
 import teddySwimsCover from "@/assets/covers/teddy-swims-lose-control.jpg";
@@ -42,8 +49,12 @@ import eminemCover from "@/assets/covers/eminem-tobey.jpg";
 import chappellRoanCover from "@/assets/covers/chappell-roan-good-luck.jpg";
 import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
 import { time } from "console";
-import { useApiWithLoading } from '@/hooks/useApiWithLoading';
-import { ButtonInfoSong, ExpandRow, useExpandableRows } from "@/components/ui/buttonInfoSong";
+import { useApiWithLoading } from "@/hooks/useApiWithLoading";
+import {
+  ButtonInfoSong,
+  ExpandRow,
+  useExpandableRows,
+} from "@/components/ui/buttonInfoSong";
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
 
@@ -187,7 +198,6 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
         <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-br from-transparent to-background/5" />
 
         {/* Unlock overlay compacto con colores Digital Latino */}
-
       </div>
     </div>
   );
@@ -247,8 +257,8 @@ function MovementIndicator({
   return <div className="w-4 h-4"></div>; // Same placeholder
 }
 
-// Spotify API configuration  
-const DEFAULT_CLIENT_ID = '5001fe1a36c8442781282c9112d599ca';
+// Spotify API configuration
+const DEFAULT_CLIENT_ID = "5001fe1a36c8442781282c9112d599ca";
 const SPOTIFY_CONFIG = {
   client_id: DEFAULT_CLIENT_ID,
   redirect_uri: window.location.origin,
@@ -302,7 +312,6 @@ export default function Charts() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, setShowLoginDialog } = useAuth();
-  
   //const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const { expandedRows, toggleRow, isExpanded } = useExpandableRows();
 
@@ -351,10 +360,6 @@ export default function Charts() {
   const [cityData, setCityData] = useState<CityDataForSong[]>([]);
   const [loadingCityData, setLoadingCityData] = useState(false);
 
-  // Almacenar Data de ciudades por pais para el mapa 
-  const [cityData, setCityData] = useState<CityDataForSong[]>([]);
-  const [loadingCityData, setLoadingCityData] = useState(false);
-
   const [showScoreTooltip, setShowScoreTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
@@ -362,7 +367,7 @@ export default function Charts() {
     const rect = event.currentTarget.getBoundingClientRect();
     setTooltipPosition({
       x: rect.right + 8,
-      y: rect.top + (rect.height / 2)
+      y: rect.top + rect.height / 2,
     });
     setShowScoreTooltip(true);
   };
@@ -389,7 +394,7 @@ export default function Charts() {
     });
   }, [songs, chartSearchQuery]);
 
-  //Top 20
+  //Limitar top 20
   const songsToDisplay = useMemo(() => {
     if (user) {
       return filteredSongs;
@@ -418,7 +423,6 @@ export default function Charts() {
   }, [showSearchBar]);
 
   // Función para filtrar opciones basado en la búsqueda
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getFilteredOptions = (
     options: any[],
     searchQuery: string,
@@ -556,7 +560,7 @@ export default function Charts() {
 
     try {
       setLoadingCityData(true);
-      console.log('Fetching city data for:', { csSong, countryId });
+      console.log("Fetching city data for:", { csSong, countryId });
 
       const response = await digitalLatinoApi.getCityData(
         parseInt(csSong),
@@ -571,14 +575,6 @@ export default function Charts() {
         title: "Error",
         description: "No se pudieron cargar los datos de ciudades",
         variant: "destructive",
-      console.log('City data response:', response.data);
-      setCityData(response.data);
-    } catch (error) {
-      console.error('Error fetching city data:', error);
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los datos de ciudades",
-        variant: "destructive"
       });
       setCityData([]);
     } finally {
@@ -587,6 +583,12 @@ export default function Charts() {
   };
   // Función para manejar la expansión de filas
   const handleToggleRow = (index: number, row: Song) => {
+
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
+
     toggleRow(index);
 
     // Si la fila se está expandiendo, cargar datos de ciudades
@@ -600,7 +602,7 @@ export default function Charts() {
     position: { x: number; y: number };
   }>({
     isVisible: false,
-    position: { x: 0, y: 0 }
+    position: { x: 0, y: 0 },
   });
 
   // Función para mostrar el tooltip
@@ -610,14 +612,14 @@ export default function Charts() {
       isVisible: true,
       position: {
         x: rect.right + window.scrollX + 8, // 8px de margen
-        y: rect.top + window.scrollY + (rect.height / 2)
-      }
+        y: rect.top + window.scrollY + rect.height / 2,
+      },
     });
   };
 
   // Función para ocultar el tooltip
   const hideTooltip = () => {
-    setTooltipState(prev => ({ ...prev, isVisible: false }));
+    setTooltipState((prev) => ({ ...prev, isVisible: false }));
   };
 
   // Fetch countries from API
@@ -761,7 +763,13 @@ export default function Charts() {
     window.location.href = authUrl.toString();
   };
 
-  const handlePromote = (artist: string, track: string, spotifyId: string, coverUrl?: string, artistImageUrl?: string) => {
+  const handlePromote = (
+    artist: string,
+    track: string,
+    spotifyId: string,
+    coverUrl?: string,
+    artistImageUrl?: string
+  ) => {
     const params = new URLSearchParams({
       artist,
       track,
@@ -810,46 +818,51 @@ export default function Charts() {
     e.target.selectedIndex = 0;
   };
 
-  const handlePlayPreview = useCallback((trackRank: number, audioUrl: string) => {
-    console.log("handlePlayPreview called for:", trackRank, audioUrl);
+  const handlePlayPreview = useCallback(
+    (trackRank: number, audioUrl: string) => {
+      console.log("handlePlayPreview called for:", trackRank, audioUrl);
 
-    // Si la misma canción está sonando, pausar y limpiar
-    if (currentlyPlaying === trackRank) {
+      // Si la misma canción está sonando, pausar y limpiar
+      if (currentlyPlaying === trackRank) {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0; // reinicia a inicio
+          audioRef.current = null;
+        }
+        setCurrentlyPlaying(null);
+        return;
+      }
+
+      // Si hay una canción sonando, detenerla
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.currentTime = 0; // reinicia a inicio
-        audioRef.current = null;
+        audioRef.current.currentTime = 0;
       }
-      setCurrentlyPlaying(null);
-      return;
-    }
 
-    // Si hay una canción sonando, detenerla
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
+      // Crear y reproducir nueva canción
+      const audio = new Audio(audioUrl); // aquí se asigna la URL real del MP3
+      audioRef.current = audio;
 
-    // Crear y reproducir nueva canción
-    const audio = new Audio(audioUrl); // aquí se asigna la URL real del MP3
-    audioRef.current = audio;
+      // Cuando termine el audio, limpiar estado
+      audio.addEventListener("ended", () => {
+        setCurrentlyPlaying(null);
+        audioRef.current = null;
+      });
 
-    // Cuando termine el audio, limpiar estado
-    audio.addEventListener("ended", () => {
-      setCurrentlyPlaying(null);
-      audioRef.current = null;
-    });
-
-    // Intentar reproducir (algunos navegadores requieren interacción de usuario)
-    audio.play().then(() => {
-      setCurrentlyPlaying(trackRank);
-    }).catch((err) => {
-      console.error("Error al reproducir el audio:", err);
-      setCurrentlyPlaying(null);
-      audioRef.current = null;
-    });
-
-  }, [currentlyPlaying]);
+      // Intentar reproducir (algunos navegadores requieren interacción de usuario)
+      audio
+        .play()
+        .then(() => {
+          setCurrentlyPlaying(trackRank);
+        })
+        .catch((err) => {
+          console.error("Error al reproducir el audio:", err);
+          setCurrentlyPlaying(null);
+          audioRef.current = null;
+        });
+    },
+    [currentlyPlaying]
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
@@ -953,16 +966,15 @@ export default function Charts() {
                     {loadingCities
                       ? "Cargando..."
                       : !selectedCountry
-                      ? "Selecciona país primero"
-                      : selectedCity !== "0" && cities.length > 0
-                      ? cities.find((c) => c.id.toString() === selectedCity)
-                          ?.city_name || "Todas las ciudades"
-                      : "Todas las ciudades"}
+                        ? "Selecciona país primero"
+                        : selectedCity !== "0" && cities.length > 0
+                          ? cities.find((c) => c.id.toString() === selectedCity)
+                            ?.city_name || "Todas las ciudades"
+                          : "Todas las ciudades"}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      openDropdown === "city" ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${openDropdown === "city" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -986,11 +998,10 @@ export default function Charts() {
                       {/* Opción "Todas las ciudades" */}
                       <button
                         onClick={() => handleOptionSelect("0", "city")}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                          selectedCity === "0"
-                            ? "bg-orange-100 text-orange-700 font-semibold"
-                            : "text-gray-700"
-                        }`}
+                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
+                          ? "bg-orange-100 text-orange-700 font-semibold"
+                          : "text-gray-700"
+                          }`}
                       >
                         🎯 Todas las ciudades
                       </button>
@@ -1002,11 +1013,10 @@ export default function Charts() {
                             onClick={() =>
                               handleOptionSelect(city.id.toString(), "city")
                             }
-                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                              selectedCity === city.id.toString()
-                                ? "bg-orange-100 text-orange-700 font-semibold"
-                                : "text-gray-700"
-                            }`}
+                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                              ? "bg-orange-100 text-orange-700 font-semibold"
+                              : "text-gray-700"
+                              }`}
                           >
                             🎯 {city.city_name}
                           </button>
@@ -1015,10 +1025,10 @@ export default function Charts() {
 
                       {getFilteredOptions(cities, dropdownSearch, "city")
                         .length === 0 && (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                          No se encontraron ciudades
-                        </div>
-                      )}
+                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                            No se encontraron ciudades
+                          </div>
+                        )}
                     </div>
                   </div>
                 )}
@@ -1214,6 +1224,9 @@ export default function Charts() {
                         <p className="text-sm font-medium text-gray-600 truncate">
                           {row.artists}
                         </p>
+                        <p className="text-sm font-medium text-gray-400 truncate">
+                          {row.label}
+                        </p>
                       </div>
                     </div>
 
@@ -1223,7 +1236,9 @@ export default function Charts() {
                         <div className="flex items-center justify-between mb-1">
                           <div className="flex items-center gap-1">
                             <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                            <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Score</span>
+                            <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">
+                              Score
+                            </span>
                             {/* Botón de información de score digital con tooltip a la derecha */}
                             <div className="relative group/info">
                               <button
@@ -1235,7 +1250,6 @@ export default function Charts() {
                                 ?
                               </button>
                             </div>
-
                           </div>
                           <Star className="w-2.5 h-2.5 text-yellow-500 fill-current" />
                         </div>
@@ -1248,7 +1262,7 @@ export default function Charts() {
                             index={index}
                             row={row}
                             isExpanded={isExpanded(index)}
-                            onToggle={toggleRow}
+                            onToggle={() => handleToggleRow(index, row)}
                             selectedCountry={selectedCountry}
                           />
                           {/* Separar botón para componente */}
@@ -1260,7 +1274,15 @@ export default function Charts() {
                     <div className="px-6 pb-4">
                       <ExpandRow
                         row={row}
-                        onPromote={() => handlePromote(row.artists, row.song, row.spotifyid, row.avatar, row.url)}
+                        onPromote={() =>
+                          handlePromote(
+                            row.artists,
+                            row.song,
+                            row.spotifyid,
+                            row.avatar,
+                            row.url
+                          )
+                        }
                         selectedCountry={selectedCountry}
                         selectedFormat={selectedFormat}
                         countries={countries}
@@ -1287,11 +1309,10 @@ export default function Charts() {
                   <h3 className="text-xl font-bold text-gray-900">
                     ¿Quieres ver más allá del Top 20?
                   </h3>
+                  <p className="text-sm text-gray-600">
+                    Accede a rankings completos y métricas avanzadas
+                  </p>
                 </div>
-              </div>
-              {/* Boton de redireccion a iniciar sesión para acceder a más del Top 20 */}
-              <div className="text-center">
-                <LoginButton />
               </div>
 
               {/* Canciones borrosas simulando contenido bloqueado */}
@@ -1338,8 +1359,6 @@ export default function Charts() {
                   </div>
                 ))}
               </div>
-
-              {/*Oferta simplificada */}
               <div className="flex justify-center">
                 <Button
                   size="lg"
@@ -1347,10 +1366,12 @@ export default function Charts() {
                   className="px-10 bg-gradient-to-r from-purple-600 via-purple-700 to-pink-600 hover:from-purple-700 hover:via-purple-800 hover:to-pink-700 text-white font-semibold shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300"
                 >
                   <Trophy className="mr-2 h-4 w-4" />
-                  Accede Ahora para ver más del top
+                  Accede ahora para ver más del top
                 </Button>
               </div>
-              {/*<div className="grid md:grid-cols-2 gap-6">
+
+              {/* Dos ofertas principales con la misma jerarquía 
+              <div className="grid md:grid-cols-2 gap-6">
                 {/* Oferta 1: Charts Completos 
                 <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl p-6 space-y-4">
                   <div className="text-center">
@@ -1364,7 +1385,7 @@ export default function Charts() {
                       Accede a rankings completos y estadísticas avanzadas
                     </p>
 
-                    {/* Precio 
+                    {/* Precio *
                     <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-xl p-3 mb-4">
                       <div className="flex items-center justify-center gap-2 mb-1">
                         <div className="w-5 h-5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center">
@@ -1399,7 +1420,7 @@ export default function Charts() {
                   </div>
                 </div>
 
-                {/* Oferta 2: Campaña Promocional 
+                {/* Oferta 2: Campaña Promocional *
                 <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-6 space-y-4">
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-2 mb-3">
@@ -1449,23 +1470,34 @@ export default function Charts() {
         )}
       </div>
 
-      {
-        !user && (showGenreOverlay || showCrgOverlay) && (
-          <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
-              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <span className="text-3xl">🔒</span>
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-foreground">
-                {showGenreOverlay ? 'Filtros por Género' : 'Filtros por Plataforma'}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Esta función es parte de las herramientas avanzadas. Activa una campaña para desbloquearla.
-              </p>
-              <div className="grid md:grid-cols-2 gap-3">
-                <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
-                  <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
-                    <Crown className="w-4 h-4 text-white" />
+
+
+      {!user && (showGenreOverlay || showCrgOverlay) && (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
+            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">🔒</span>
+            </div>
+            <h3 className="text-2xl font-bold mb-2 text-foreground">
+              {showGenreOverlay
+                ? "Filtros por Género"
+                : "Filtros por Plataforma"}
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              Esta función es parte de las herramientas avanzadas. Activa una
+              campaña para desbloquearla.
+            </p>
+            <div className="grid md:grid-cols-2 gap-3">
+              <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
+                <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                  <Crown className="w-4 h-4 text-white" />
+                </div>
+                <div className="mb-3">
+                  <div className="text-sm font-bold text-foreground">
+                    Premium
+                  </div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Solo Charts & Analytics
                   </div>
                   <div className="text-sm font-bold text-foreground">
                     $14.99/mes
@@ -1535,18 +1567,6 @@ export default function Charts() {
       <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      {showScoreTooltip && (
-        <div
-          className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
-          style={{
-            left: tooltipPosition.x,
-            top: tooltipPosition.y - 20,
-          }}
-        >
-          El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
-          <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
-        </div>
-      )}
     </div>
   );
 }

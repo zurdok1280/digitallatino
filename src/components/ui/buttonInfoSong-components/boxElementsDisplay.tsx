@@ -132,7 +132,9 @@ export default function BoxElementsDisplay({ label, csSong, countries, onDataLoa
 
     // Función para obtener datos de ciudades
     const fetchCityData = async (countryId: string) => {
+
         if (!csSong || !countryId) {
+            console.log('❌ Faltan datos: csSong o countryId');
             setLoading(false);
             return;
         }
@@ -141,11 +143,8 @@ export default function BoxElementsDisplay({ label, csSong, countries, onDataLoa
             setLoading(true);
             setError(null);
 
-            console.log('Fetching city data for:', { csSong, countryId });
-
             // Llamar a la API para obtener datos de ciudades
             const response = await digitalLatinoApi.getCityData(parseInt(csSong), parseInt(countryId));
-            console.log('City data response:', response.data);
 
             // Guardar datos completos para el mapa
             setCitiesData(response.data);
@@ -164,28 +163,37 @@ export default function BoxElementsDisplay({ label, csSong, countries, onDataLoa
                 onDataLoaded(cityData);
             }
         } catch (err) {
-            console.error('Error fetching city data:', err);
+            console.error('❌ Error en fetchCityData:', err);
             setError("No se pudieron cargar los datos de ciudades");
-
-
         } finally {
             setLoading(false);
         }
-    };
+    }
 
     // Efecto para cargar datos cuando cambia el país seleccionado o la canción
     useEffect(() => {
+        console.log('🔄 useEffect triggered:', { selectedCountry, csSong });
         if (selectedCountry) {
             fetchCityData(selectedCountry);
+        } else {
+            console.log('❌ selectedCountry no está definido');
+            setLoading(false);
         }
     }, [selectedCountry, csSong]);
 
     // useEffect para seleccionar el primer país por defecto cuando se cargan los países
     useEffect(() => {
-        if (countries.length > 0 && !selectedCountry) {
-            setSelectedCountry(countries[0].id.toString());
+        // Siempre establecer un país por defecto, incluso si no hay países en la lista
+        if (countries.length > 0) {
+            const defaultCountry = countries[0].id.toString()
+            setSelectedCountry(defaultCountry);
+        } else {
+            // Usar país 1 por defecto si no hay países en la lista
+            setSelectedCountry('1');
         }
     }, [countries]);
+
+    // Resto del código...
 
     const handleCountryChange = (event: any) => {
         setSelectedCountry(event.target.value);

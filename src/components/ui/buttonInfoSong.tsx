@@ -63,7 +63,7 @@ export function ExpandRow({
     return (
         <div className="border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
             {/* Información campaña */}
-            <BoxCampaign spotifyId={row?.spotifyid} />
+            <BoxCampaign spotifyId={row?.spotifyid} csSong={row.cs_song} />
 
 
             {/* Top de ciudades */}

@@ -1,74 +1,174 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { SpotifyTrack } from "@/types/spotify";
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Music, Search } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Music, Search, Info } from "lucide-react";
+import { digitalLatinoApi, SpotifyTrackResult, Song } from "@/lib/api";
+import ChartSongDetails from "./ChartSongDetails";
 
 interface SearchResultProps {
-    track: SpotifyTrack;
-    onSelect: (track: SpotifyTrack) => void;
+    track: SpotifyTrackResult;
+    onSelect: (track: SpotifyTrackResult) => void;
 }
 
 function SearchResult({ track, onSelect }: SearchResultProps) {
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [songDetails, setSongDetails] = useState<Song | null>(null);
+    const [loadingDetails, setLoadingDetails] = useState(false);
+    const { toast } = useToast();
+
     const handleClick = () => {
         onSelect(track);
     };
-    // Función específica para el botón que previene la propagación del evento
+
     const handleButtonClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         onSelect(track);
     };
 
+    const handleDetailsClick = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setLoadingDetails(true);
+        try {
+            console.log('🔍 Llamando a getSongBySpotifyId con spotify_id:', track.spotify_id);
+
+            // Paso 1: Obtener el csSong usando el spotifyId
+            const csSongResponse = await digitalLatinoApi.getSongBySpotifyId(track.spotify_id);
+
+            console.log('📊 URL completa de getSongBySpotifyId:', `report/getcssong?spotifyid=${track.spotify_id}`);
+            console.log('📦 Respuesta de getSongBySpotifyId:', csSongResponse);
+            console.log('🎵 csSong recibido:', csSongResponse.data);
+
+            if (csSongResponse.data && csSongResponse.data.cs_song) {
+                const csSong = csSongResponse.data.cs_song;
+                console.log('✅ cs_song encontrado:', csSong);
+
+                // Crear objeto Song con valores por defecto usando la información que tenemos
+                const defaultSongData: Song = {
+                    cs_song: csSong,
+                    spotify_streams_total: 0,
+                    tiktok_views_total: 0,
+                    youtube_video_views_total: 0,
+                    youtube_short_views_total: 0,
+                    shazams_total: 0,
+                    soundcloud_stream_total: 0,
+                    pan_streams: 0,
+                    audience_total: 0,
+                    spins_total: 0,
+                    score: 0,
+                    rk_total: 0,
+                    tw_spins: 0,
+                    tw_aud: 0,
+                    rk: 0,
+                    spotify_streams: 0,
+                    entid: 0,
+                    length_sec: 0,
+                    song: track.song_name || 'Canción no disponible',
+                    artists: track.artist_name || 'Artista no disponible',
+                    label: 'Label no disponible',
+                    crg: '',
+                    avatar: track.image_url || '',
+                    url: track.url || '',
+                    spotifyid: track.spotify_id || ''
+                };
+
+                console.log('🎵 Datos por defecto creados:', defaultSongData);
+
+                setSongDetails(defaultSongData);
+                setIsDetailsOpen(true);
+
+            } else {
+                console.log('❌ No se encontró cs_song en la respuesta');
+                toast({
+                    title: "Información no disponible",
+                    description: "No se encontró el ID de la canción",
+                    variant: "destructive"
+                });
+            }
+        } catch (error) {
+            console.error('❌ Error obteniendo detalles de la canción:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo cargar la información detallada de la canción",
+                variant: "destructive"
+            });
+        } finally {
+            setLoadingDetails(false);
+        }
+    };
+
+    const handleCloseDetails = () => {
+        setIsDetailsOpen(false);
+        setSongDetails(null);
+    };
+
     return (
-        <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
-            <div className="flex items-center gap-4" onClick={handleClick}>
-                <div className="relative">
-                    <img
-                        src={track.album.images[0]?.url}
-                        alt={track.album.name}
-                        className="w-24 h-24 rounded-lg object-cover"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity rounded-lg">
-                        <Music className="w-6 h-6 text-white" />
+        <>
+            <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
+                <div className="flex items-center gap-4" onClick={handleClick}>
+                    <div className="relative">
+                        <img
+                            src={track.image_url}
+                            alt={track.song_name}
+                            className="w-24 h-24 rounded-lg object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity rounded-lg">
+                            <Music className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="font-semibold text-slate-800 mb-1">{track.song_name}</h3>
+                        <p className="text-sm text-slate-600 mb-2">{track.artist_name}</p>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
+                            onClick={handleButtonClick}
+                        >
+                            Ver Campaña
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={loadingDetails}
+                            className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1"
+                            onClick={handleDetailsClick}
+                        >
+                            <Info className="w-3 h-3" />
+                            {loadingDetails ? "Cargando..." : "Detalles"}
+                        </Button>
                     </div>
                 </div>
-                <div className="flex-1">
-                    <h3 className="font-semibold text-slate-800 mb-1">{track.name}</h3>
-                    <p className="text-sm text-slate-600 mb-2">{track.artists.map(artist => artist.name).join(', ')}</p>
-                    <p className="text-xs text-slate-500">{track.album.name}</p>
-                </div>
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
-                    onClick={handleButtonClick}
-                >
-                    Ver Campaña
-                </Button>
-            </div>
-        </Card>
+            </Card>
+
+            {/* Modal de Detalles */}
+            {isDetailsOpen && songDetails && (
+                <ChartSongDetails
+                    song={songDetails}
+                    selectedCountry="0"
+                    selectedFormat="0"
+                    countries={[]}
+                    isOpen={isDetailsOpen}
+                    onClose={handleCloseDetails}
+                />
+            )}
+        </>
     );
 }
 
-
 export function SearchArtist() {
     const { toast } = useToast();
-    const navigate = useNavigate();
 
     // Spotify search state
     const [searchQuery, setSearchQuery] = useState('');
     const [loadingSearch, setLoadingSearch] = useState(false);
-    const [accessToken, setAccessToken] = useState<string | null>(null);
-    const [searchResults, setSearchResults] = useState<SpotifyTrack[]>([]);
+    const [searchResults, setSearchResults] = useState<SpotifyTrackResult[]>([]);
     const [showSearchResults, setShowSearchResults] = useState(false);
-    const [isConnected, setIsConnected] = useState(false);
 
-
-
-    //Debouncing para limitar las busquedas por API al usuario
+    // Debouncing para limitar las búsquedas por API al usuario
     const useDebounce = (value: string, delay: number) => {
         const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -81,124 +181,70 @@ export function SearchArtist() {
             };
         }, [value, delay]);
         return debouncedValue;
-    }
-    // Usar el hook de debounce con 100ms de delay
-    const debouncedSearchQuery = useDebounce(searchQuery, 100);
+    };
 
-    // Search tracks on Spotify   //Aislar
+    // Usar el hook de debounce con 300ms de delay
+    const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+    // Search tracks on Spotify usando la nueva API
     const searchTracks = useCallback(async (query: string) => {
-        console.log('searchTracks called with:', query);
-        console.log('accessToken:', accessToken);
-        console.log('isConnected:', isConnected);
+        console.log('🔍 Buscando en Spotify:', query);
+
         if (!query.trim()) {
             setSearchResults([]);
             setShowSearchResults(false);
-            return;
-        };
-
-        if (!accessToken) {
-            console.log('No access token, using iTunes fallback...');
-            setLoadingSearch(true);
-            try {
-                const encodedQuery = encodeURIComponent(query);
-                const response = await fetch(`https://itunes.apple.com/search?term=${encodedQuery}&entity=song&limit=25`);
-                const data = await response.json();
-                const items: SpotifyTrack[] = (data.results || []).map((item: any) => {
-                    const artwork = item.artworkUrl100 ? item.artworkUrl100.replace('100x100', '512x512') : '';
-                    return {
-                        id: String(item.trackId || item.collectionId || Math.random()),
-                        name: item.trackName || item.collectionName || 'Unknown',
-                        artists: [{
-                            id: String(item.artistId || ''),
-                            name: item.artistName || 'Unknown Artist',
-                            images: [],
-                            external_urls: { spotify: '' }
-                        }],
-                        album: {
-                            id: String(item.collectionId || ''),
-                            name: item.collectionName || '',
-                            images: artwork ? [{ url: artwork, height: 512, width: 512 }] : []
-                        },
-                        external_urls: { spotify: '' },
-                        preview_url: item.previewUrl || null,
-                        duration_ms: 0,
-                        popularity: 0
-                    } as SpotifyTrack;
-                });
-                setSearchResults(items);
-                setShowSearchResults(true);
-                if (items.length === 0) {
-                    toast({
-                        title: "Sin resultados",
-                        description: `No se encontraron canciones para "${query}"`,
-                    });
-                }
-            } catch (e) {
-                console.error('iTunes fallback error', e);
-                toast({
-                    title: "Error",
-                    description: "No se pudo buscar. Intenta de nuevo.",
-                    variant: "destructive"
-                });
-            } finally {
-                setLoadingSearch(false);
-            }
             return;
         }
 
         setLoadingSearch(true);
         try {
-            const encodedQuery = encodeURIComponent(query);
-            const response = await fetch(
-                `https://api.spotify.com/v1/search?q=${encodedQuery}&type=track&limit=10&market=US`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`,
-                    },
-                }
-            );
+            const response = await digitalLatinoApi.getSearchSpotify(query);
+            console.log('✅ Respuesta de Spotify:', response.data);
 
-            if (response.ok) {
-                const data = await response.json();
-                setSearchResults(data.tracks.items);
-                setShowSearchResults(true);
+            // Usar solo los tracks de la respuesta
+            const tracks = response.data.tracks || [];
+            setSearchResults(tracks);
+            setShowSearchResults(true);
 
-                if (data.tracks.items.length === 0) {
-                    toast({
-                        title: "Sin resultados",
-                        description: `No se encontraron canciones para "${query}"`,
-                    });
-                }
-            } else {
-                throw new Error('Search failed');
+            if (tracks.length === 0) {
+                toast({
+                    title: "Sin resultados",
+                    description: `No se encontraron canciones para "${query}" en Spotify`,
+                });
             }
         } catch (error) {
-            console.error('Search error:', error);
+            console.error('❌ Error buscando en Spotify:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo buscar en Spotify. Intenta de nuevo.",
+                variant: "destructive"
+            });
+            setSearchResults([]);
         } finally {
             setLoadingSearch(false);
         }
-    }, [accessToken, toast]);
+    }, [toast]);
 
-    // Handle search result selection 
-    const handleSearchResultSelect = (track: SpotifyTrack) => {
-        if (track.id) {
-            const campaignUrl = `/campaign?spotifyId=${track.id}`;
+    // Handle search result selection - MODIFICADO para usar spotify_id real
+    const handleSearchResultSelect = (track: SpotifyTrackResult) => {
+        // Abrir en nueva pestaña con el spotify_id real
+        if (track.spotify_id) {
+            const campaignUrl = `/campaign?spotifyId=${track.spotify_id}`;
             window.open(campaignUrl, '_blank');
         } else {
-            // Fallback si no hay ID de Spotify, usar los parámetros anteriores
+            // Fallback si no hay spotify_id
             const params = new URLSearchParams({
-                artist: track.artists.map(artist => artist.name).join(', '),
-                track: track.name,
-                coverUrl: track.album.images[0]?.url || '',
-                artistImageUrl: track.artists[0]?.images?.[0]?.url || '',
-                previewUrl: track.preview_url || '',
-                spotifyUrl: track.external_urls?.spotify || ''
+                artist: track.artist_name,
+                track: track.song_name,
+                coverUrl: track.image_url || '',
+                spotifyUrl: track.url || ''
             });
-            navigate(`/campaign?${params.toString()}`);
+            const campaignUrl = `/campaign?${params.toString()}`;
+            window.open(campaignUrl, '_blank');
         }
     };
 
-    //useEffect para buscar cuando el query cambia
+    // useEffect para buscar cuando el query cambia
     useEffect(() => {
         if (debouncedSearchQuery.trim()) {
             searchTracks(debouncedSearchQuery);
@@ -210,14 +256,13 @@ export function SearchArtist() {
 
     return (
         <>
-            {/* Aislar componente de busqueda en Itunes/Spotify*/}
             {/* Search Section */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between">
                     {/*<div className="flex items-center gap-2">
-                            <span className="text-xl">🔍</span>
-                            <h2 className="text-lg font-semibold text-slate-700">¿No encuentras tu artista en los charts?</h2>
-                        </div>*/}
+                        <span className="text-xl">🔍</span>
+                        <h2 className="text-lg font-semibold text-slate-700">¿No encuentras tu artista en los charts?</h2>
+                    </div>*/}
                 </div>
 
                 <div className="relative">
@@ -225,7 +270,7 @@ export function SearchArtist() {
 
                         <div className="flex-1 relative">
                             <Input
-                                placeholder="Buscar artista o canción..."
+                                placeholder="Buscar artista o canción en Spotify..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-96 rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm shadow-md focus:ring-2 focus:ring-blue-400 pr-10"
@@ -256,7 +301,7 @@ export function SearchArtist() {
                                 <div className="flex items-center justify-between">
                                     <h3 className="text-sm font-semibold text-slate-700">
                                         {searchResults.length > 0
-                                            ? `${searchResults.length} resultados encontrados`
+                                            ? `${searchResults.length} resultados encontrados en Spotify`
                                             : 'Buscando...'
                                         }
                                     </h3>
@@ -276,7 +321,7 @@ export function SearchArtist() {
                             <div className="max-h-80 overflow-y-auto">
                                 {searchResults.length > 0 ? (
                                     searchResults.map((track) => (
-                                        <div key={track.id} className="border-b border-gray-100 last:border-b-0">
+                                        <div key={track.spotify_id} className="border-b border-gray-100 last:border-b-0">
                                             <SearchResult
                                                 track={track}
                                                 onSelect={handleSearchResultSelect}
@@ -285,7 +330,7 @@ export function SearchArtist() {
                                     ))
                                 ) : (
                                     <div className="p-4 text-center text-sm text-gray-500">
-                                        {loadingSearch ? 'Buscando...' : 'No se encontraron resultados'}
+                                        {loadingSearch ? 'Buscando en Spotify...' : 'No se encontraron resultados en Spotify'}
                                     </div>
                                 )}
                             </div>
@@ -295,11 +340,10 @@ export function SearchArtist() {
                 </div>
                 {!showSearchResults && searchQuery && (
                     <div className="text-xs text-slate-500 text-center">
-                        Escribe para buscar en tiempo real...
+                        Escribe para buscar en tiempo real en Spotify...
                     </div>
                 )}
             </div>
-            {/* Aislar componente de busqueda en Itunes/Spotify*/}
         </>
     )
-};
+}

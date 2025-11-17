@@ -144,7 +144,7 @@ export default function WorldMap({
     // Filtrar ciudades con coordenadas válidas
     const validCities = cities
         .filter(city => city.citylat && city.citylng && city.cityname)
-        .slice(0, 30);
+        .slice(0, 100);
 
     useEffect(() => {
         if (!mapRef.current) return;

@@ -58,10 +58,7 @@ export default function BoxPlaylistsDisplay({ csSong }: BoxPlaylistsDisplayProps
             setLoading(true);
             setError(null);
 
-            console.log('Fetching playlists for:', { csSong, typeId });
-
             const response = await digitalLatinoApi.getTopPlaylists(csSong, typeId);
-            console.log('Playlists response:', response.data);
 
             setPlaylists(response.data);
         } catch (err) {

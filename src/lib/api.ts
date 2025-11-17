@@ -205,12 +205,12 @@ export interface SongInfoPlatform {
 // Interface para manejar info de la canción por cs_song
 export interface SongBasicInfo {
   id: string;
-  avatar: string;
-  background: string;
-  title: string;
-  artist: string;
-  label: string;
-  url: string;
+  avatar?: string;
+  background?: string;
+  title?: string;
+  artist?: string;
+  label?: string;
+  url?: string;
 }
 // Interface para manejar info de radio (Countries & Markets con Spins)
 export interface SpinData {
@@ -243,6 +243,51 @@ export interface TikTokUse {
   tiktok_user_followers: number;
   username: string;
   user_handle: string;
+}
+//Interface para manejar info de Recomendaciones (recomendations.tsx)
+export interface Recommendation {
+  id: number;
+  artist: string;
+  followers_total_facebook: number;
+  followers_total_instagram: number;
+  followers_total_tiktok: number;
+  followers_total_twitter: number;
+  subscribers_total_youtube: number;
+  playlist_reach: number;
+  video_total_youtube: number;
+  monthly_listeners: number;
+  video_views_total_youtube: number;
+  video_reach_total_youtube: number;
+  engagement_rate_tiktok: number;
+  spotify_playlist_reach_current: number;
+  tiktok_engagement_rate_total: number;
+}
+// Interfaces para la respuesta de búsqueda en Spotify API SpotifySearchResult, SpotifyArtist y SpotifyTrackResult
+export interface SpotifySearchResult {
+  query: string;
+  artists_count: number;
+  tracks_count: number;
+  artists: SpotifyArtist[];
+  tracks: SpotifyTrackResult[];
+}
+
+export interface SpotifyArtist {
+  type: string;
+  artist_name: string;
+  spotify_id: string;
+  followers: number;
+  genres: string[];
+  image_url: string;
+  url: string;
+}
+
+export interface SpotifyTrackResult {
+  type: string;
+  song_name: string;
+  artist_name: string;
+  spotify_id: string;
+  image_url: string;
+  url: string;
 }
 
 // Clase principal para manejar las conexiones API
@@ -422,7 +467,7 @@ export const digitalLatinoApi = {
   getChartDigital: (
     formatId: number,
     countryId: number,
-    CRG: String,
+    CRG: string,
     city: number
   ): Promise<ApiResponse<Song[]>> =>
     api.get<Song[]>(
@@ -499,6 +544,21 @@ export const digitalLatinoApi = {
   //Obtener usos en Tiktok por cs_song
   getTikTokUses: (csSong: number): Promise<ApiResponse<TikTokUse[]>> =>
     api.get<TikTokUse[]>(`report/getTopTiktok/${csSong}`),
+  // Obtener recomendaciones de artistas similares
+  getArtistRecommendations: (
+    csSong: number
+  ): Promise<ApiResponse<Recommendation[]>> =>
+    api.get<Recommendation[]>(`report/getRecommendations/${csSong}`),
+  //Obtener csSgon a partir de spotifyId
+  getSongBySpotifyId: (spotifyId: string): Promise<ApiResponse<Song>> =>
+    api.get<Song>(`report/getcssong?spotifyid=${spotifyId}`),
+  // Buscar en Spotify API
+  getSearchSpotify: (
+    query: string
+  ): Promise<ApiResponse<SpotifySearchResult>> =>
+    api.get<SpotifySearchResult>(
+      `report/getSearchSpotify?query=${encodeURIComponent(query)}`
+    ),
 };
 
 // Ejemplo de uso:
