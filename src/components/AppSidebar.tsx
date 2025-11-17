@@ -128,13 +128,13 @@ export function AppSidebar() {
           <div className={`flex items-center gap-3 p-3 rounded-lg bg-white/10 ${isCollapsed ? 'justify-center' : ''}`}>
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-white/40 to-white/20 flex items-center justify-center">
               <span className="text-white font-semibold text-sm">
-                {user?.email?.charAt(0).toUpperCase() || 'U'}
+                {user?.firstName?.charAt(0).toUpperCase() || 'U'}
               </span>
             </div>
             {!isCollapsed && (
               <div className="text-white">
                 <p className="text-sm font-medium">
-                  {user?.email?.split('@')[0] || 'Usuario'}
+                  {user?.firstName.split('@')[0] || 'Usuario'}
                 </p>
                 <p className="text-xs text-white/60">
                   {user ? 'Miembro' : 'Invitado'}

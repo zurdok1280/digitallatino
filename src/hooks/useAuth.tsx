@@ -93,40 +93,80 @@ export function useAuth() {
 
 // src/hooks/useAuth.tsx
 
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
+import React, { createContext, useState, useContext, useEffect, ReactNode, useRef} from 'react';
 import { jwtDecode } from 'jwt-decode'; 
 import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
-  user: { email: string; role: string } | null; 
+  user: { email: string; role: string; firstName: string } | null; 
   login: (token: string) => void;
   logout: () => void;
   showLoginDialog: boolean;
   setShowLoginDialog: (isOpen: boolean) => void;
 }
+interface DecodedToken {
+  email: string;
+  role: string;
+  firstName: string;
+  exp: number; // exp: number
+}
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<{ email: string; role: string } | null>(null);
+  const [user, setUser] = useState<{ email: string; role: string; firstName: string } | null>(null);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const navigate = useNavigate();
+  const logoutTimer = useRef<NodeJS.Timeout | null>(null);
+
+
+  //Function to start the logout logoutTimer
+  const startLogoutTimer = (expirationTime: number) => {
+    if (logoutTimer.current) {
+      clearTimeout(logoutTimer.current);
+    }
+    const currentTime = Date.now();
+    const expiresIn = (expirationTime * 1000) - currentTime;
+    if (expiresIn <= 0) {
+      logout();
+      return;
+    }
+    const timerDuration = expiresIn - 10000;
+    if (timerDuration > 0) {
+      logoutTimer.current = setTimeout(() => {
+        console.log("Token a punto de expirar. Cerrando sesión automáticamente.");
+        logout();
+        }, timerDuration);
+      }
+    };
+
+
 
   
   useEffect(() => {
     const storedToken = localStorage.getItem('authToken');
     if (storedToken) {
       try {
-        const decoded: { sub: string; role: string } = jwtDecode(storedToken);
-        setUser({ email: decoded.sub, role: decoded.role });
+        const decoded: DecodedToken = jwtDecode(storedToken);
+        if (decoded.exp * 1000 < Date.now()) {
+          throw new Error("Token expirado");
+        }
+        
+        //const decoded: { email: string; role: string; firstName: string } = jwtDecode(storedToken);
+        setUser({ email: decoded.email, role: decoded.role, firstName: decoded.firstName });
         setToken(storedToken);
+        startLogoutTimer(decoded.exp);
+
       } catch (error) {
         
         localStorage.removeItem('authToken');
+        setUser(null);
+        setToken(null);
       }
     }
   }, []);
@@ -135,9 +175,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = (newToken: string) => {
     localStorage.setItem('authToken', newToken); 
     try {
-      const decoded: { sub: string; role: string } = jwtDecode(newToken);
-      setUser({ email: decoded.sub, role: decoded.role });
+      const decoded: DecodedToken = jwtDecode(newToken);
+      //const decoded: { email: string; role: string; firstName: string } = jwtDecode(newToken);
+      setUser({ email: decoded.email, role: decoded.role, firstName: decoded.firstName });
       setToken(newToken); 
+      startLogoutTimer(decoded.exp);// Start to timer
     } catch (error) {
       console.error("Token JWT inválido:", error);
     }
@@ -148,6 +190,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     localStorage.removeItem('authToken');
     setToken(null);
     setUser(null);
+    if (logoutTimer.current) {
+      clearTimeout(logoutTimer.current);
+      logoutTimer.current = null;
+    }
     navigate('/', { replace: true });
   };
 
