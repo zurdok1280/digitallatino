@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,6 +26,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 interface UserProfile {
   firstName: string;
@@ -213,7 +216,7 @@ const AccountPage = () => {
       try{
         const response = await fetch(
           "https://security.digital-latino.com/api/auth/change-password",
-          //"http://localhost:8085/api/auth/change-password",
+         // "http://localhost:8085/api/auth/change-password",
           {
             method: "POST",
             headers: {
@@ -246,36 +249,45 @@ const AccountPage = () => {
   };
 
   return (
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50 p-4">
     <div className="container mx-auto py-10 max-w-3xl">
-      <h1 className="text-3xl font-bold mb-8">Mi Cuenta</h1>
-
+      <h1 className="text-3xl font-bold mb-8 text-gray-900">Mi Cuenta</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <Card>
+
+        <Card className="bg-white/70 backdrop-blur-lg border border-white/30 shadow-lg rounded-2xl">
           <CardHeader>
-            <CardTitle>Información del Usuario</CardTitle>
+            <CardTitle className="text-purple-700">Información del Usuario</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {loading && <p>Cargando información...</p>}
             {error && <p className="text-red-500">{error}</p>}
             {userData && (
               <>
-                <div>
+              <div className="flex justify-center mb-4">
+                <Avatar className="w-24 h-24 text-3xl">
+                  <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-500 text-white font-bold">
+                    {userData.firstName?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                </div>
+
+                  <div>
                   <label className="text-sm font-medium text-gray-500">
                     Nombre:
                   </label>
-                  <p> {userData.firstName}</p>
+                  <p className="text-lg font-semibold text-gray-800"> {userData.firstName}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">
                     Apellido:
                   </label>
-                  <p> {userData.lastName}</p>
+                  <p className="text-lg font-semibold text-gray-800"> {userData.lastName}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">
                     Email:
                   </label>
-                  <p> {userData.email}</p>
+                  <p className="text-lg font-semibold text-gray-800"> {userData.email}</p>
                 </div>
 
                 <Dialog
@@ -288,7 +300,9 @@ const AccountPage = () => {
                   }}
                   >
                     <DialogTrigger asChild>
-                      <Button variant="outline">Cambiar Contraseña</Button>
+                      <Button variant="outline" className="w-full text-purple-600 border-purple-600 hover:bg-purple-50 hover:text-purple-700">
+                        Cambiar Contraseña
+                        </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[425px]">
                       <DialogHeader>
@@ -361,84 +375,92 @@ const AccountPage = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Información de Suscripción</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {loadingSub && <p>Cargando información de suscripción...</p>}
-            {errorSub && <p className="text-red-500">{errorSub}</p>}
-            {subscriptionData && (
-              <>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Plan:
-                  </label>
-                  <p> {subscriptionData.plan}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Expira el:
-                  </label>
-                  <p> {subscriptionData.expiresAt}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">
-                    Estado:
-                  </label>
-                  <p> {subscriptionData.status}</p>
-                </div>
-                <AlertDialog
-                  open={showConfirmDialog}
-                  onOpenChange={setShowConfirmDialog}
-                >
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      disabled={
-                        isCancelling ||
-                        subscriptionData.status.includes("cancelar")
-                      }
-                    >
-                      {isCancelling
-                        ? "Cancelando..."
-                        : subscriptionData.status.includes("cancelar")
-                        ? "Cancelación programada"
-                        : "Cancelar Suscripción"}
-                    </Button>
-                  </AlertDialogTrigger>
+        <Card className="bg-white/70 backdrop-blur-lg border border-white/30 shadow-lg rounded-2xl flex flex-col h-full">
+            <CardHeader>
+              <CardTitle className="text-purple-700">Información de Suscripción</CardTitle>
+            </CardHeader>
+            {/* Quitamos space-y-4 del contenedor principal para manejarlo manualmente */}
+            <CardContent className="flex flex-col flex-1">
+              {loadingSub && <p>Cargando información de suscripción...</p>}
+              {errorSub && <p className="text-red-500">{errorSub}</p>}
+              {subscriptionData && (
+                <>
+                  {/* BLOQUE SUPERIOR: Información (Texto) */}
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Plan:</label>
+                      <p className="text-lg font-semibold text-gray-800"> {subscriptionData.plan}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Estado:</label>
+                      <div className="mt-1">
+                        <Badge 
+                          className={
+                            subscriptionData.status.includes('cancela') 
+                              ? "bg-yellow-100 text-yellow-800 hover:bg-yellow-100" 
+                              : subscriptionData.status === 'active' || subscriptionData.status === 'Activo'
+                                ? "bg-green-100 text-green-800 hover:bg-green-100"
+                                : "bg-gray-100 text-gray-800 hover:bg-gray-100"
+                          }
+                        >
+                          {subscriptionData.status}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-500">Acceso hasta:</label>
+                      <p className="text-lg font-semibold text-gray-800"> {subscriptionData.expiresAt}</p>
+                    </div>
+                  </div>
 
-                  {/*Popup to confirm cancel suscription*/}
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        ¿Realmente deseas cancelar tu suscripción? Tu acceso
-                        premium continuará hasta la fecha de expiración de tu
-                        ciclo de facturación actual.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>
-                        Mantener suscripción
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={handleCancelSubscription}
-                        disabled={isCancelling}
-                        className="bg-purple-600 text-white hover:bg-purple-700"
-                      >
-                        {isCancelling
-                          ? "Cancelando..."
-                          : "Sí, cancelar suscripción"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </>
-            )}
-          </CardContent>
-        </Card>
+                  {/* BLOQUE INFERIOR: Botones (Empujados al fondo con mt-auto) */}
+                  <div className="mt-auto pt-6 space-y-3">
+                    <Button asChild variant="outline" className="w-full">
+                      <Link to="/payment">Cambiar de Plan</Link>
+                    </Button>
+
+                    <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          className="w-full"
+                          disabled={isCancelling || subscriptionData.status.includes("cancela")}
+                        >
+                          {isCancelling
+                            ? "Cancelando..."
+                            : subscriptionData.status.includes("cancela")
+                            ? "Cancelación programada"
+                            : "Cancelar Suscripción"}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            ¿Realmente deseas cancelar tu suscripción? Tu acceso
+                            premium continuará hasta la fecha de expiración de tu
+                            ciclo de facturación actual.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="bg-purple-600 text-white hover:bg-purple-500 border-0">Mantener suscripción</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleCancelSubscription}
+                            disabled={isCancelling}
+                            className="bg-gray-100 text-gray-500 border-0 hover:bg-red-50 hover:text-red-600"
+                          >
+                            {isCancelling ? "Cancelando..." : "Sí, cancelar suscripción"}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </>
+              )}
+            </CardContent>
+          </Card>
       </div>
+    </div>
     </div>
   );
 };

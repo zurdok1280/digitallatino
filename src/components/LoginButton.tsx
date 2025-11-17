@@ -34,6 +34,10 @@ export function LoginButton() {
 
   if (user) {
     return (
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-gray-700 hidden sm:inline">
+          Hola, {user.firstName || 'Usuario'}
+        </span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 rounded-full">
@@ -43,6 +47,7 @@ export function LoginButton() {
         <DropdownMenuContent align="end">
           <div className="flex items-center justify-start gap-2 p-2">
             <div className="flex flex-col space-y-1 leading-none">
+              <p className="text-sm font-bold">{user.firstName || 'Usuario'}</p>
               <p className="text-sm font-medium">{user.email}</p>
             </div>
           </div>
@@ -59,6 +64,7 @@ export function LoginButton() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      </div>
     );
   }
 
@@ -84,7 +90,7 @@ export function LoginButton() {
       >
         <span className="relative z-10 flex items-center gap-2">
           <LogIn className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-          <span className="transition-all duration-300">Iniciar Sesión</span>
+          <span className="transition-all duration-300">Login/Sign in</span>
         </span>
       </Button>
 
