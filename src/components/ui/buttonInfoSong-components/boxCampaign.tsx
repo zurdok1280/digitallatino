@@ -11,16 +11,6 @@ interface BoxCampaignProps {
 const BoxCampaign: React.FC<BoxCampaignProps> = ({ spotifyId, csSong }) => {
     const [isRecommendationsOpen, setIsRecommendationsOpen] = useState(false);
 
-    const handleGoToCampaign = () => {
-        if (spotifyId) {
-            const campaignUrl = `/campaign?spotifyId=${spotifyId}`;
-            window.open(campaignUrl, '_blank');
-        } else {
-            const campaignUrl = `/campaign`;
-            window.open(campaignUrl, '_blank');
-        }
-    };
-
     const handleOpenRecommendations = () => {
         setIsRecommendationsOpen(true);
     };
@@ -66,58 +56,42 @@ const BoxCampaign: React.FC<BoxCampaignProps> = ({ spotifyId, csSong }) => {
                         >
                             Haz que tu música llegue donde nunca antes había llegado
                         </Typography>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                color: "#666",
+                                fontSize: '0.9rem',
+                            }}
+                        >
+                            Descubre estrategias personalizadas para impulsar tu música
+                        </Typography>
                     </Box>
 
-                    {/* Botones */}
+                    {/* Solo botón de Recomendaciones */}
                     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
                         <Button
                             variant="contained"
-                            onClick={handleGoToCampaign}
+                            onClick={handleOpenRecommendations}
                             sx={{
                                 backgroundColor: "#6C63FF",
                                 color: "white",
                                 borderRadius: "10px",
-                                px: 3,
-                                py: 1,
-                                fontSize: "0.9rem",
+                                px: 4,
+                                py: 1.5,
+                                fontSize: "1rem",
                                 fontWeight: 600,
                                 textTransform: 'none',
-                                minWidth: '180px',
+                                minWidth: '220px',
                                 boxShadow: '0 2px 8px rgba(108, 99, 255, 0.3)',
                                 transition: 'all 0.3s ease',
                                 '&:hover': {
                                     backgroundColor: "#5a52d5",
-                                    transform: 'translateY(-1px)',
-                                    boxShadow: '0 4px 12px rgba(108, 99, 255, 0.4)',
+                                    transform: 'translateY(-2px)',
+                                    boxShadow: '0 6px 16px rgba(108, 99, 255, 0.4)',
                                 },
                             }}
                         >
-                            Campaña de Promoción
-                        </Button>
-
-                        <Button
-                            variant="outlined"
-                            onClick={handleOpenRecommendations}
-                            sx={{
-                                borderColor: "#6C63FF",
-                                color: "#6C63FF",
-                                borderRadius: "10px",
-                                px: 3,
-                                py: 1,
-                                fontSize: "0.9rem",
-                                fontWeight: 600,
-                                textTransform: 'none',
-                                minWidth: '180px',
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                    backgroundColor: "#6C63FF",
-                                    color: "white",
-                                    transform: 'translateY(-1px)',
-                                    boxShadow: '0 4px 12px rgba(108, 99, 255, 0.4)',
-                                },
-                            }}
-                        >
-                            Ver Recomendaciones
+                            Ver Recomendaciones Personalizadas
                         </Button>
                     </Box>
                 </Box>

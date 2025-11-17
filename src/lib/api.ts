@@ -1,3 +1,5 @@
+import { css } from "@emotion/react";
+
 // Configuración base para conexiones API
 const API_CONFIG = {
   baseURL: "https://backend.digital-latino.com/api/",
@@ -62,7 +64,11 @@ export interface Song {
   url: string;
   spotifyid: string;
 }
-
+//Interface para Ids de canciones
+export interface idSongs {
+  csSong: string;
+  spotify_id: string;
+}
 // Tipos básicos para las respuestas
 export interface ApiResponse<T = any> {
   data: T;
@@ -549,9 +555,12 @@ export const digitalLatinoApi = {
     csSong: number
   ): Promise<ApiResponse<Recommendation[]>> =>
     api.get<Recommendation[]>(`report/getRecommendations/${csSong}`),
-  //Obtener csSgon a partir de spotifyId
-  getSongBySpotifyId: (spotifyId: string): Promise<ApiResponse<Song>> =>
-    api.get<Song>(`report/getcssong?spotifyid=${spotifyId}`),
+  //Obtener csSong a partir de spotifyId
+  getSongBySpotifyId: (spotifyId: string): Promise<ApiResponse<idSongs>> =>
+    api.get<idSongs>(`report/getcssong?spotifyid=${spotifyId}`),
+  //Obtener spotifyId a partir de csSong (el de arriba pero al reves)
+  getIdSongByCsSong: (csSong: string): Promise<ApiResponse<idSongs>> =>
+    api.get<idSongs>(`report/getSpotifyId?cs_song=${csSong}`),
   // Buscar en Spotify API
   getSearchSpotify: (
     query: string
