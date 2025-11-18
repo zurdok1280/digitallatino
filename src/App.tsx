@@ -7,6 +7,7 @@ import { Layout } from "./components/Layout";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { AuthProvider } from "./hooks/useAuth";
 import { lazy, Suspense } from "react";
+import { RequireSubscription } from "./components/RequireSubscription";
 
 // Lazy loading de páginas para optimizar tiempo de carga inicial
 const Index = lazy(() => import("./pages/Index"));
@@ -58,29 +59,19 @@ const withLazy = (Component: React.LazyExoticComponent<() => JSX.Element>) => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+
           <ScrollToTop />
           <Routes>
             <Route path="/" element={withLazy(Charts)} />
-            <Route path="/studio" element={withLazy(Index)} />
-            <Route path="/dashboard" element={withLazy(Dashboard)} />
-            <Route path="/campaign" element={withLazy(Campaign)} />
-            <Route path="/campaign-details" element={withLazy(CampaignDetails)} />
-            <Route path="/weekly-top-songs" element={withLazy(WeeklyTopSongs)} />
-            <Route path="/top-platforms" element={withLazy(TopPlatforms)} />
-            <Route path="/top-artists" element={withLazy(TopArtists)} />
-            <Route path="/debut" element={withLazy(Debut)} />
-            <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route
-              path="*"
+              path="/payment"
               element={
                 <Suspense fallback={<PageLoader />}>
-                  <NotFound />
+                  <Payment />
                 </Suspense>
               }
             />
@@ -92,18 +83,36 @@ const App = () => (
                 </Suspense>
               }
             />
+            {/* --- Only premium  with thw component RequireSubscription --- */}
+              <Route element={<RequireSubscription />}>
+            <Route path="/studio" element={withLazy(Index)} />
+            <Route path="/dashboard" element={withLazy(Dashboard)} />
+            <Route path="/campaign" element={withLazy(Campaign)} />
             <Route
-              path="/payment"
+              path="/campaign-details"
+              element={withLazy(CampaignDetails)}
+            />
+            <Route
+              path="/weekly-top-songs"
+              element={withLazy(WeeklyTopSongs)}
+            />
+            <Route path="/top-platforms" element={withLazy(TopPlatforms)} />
+            <Route path="/top-artists" element={withLazy(TopArtists)} />
+            <Route path="/debut" element={withLazy(Debut)} />
+            <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
+            </Route>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route
+              path="*"
               element={
                 <Suspense fallback={<PageLoader />}>
-                  <Payment />
+                  <NotFound />
                 </Suspense>
               }
             />
           </Routes>
-        
-      </TooltipProvider>
-    </AuthProvider>
+        </TooltipProvider>
+      </AuthProvider>
     </BrowserRouter>
   </QueryClientProvider>
 );
