@@ -91,7 +91,7 @@ const BoxCampaign: React.FC<BoxCampaignProps> = ({ spotifyId, csSong }) => {
                                 },
                             }}
                         >
-                            Ver Recomendaciones Personalizadas
+                            Ver Recomendaciones
                         </Button>
                     </Box>
                 </Box>

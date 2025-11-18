@@ -54,7 +54,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         try {
             console.log('🔍 Cargando datos de ciudades para cs_song:', song.cs_song);
 
-            // Usar countryId = 1 por defecto (como mencionaste)
+            // Usar countryId = 1 por defecto ya que todos los paises traen todas las ciudades
             const countryId = 1;
 
             const response = await digitalLatinoApi.getCityData(song.cs_song, countryId);
@@ -222,7 +222,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                 csSong={song.cs_song}
                             />
 
-                            {/* Top de ciudades - Ahora sin onDataLoaded ya que cargamos los datos directamente */}
+                            {/* Top de ciudades */}
                             { }
                             <BoxElementsDisplay
                                 label={"Top Cities Digital"}
