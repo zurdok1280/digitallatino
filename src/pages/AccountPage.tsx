@@ -216,7 +216,7 @@ const AccountPage = () => {
       try{
         const response = await fetch(
           "https://security.digital-latino.com/api/auth/change-password",
-         // "http://localhost:8085/api/auth/change-password",
+          //"http://localhost:8085/api/auth/change-password",
           {
             method: "POST",
             headers: {
