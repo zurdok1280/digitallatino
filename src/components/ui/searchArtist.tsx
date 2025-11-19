@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Music, Search, Info } from "lucide-react";
+import { Music, Search, Info, Lock } from "lucide-react";
 import { digitalLatinoApi, SpotifyTrackResult, Song } from "@/lib/api";
 import ChartSongDetails from "./ChartSongDetails";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SearchResultProps {
     track: SpotifyTrackResult;
@@ -17,6 +18,7 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
     const [songDetails, setSongDetails] = useState<Song | null>(null);
     const [loadingDetails, setLoadingDetails] = useState(false);
     const { toast } = useToast();
+    const { user, setShowLoginDialog } = useAuth();
 
     const handleClick = () => {
         onSelect(track);
@@ -29,6 +31,12 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
 
     const handleDetailsClick = async (e: React.MouseEvent) => {
         e.stopPropagation();
+
+        if (!user) {
+            setShowLoginDialog(true);
+            return;
+        }
+
         setLoadingDetails(true);
         try {
             console.log('🔍 Llamando a getSongBySpotifyId con spotify_id:', track.spotify_id);
@@ -106,7 +114,7 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
     return (
         <>
             <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
-                <div className="flex items-center gap-4" onClick={handleClick}>
+                <div className="flex items-center gap-4" >
                     <div className="relative">
                         <img
                             src={track.image_url}
@@ -130,16 +138,29 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                         >
                             Ver Campaña
                         </Button>
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={loadingDetails}
-                            className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1"
-                            onClick={handleDetailsClick}
-                        >
-                            <Info className="w-3 h-3" />
-                            {loadingDetails ? "Cargando..." : "Detalles"}
-                        </Button>
+
+                        {user ? (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={loadingDetails}
+                                className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1"
+                                onClick={handleDetailsClick}
+                            >
+                                <Info className="w-3 h-3" />
+                                {loadingDetails ? "Cargando..." : "Detalles"}
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1 cursor-pointer"
+                                onClick={() => setShowLoginDialog(true)}
+                            >
+                                <Lock className="w-3 h-3" />
+                                Detalles
+                            </Button>
+                        )}
                     </div>
                 </div>
             </Card>
