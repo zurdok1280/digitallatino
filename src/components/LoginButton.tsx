@@ -36,7 +36,7 @@ export function LoginButton() {
     return (
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-gray-700 hidden sm:inline">
-          Hola, {user.firstName || 'Usuario'}
+          Hola, {user.name || 'Usuario'}
         </span>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -47,7 +47,7 @@ export function LoginButton() {
         <DropdownMenuContent align="end">
           <div className="flex items-center justify-start gap-2 p-2">
             <div className="flex flex-col space-y-1 leading-none">
-              <p className="text-sm font-bold">{user.firstName || 'Usuario'}</p>
+              <p className="text-sm font-bold">{user.name || 'Usuario'}</p>
               <p className="text-sm font-medium">{user.email}</p>
             </div>
           </div>

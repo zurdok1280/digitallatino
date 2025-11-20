@@ -100,7 +100,7 @@ import { useNavigate } from 'react-router-dom';
 interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
-  user: { email: string; role: string; firstName: string } | null; 
+  user: { email: string; role: string; name: string } | null; 
   login: (token: string) => void;
   logout: () => void;
   showLoginDialog: boolean;
@@ -109,7 +109,7 @@ interface AuthContextType {
 interface DecodedToken {
   email: string;
   role: string;
-  firstName: string;
+  name: string;
   exp: number; // exp: number
 }
 
@@ -119,7 +119,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<{ email: string; role: string; firstName: string } | null>(null);
+  const [user, setUser] = useState<{ email: string; role: string; name: string } | null>(null);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const navigate = useNavigate();
   const logoutTimer = useRef<NodeJS.Timeout | null>(null);
@@ -158,7 +158,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
         
         //const decoded: { email: string; role: string; firstName: string } = jwtDecode(storedToken);
-        setUser({ email: decoded.email, role: decoded.role, firstName: decoded.firstName });
+        setUser({ email: decoded.email, role: decoded.role, name: decoded.name });
         setToken(storedToken);
         startLogoutTimer(decoded.exp);
 
@@ -177,7 +177,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const decoded: DecodedToken = jwtDecode(newToken);
       //const decoded: { email: string; role: string; firstName: string } = jwtDecode(newToken);
-      setUser({ email: decoded.email, role: decoded.role, firstName: decoded.firstName });
+      setUser({ email: decoded.email, role: decoded.role, name: decoded.name });
       setToken(newToken); 
       startLogoutTimer(decoded.exp);// Start to timer
     } catch (error) {
