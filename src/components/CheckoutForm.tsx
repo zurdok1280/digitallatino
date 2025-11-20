@@ -26,8 +26,8 @@ export const CheckoutForm = ({ priceId }: { priceId: string }) => {
         }
 
         try {
-            //const createSubResponse = await fetch('http://localhost:8085/api/subscriptions/create', {
-            const createSubResponse = await fetch('https://security.digital-latino.com/api/subscriptions/create', {
+          // const createSubResponse = await fetch('http://localhost:8085/api/subscriptions/create', {
+             const createSubResponse = await fetch('https://security.digital-latino.com/api/subscriptions/create', {
 
                 method: 'POST',
                 headers: {
