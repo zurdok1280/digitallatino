@@ -66,7 +66,6 @@ const App = () => (
 
           <ScrollToTop />
           <Routes>
-            <Route path="/" element={withLazy(Charts)} />
             <Route
               path="/payment"
               element={
@@ -85,6 +84,7 @@ const App = () => (
             />
             {/* --- Only premium  with thw component RequireSubscription --- */}
               <Route element={<RequireSubscription />}>
+              <Route path="/" element={withLazy(Charts)} />
             <Route path="/studio" element={withLazy(Index)} />
             <Route path="/dashboard" element={withLazy(Dashboard)} />
             <Route path="/campaign" element={withLazy(Campaign)} />
