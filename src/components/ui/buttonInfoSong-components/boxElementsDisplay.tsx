@@ -4,6 +4,7 @@ import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import { CityDataForSong, Country, digitalLatinoApi } from "@/lib/api";
 import WorldMap from "./worldMap";
 import BoxElementsDisplaySpins from "./boxElementsDisplaySpins";
+import BoxElementsDisplayAudience from "./boxElemensDisplayAudience";
 
 export interface ElementItem {
     name: string;
@@ -271,7 +272,7 @@ export default function BoxElementsDisplay({ label, csSong, countries, onDataLoa
         >
 
             {/* Estadisticas de Radio */}
-            <BoxElementsDisplaySpins
+            <BoxElementsDisplayAudience
                 csSong={Number(csSong)}
                 title="Top Países en Radio"
                 label="países"

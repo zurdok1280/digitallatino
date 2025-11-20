@@ -390,7 +390,7 @@ export default function BoxPlaylistsDisplay({ csSong }: BoxPlaylistsDisplayProps
                                                 fontSize: '0.9rem',
                                             }}
                                         >
-                                            Followers
+                                            Seguidores
                                         </Typography>
                                     </Box>
                                     <Typography
@@ -450,7 +450,7 @@ export default function BoxPlaylistsDisplay({ csSong }: BoxPlaylistsDisplayProps
                                                 fontSize: '0.9rem',
                                             }}
                                         >
-                                            Position
+                                            Posición
                                         </Typography>
                                     </Box>
 

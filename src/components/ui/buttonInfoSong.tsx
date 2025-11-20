@@ -72,7 +72,7 @@ export function ExpandRow({
 
             {/* Top de ciudades */}
             <BoxElementsDisplay
-                label={"Top Cities Digital"}
+                label={"Top Ciudades Digital"}
                 csSong={row.cs_song.toString()}
                 countries={countries} // Pasar la lista de países del componente padre
                 onDataLoaded={handleCityDataLoaded}

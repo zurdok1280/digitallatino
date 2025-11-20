@@ -8,6 +8,7 @@ export interface SpinData {
     market?: string;
     spins: number;
     rank: number;
+    audience: number;
 }
 
 export interface BoxElementsDisplaySpinsProps {
@@ -45,13 +46,22 @@ const getCountryFlag = (countryName: string): string => {
     return flagEmojis[countryName] || '📍';
 };
 
-// Función para formatear números de spins
-const formatSpins = (spins: number): string => {
-    if (spins >= 1000) {
-        return (spins / 1000).toFixed(1) + 'K';
+const formatNumber = (audience: number | undefined | null): string => {
+    // Validar que audience existe y es un número válido
+    if (audience === undefined || audience === null || isNaN(audience)) {
+        return '0';
     }
-    return spins.toString();
+
+    if (audience >= 1000000000) {
+        return (audience / 1000000000).toFixed(1) + 'B';
+    } else if (audience >= 1000000) {
+        return (audience / 1000000).toFixed(1) + 'M';
+    } else if (audience >= 1000) {
+        return (audience / 1000).toFixed(1) + 'K';
+    }
+    return audience.toString();
 };
+
 
 // Componente para mostrar cada item (país o mercado)
 const SpinItem = ({ item, rank }: { item: SpinData, rank: number }) => {
@@ -70,7 +80,7 @@ const SpinItem = ({ item, rank }: { item: SpinData, rank: number }) => {
 
     return (
         <Tooltip
-            title={`${displayName} - ${item.spins} spins`}
+            title={`${displayName} - ${item.audience} Audiencia`}
             arrow
             placement="top"
             componentsProps={{
@@ -161,7 +171,7 @@ const SpinItem = ({ item, rank }: { item: SpinData, rank: number }) => {
                             fontSize: '0.75rem',
                         }}
                     >
-                        {formatSpins(item.spins)} tocadas
+                        {formatNumber(item.audience)} Audiencia
                     </Typography>
                 </Box>
             </Paper>
@@ -169,7 +179,7 @@ const SpinItem = ({ item, rank }: { item: SpinData, rank: number }) => {
     );
 };
 
-export default function BoxElementsDisplaySpins({
+export default function BoxElementsDisplayAudience({
     csSong,
     countryId,
     title,

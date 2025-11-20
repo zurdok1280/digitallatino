@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Music2, Instagram, Facebook } from 'lucide-react';
+import { X, Music2, Instagram, Facebook, MessageCircle } from 'lucide-react';
 import { TopTrendingArtist, digitalLatinoApi, idSongs } from '@/lib/api';
 import spotifyIcon from '/src/assets/covers/icons/spotify-icon.png';
 import tiktokIcon from '/src/assets/covers/icons/tiktok-icon.png';
@@ -110,7 +110,11 @@ const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
 
         const campaignUrl = `/campaign?spotifyId=${idToUse}`;
         window.open(campaignUrl, '_blank');
+    };
 
+    const handleContactExpert = () => {
+        const whatsappUrl = 'https://wa.me/13104699872?text=Estoy%20interesado%20en%20hacer%20una%20campaña%20personalizada';
+        window.open(whatsappUrl, '_blank');
     };
 
     const formatNumber = (num: number): string => {
@@ -221,12 +225,21 @@ const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
                                     <p className="mb-6 text-sm text-muted-foreground">
                                         Nuestros expertos pueden crear una campaña personalizada
                                     </p>
-                                    <button
-                                        onClick={handleGoToCampaign}
-                                        className="rounded-full bg-gradient-to-r from-purple-500 to-orange-500 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
-                                    >
-                                        Crear Campaña Ahora
-                                    </button>
+                                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                                        <button
+                                            onClick={handleGoToCampaign}
+                                            className="rounded-full bg-gradient-to-r from-purple-500 to-orange-500 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+                                        >
+                                            Crear Campaña Ahora
+                                        </button>
+                                        <button
+                                            onClick={handleContactExpert}
+                                            className="flex items-center gap-2 rounded-full bg-green-600 px-6 py-4 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] hover:bg-green-700"
+                                        >
+                                            <MessageCircle className="w-5 h-5" />
+                                            Contacta un experto
+                                        </button>
+                                    </div>
                                 </div>
                             </>
                         ) : null}

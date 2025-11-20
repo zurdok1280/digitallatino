@@ -217,6 +217,9 @@ export interface SongBasicInfo {
   artist?: string;
   label?: string;
   url?: string;
+  rk?: number;
+  score?: number;
+  song?: string;
 }
 // Interface para manejar info de radio (Countries & Markets con Spins)
 export interface SpinData {
@@ -224,6 +227,7 @@ export interface SpinData {
   market?: string;
   spins: number;
   rank: number;
+  audience: number;
 }
 //Interface para manejar info de TopPlaylists
 export interface TopPlaylists {
@@ -532,6 +536,12 @@ export const digitalLatinoApi = {
   // Obtener información básica de la canción por cs_song
   getSongById: (csSong: number): Promise<ApiResponse<SongBasicInfo>> =>
     api.get<SongBasicInfo>(`report/getSongbyId/${csSong}`),
+  // Obtener información básica de la canción por cs_song y countryId
+  getRankSongByIdCountry: (
+    csSong: number,
+    countryId: number
+  ): Promise<ApiResponse<SongBasicInfo>> =>
+    api.get<SongBasicInfo>(`report/getSongbyId/${csSong}/${countryId}`),
   // Obtener top países de radio por canción
   getTopRadioCountries: (csSong: number): Promise<ApiResponse<SpinData[]>> =>
     api.get<SpinData[]>(`report/getTopRadioCountries/${csSong}`),
