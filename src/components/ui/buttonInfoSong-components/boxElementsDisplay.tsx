@@ -190,7 +190,7 @@ export default function BoxElementsDisplay({ label, csSong, countries, onDataLoa
             setSelectedCountry(defaultCountry);
         } else {
             // Usar país 1 por defecto si no hay países en la lista
-            setSelectedCountry('1');
+            setSelectedCountry('0');
         }
     }, [countries]);
 
