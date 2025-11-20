@@ -186,10 +186,10 @@ export default function BoxElementsDisplay({ label, csSong, countries, onDataLoa
     useEffect(() => {
         // Siempre establecer un país por defecto, incluso si no hay países en la lista
         if (countries.length > 0) {
-            const defaultCountry = countries[0].id.toString()
+            const defaultCountry = '0'; //= countries[0].id.toString()
             setSelectedCountry(defaultCountry);
         } else {
-            // Usar país 1 por defecto si no hay países en la lista
+            // Usar país 0 por defecto si no hay países en la lista
             setSelectedCountry('0');
         }
     }, [countries]);
