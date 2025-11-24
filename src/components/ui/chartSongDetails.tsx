@@ -2,7 +2,7 @@ import BoxCampaign from './buttonInfoSong-components/boxCampaign';
 import React, { useState, useEffect } from 'react';
 import { Play, Pause, Star, X } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Song, Country, CityDataForSong, digitalLatinoApi } from '@/lib/api';
+import { Song, Country, CityDataForSong, digitalLatinoApi, SongBasicInfo } from '@/lib/api';
 import BoxElementsDisplay from './buttonInfoSong-components/boxElementsDisplay';
 import BoxDisplayInfoPlatform from './buttonInfoSong-components/boxDisplayInfoPlatform';
 import BoxPlaylistsDisplay from './buttonInfoSong-components/boxPlaylistsDisplay';
@@ -32,6 +32,8 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
 }) => {
     const [cityData, setCityData] = useState<CityDataForSong[]>([]);
     const [loadingCityData, setLoadingCityData] = useState(false);
+    const [infoSong, setInfoSong] = useState<SongBasicInfo | null>(null);
+    const [loadingInfo, setLoadingInfo] = useState(false);
 
     // Bloquear scroll del body cuando el modal está abierto
     useEffect(() => {
@@ -54,8 +56,8 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         try {
             console.log('🔍 Cargando datos de ciudades para cs_song:', song.cs_song);
 
-            // Usar countryId = 1 por defecto ya que todos los paises traen todas las ciudades
-            const countryId = 1;
+            // Usar countryId = 0 por defecto ya que todos los paises traen todas las ciudades
+            const countryId = 0;
 
             const response = await digitalLatinoApi.getCityData(song.cs_song, countryId);
             console.log('📊 Respuesta de getCityData:', response);
@@ -71,10 +73,34 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         }
     };
 
+    // Cargar datos de ciudades directamente
+    const loadInfoSong = async () => {
+        if (!song.cs_song) return;
+        setLoadingInfo(true);
+
+        try {
+            console.log('🔍 Cargando información adicional de la canción:', song.cs_song);
+
+            const countryId = 1; // Para todos los países
+
+            const response = await digitalLatinoApi.getRankSongByIdCountry(song.cs_song, countryId);
+            console.log('📊 Respuesta de getRankSongByIdCountry:', response);
+
+            if (response.data) {
+                setInfoSong(response.data);
+                console.log('✅ Información adicional cargada:', response.data);
+            }
+        } catch (error) {
+            console.error('❌ Error cargando información adicional:', error);
+        } finally {
+            setLoadingInfo(false);
+        }
+    };
     // Llamar esta función cuando el componente se monte o cuando cambie el cs_song
     useEffect(() => {
         if (isOpen && song.cs_song) {
             loadCityData();
+            loadInfoSong();
         }
     }, [isOpen, song.cs_song]);
 
@@ -130,7 +156,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                     <div className="absolute inset-0 bg-white/20 rounded-xl blur-sm"></div>
                                     <div className="relative bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl w-16 h-16 flex items-center justify-center shadow-lg">
                                         <span className="text-2xl font-bold text-white">
-                                            #{song.rk || 0}
+                                            {loadingInfo ? '...' : `#${infoSong?.rk || song.rk || 0}`}
                                         </span>
                                     </div>
                                 </div>
@@ -206,7 +232,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                         <Star className="w-4 h-4 text-yellow-300 fill-current" />
                                     </div>
                                     <div className="text-3xl font-black text-white">
-                                        {song.score || 0}
+                                        {loadingInfo ? '...' : (infoSong?.score || song.score || 0)}
                                     </div>
                                 </div>
                             </div>

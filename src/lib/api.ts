@@ -138,6 +138,7 @@ export interface CityDataForSong {
   spins?: number;
   sts?: number;
 
+  countryname?: string;
   countryId: number;
   csSong: number;
   country_code?: string;
@@ -210,7 +211,7 @@ export interface SongInfoPlatform {
 
 // Interface para manejar info de la canción por cs_song
 export interface SongBasicInfo {
-  id: string;
+  id?: string;
   avatar?: string;
   background?: string;
   title?: string;
@@ -494,7 +495,7 @@ export const digitalLatinoApi = {
   ): Promise<ApiResponse<TrendingSong[]>> =>
     api.get<TrendingSong[]>(`report/getTrendingSongs/${format}/${country}`),
 
-  // Obtener Trending Top Platfomrs  trendingPlatforms
+  // Obtener Trending Top Platfomrs trendingPlatforms
   getTrendingTopPlatforms: (
     platform: string,
     format: number,
