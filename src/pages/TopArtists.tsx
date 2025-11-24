@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LatinAmericaMap } from "@/components/LatinAmericaMap";
 import { SpotifyTrack } from "@/types/spotify";
 import { useAuth } from "@/hooks/useAuth";
-import { digitalLatinoApi, Country, Format, City, Song, TrendingSong, TopTrendingArtist } from "@/lib/api";
+import { digitalLatinoApi, Country, Format, City, Song, TrendingSong, TopTrendingArtist, SongsArtist } from "@/lib/api";
 // Import album covers
 import { Backdrop, CircularProgress, Fab } from '@mui/material';
 import teddySwimsCover from "@/assets/covers/teddy-swims-lose-control.jpg";
@@ -27,6 +27,9 @@ import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 import { ButtonBigNumber } from "@/components/ui/button-big-number";
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
+import { ButtonInfoArtist } from "@/components/ui/buttonInfoArtist";
+import { ExpandRowArtist } from "@/components/ui/buttoninfoArtist-components/expandRowArtist";
+import { useExpandableRows } from "@/hooks/useExpandableRows";
 
 
 // Agregar más entradas para llegar a 40
@@ -34,7 +37,6 @@ for (let i = 16; i <= 40; i++) {
   const covers = [teddySwimsCover, badBunnyCover, karolGCover, shaboozeyCover, sabrinaCarpenterCover, pesoPlumaCover, taylorSwiftCover, eminemCover, chappellRoanCover, billieEilishCover];
   const artists = ["Miley Cyrus", "Harry Styles", "Ariana Grande", "The Weeknd", "Drake", "Post Malone", "Rihanna", "Ed Sheeran", "Bruno Mars", "Adele"];
   const tracks = ["Flowers", "As It Was", "positions", "Blinding Lights", "God's Plan", "Circles", "Umbrella", "Shape of You", "Uptown Funk", "Hello"];
-
 
 }
 
@@ -64,6 +66,14 @@ function PlatformChip({ label, rank }: PlatformChipProps) {
       <span className="ml-1 text-xs text-gray-400 filter blur-[1px] select-none">#{rank}</span>
     </div>
   );
+}
+interface ExpandRowArtistProps {
+  row: SongsArtist;
+  onPromote: () => void;
+  selectedCountry?: string;
+  selectedFormat?: string;
+  countries?: any[];
+  isExpanded?: boolean;
 }
 
 interface BlurBlockProps {
@@ -526,7 +536,7 @@ export default function TopArtists() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const { expandedRows, toggleRow, isExpanded } = useExpandableRows();
 
   // Spotify search state
   const [searchQuery, setSearchQuery] = useState('');     //Aislar
@@ -854,15 +864,8 @@ export default function TopArtists() {
     window.location.href = authUrl.toString();
   };
 
-  const toggleRow = (index: number) => {
-    console.log('Toggling row:', index);
-    const newExpanded = new Set(expandedRows);
-    if (newExpanded.has(index)) {
-      newExpanded.delete(index);
-    } else {
-      newExpanded.add(index);
-    }
-    setExpandedRows(newExpanded);
+  const handleToggleRow = (index: number, artist: TopTrendingArtist) => {
+    toggleRow(index);
   };
 
   const handlePromote = (artist: string, track: string, coverUrl?: string, artistImageUrl?: string) => {
@@ -1287,7 +1290,7 @@ export default function TopArtists() {
                 >
                   <div className="grid grid-cols-11 items-center gap-4 px-6 py-4">
                     {/* Rank */}
-                    <div className="col-span-1 flex items-center gap-2">
+                    <div className="col-span-1 flex items-center gap-1">
                       <div className="relative group/rank">
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
                         <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-11 h-11 flex items-center justify-center shadow-sm group-hover/rank:shadow-md transition-all">
@@ -1299,7 +1302,7 @@ export default function TopArtists() {
                     </div>
 
                     {/* Track Info */}
-                    <div className="col-span-3 flex items-center gap-2">
+                    <div className="col-span-3 flex items-center gap-3">
                       <div className="relative group-hover:scale-105 transition-transform">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
                         <div className="relative">
@@ -1334,25 +1337,42 @@ export default function TopArtists() {
 
                     {/* Artist Stats */}
                     <div className="col-span-7 place-items-stretch">
-                      <div className="flex gap-2 overflow-x-auto pb-1">
+                      <div className="flex gap-0 overflow-x-auto pb-1">
                         {/* Monthly Listeners */}
-                        <ButtonBigNumber name="Monthly Listeners" quantity={row.monthly_listeners} />
+                        <ButtonBigNumber name="Oyentes Mensuales" quantity={row.monthly_listeners} />
                         {/* Instagram Followers */}
-                        <ButtonBigNumber name="Instagram Follows" quantity={row.followers_total_instagram} />
+                        <ButtonBigNumber name="Seguidores Instagram" quantity={row.followers_total_instagram} />
                         {/* Facebook Followers */}
-                        <ButtonBigNumber name="Facebook Follows" quantity={row.followers_total_facebook} />
+                        <ButtonBigNumber name="Seguidores Facebook" quantity={row.followers_total_facebook} />
                         {/* TitkTok Followers */}
-                        <ButtonBigNumber name="TitkTok Follows" quantity={row.followers_total_tiktok} />
+                        <ButtonBigNumber name="Seguidores TikTok" quantity={row.followers_total_tiktok} />
                         {/* Playlist */}
                         <ButtonBigNumber name="Playlist" quantity={row.playlists} />
 
+                        {/* Expand Button */}
+                        <div className="col-span-1 text-right">
+                          <ButtonInfoArtist
+                            index={index}
+                            isExpanded={isExpanded(index)}
+                            onToggle={() => handleToggleRow(index, row)}
+                          />
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {expandedRows.has(index) && (
-                    <div className="bg-white/30 backdrop-blur-sm px-8 pb-6">
-
+                  {/* Expanded Content */}
+                  {isExpanded(index) && (
+                    <div className="px-6 pb-4">
+                      <ExpandRowArtist
+                        artist={{
+                          spotifyid: row.spotifyid,
+                          artist: row.artist,
+                          rk: parseInt(row.rk),
+                        }}
+                        selectedCountry={selectedCountry}
+                        isExpanded={isExpanded(index)}
+                      />
                     </div>
                   )}
                 </div>

@@ -110,20 +110,21 @@ export interface DebutSongs {
 // interfaces para entradas de top artists
 export interface TopTrendingArtist {
   rk: string;
-  artist: string;
-  monthly_listeners: number;
-  followers_total: number;
-  popularity: number;
-  streams_total: number;
-  playlists: number;
-  playlist_reach: number;
-  followers_total_instagram: number;
-  followers_total_tiktok: number;
-  videos_views_total_youtube: number;
-  followers_total_facebook: number;
-  followers_total_twitter: number;
-  spotify_streams: number;
-  img: string;
+  artist?: string;
+  monthly_listeners?: number;
+  followers_total?: number;
+  popularity?: number;
+  streams_total?: number;
+  playlists?: number;
+  playlist_reach?: number;
+  followers_total_instagram?: number;
+  followers_total_tiktok?: number;
+  videos_views_total_youtube?: number;
+  followers_total_facebook?: number;
+  followers_total_twitter?: number;
+  spotify_streams?: number;
+  img?: string;
+  spotifyid?: string;
 }
 
 //Interface Contry para buttonSongInfo/boxElementsDisplay
@@ -300,6 +301,17 @@ export interface SpotifyTrackResult {
   image_url: string;
   url: string;
 }
+//
+export interface SongsArtist {
+  score: number;
+  fk_artist: number;
+  release_date: string;
+  image_url: string;
+  fk_track: number;
+  spotifyid: string;
+  isrc: string;
+  spotify_streams: number;
+}
 
 // Clase principal para manejar las conexiones API
 export class ApiClient {
@@ -437,7 +449,6 @@ export class ApiClient {
 // Instancia por defecto del cliente API
 export const apiClient = new ApiClient();
 
-// Funciones de conveniencia para uso directo
 export const api = {
   get: <T = any>(
     endpoint: string,
@@ -579,6 +590,12 @@ export const digitalLatinoApi = {
     api.get<SpotifySearchResult>(
       `report/getSearchSpotify?query=${encodeURIComponent(query)}`
     ),
+  //Obtener canciones de un artista por spotifyid y countryId
+  getSongsArtist: (
+    spotifyid: string,
+    countryId: number
+  ): Promise<ApiResponse<SongsArtist>> =>
+    api.get<SongsArtist>(`report/getSongsArtist/${spotifyid}/${countryId}`),
 };
 
 // Ejemplo de uso:

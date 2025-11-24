@@ -15,7 +15,7 @@ export interface ElementItem {
 export interface BoxElementsDisplayProps {
     label: string;
     csSong: string;
-    countries: Country[]; // Lista de países para el dropdown
+    selectedCountryId: string;
     onDataLoaded?: (data: ElementItem[]) => void;
 }
 
@@ -121,7 +121,7 @@ const CityChip = ({ city, rank }: { city: ElementItem, rank: number }) => {
     );
 };
 
-export default function BoxElementsDisplay({ label, csSong, countries, onDataLoaded }: BoxElementsDisplayProps) {
+export default function BoxElementsDisplay({ label, csSong, selectedCountryId, onDataLoaded }: BoxElementsDisplayProps) {
     const [elements, setElements] = useState<ElementItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -260,139 +260,124 @@ export default function BoxElementsDisplay({ label, csSong, countries, onDataLoa
     }
 
     return (
-        <Box
-            sx={{
-                border: "1px solid #E0E0E0",
-                borderRadius: "12px",
-                p: 3,
-                boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-                backgroundColor: "white",
-                mb: 3,
-            }}
-        >
+        <>
+            <Box
+                sx={{
+                    border: "1px solid #E0E0E0",
+                    borderRadius: "12px",
+                    p: 3,
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                    backgroundColor: "white",
+                    mb: 3,
+                }}
+            >
 
-            {/* Estadisticas de Radio */}
-            <BoxElementsDisplayAudience
-                csSong={Number(csSong)}
-                title="Top Países en Radio"
-                label="países"
-                type="countries"
-            />
-            {selectedCountry && selectedCountry !== '0' && (
-                <BoxElementsDisplaySpins
-                    csSong={Number(csSong)}
-                    countryId={parseInt(selectedCountry)}
-                    title="Top Mercados en Radio"
-                    label="mercados"
-                    type="markets"
-                />
-            )}
-            {/* Header con dropdown de países */}
-            <Box sx={{
-                border: "1px solid #E0E0E0",
-                borderRadius: "12px",
-                p: 3,
-                boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-                backgroundColor: "white",
-                mb: 3,
-            }}>
-                {/* Header con dropdown de países */}
-                <Box
-                    sx={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        mb: 3,
-                        flexWrap: 'wrap',
-                        gap: 2
-                    }}
-                >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <EmojiEventsIcon sx={{ color: "#6C63FF" }} />
-                        <Typography
-                            variant="subtitle2"
-                            sx={{
-                                color: "#6C63FF",
-                                fontWeight: "bold",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.05em",
-                            }}
-                        >
-                            {label}
-                        </Typography>
-                    </Box>
-                    {/* Dropdown de selección de país */}
-                    {/*<FormControl size="small" sx={{ minWidth: 200 }}>
-                        <Select
-                            value={selectedCountry}
-                            onChange={handleCountryChange}
-                            sx={{
-                                fontSize: "0.85rem",
-                                borderRadius: "8px",
-                                "& .MuiOutlinedInput-notchedOutline": { borderColor: "#ccc" },
-                            }}
-                        >
-                            {countries.map((country) => (
-                                <MenuItem key={country.id} value={country.id.toString()}>
-                                    {country.country_name || country.country || country.description}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>*/}
-                </Box>
+                <WorldMap cities={citiesData} loading={loading} />
 
-
-                {/* Lista horizontal de ciudades */}
+                {selectedCountry && selectedCountry !== '0' && (
+                    <BoxElementsDisplaySpins
+                        csSong={Number(csSong)}
+                        countryId={parseInt(selectedCountry)}
+                        title="Top Mercados en Radio"
+                        label="mercados"
+                        type="markets"
+                    />
+                )}
+                {/* Header */}
                 <Box sx={{
-                    width: '100%'
+                    border: "1px solid #E0E0E0",
+                    borderRadius: "12px",
+                    p: 3,
+                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                    backgroundColor: "white",
+                    mb: 3,
                 }}>
-
-                    {/* Primera fila - Top 5 ciudades */}
-                    <Stack
-                        direction="row"
-                        spacing={2}
+                    {/* Header */}
+                    <Box
                         sx={{
-                            justifyContent: 'center',
-                            mb: 2,
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            mb: 3,
                             flexWrap: 'wrap',
                             gap: 2
                         }}
                     >
-                        {firstRow.map((city) => (
-                            <CityChip key={city.rank} city={city} rank={city.rank} />
-                        ))}
-                    </Stack>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                            <EmojiEventsIcon sx={{ color: "#6C63FF" }} />
+                            <Typography
+                                variant="subtitle2"
+                                sx={{
+                                    color: "#6C63FF",
+                                    fontWeight: "bold",
+                                    textTransform: "uppercase",
+                                    letterSpacing: "0.05em",
+                                }}
+                            >
+                                {label}
+                            </Typography>
+                        </Box>
+                    </Box>
 
-                    {/* Segunda fila - Ciudades 6-10 */}
-                    <Stack
-                        direction="row"
-                        spacing={2}
-                        sx={{
-                            justifyContent: 'center',
-                            flexWrap: 'wrap',
-                            gap: 2
-                        }}
-                    >
-                        {secondRow.map((city) => (
-                            <CityChip key={city.rank} city={city} rank={city.rank} />
-                        ))}
-                    </Stack>
+                    {/* Lista horizontal de ciudades */}
+                    <Box sx={{
+                        width: '100%'
+                    }}>
 
-                    {elements.length === 0 && (
-                        <Typography
-                            variant="body2"
+                        {/* Primera fila - Top 5 ciudades */}
+                        <Stack
+                            direction="row"
+                            spacing={2}
                             sx={{
-                                textAlign: 'center',
-                                color: '#666',
-                                py: 2
+                                justifyContent: 'center',
+                                mb: 2,
+                                flexWrap: 'wrap',
+                                gap: 2
                             }}
                         >
-                            No hay datos de ciudades disponibles
-                        </Typography>
-                    )}
+                            {firstRow.map((city) => (
+                                <CityChip key={city.rank} city={city} rank={city.rank} />
+                            ))}
+                        </Stack>
+
+                        {/* Segunda fila - Ciudades 6-10 */}
+                        <Stack
+                            direction="row"
+                            spacing={2}
+                            sx={{
+                                justifyContent: 'center',
+                                flexWrap: 'wrap',
+                                gap: 2
+                            }}
+                        >
+                            {secondRow.map((city) => (
+                                <CityChip key={city.rank} city={city} rank={city.rank} />
+                            ))}
+                        </Stack>
+
+                        {elements.length === 0 && (
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    textAlign: 'center',
+                                    color: '#666',
+                                    py: 2
+                                }}
+                            >
+                                No hay datos de ciudades disponibles
+                            </Typography>
+                        )}
+                    </Box>
                 </Box>
+
+                {/* Estadisticas de Radio */}
+                <BoxElementsDisplayAudience
+                    csSong={Number(csSong)}
+                    title="Top Países en Radio"
+                    label="países"
+                    type="countries"
+                />
             </Box>
-            <WorldMap cities={citiesData} loading={loading} />
-        </Box>
+        </>
     );
 }

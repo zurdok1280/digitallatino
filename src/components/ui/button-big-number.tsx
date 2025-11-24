@@ -1,14 +1,13 @@
 import { styled, Tooltip } from "@mui/material";
 import { Star } from "lucide-react";
 
-
 interface BtnBigNumberProps {
     name: string;
     label?: string;
     quantity: number;
 }
 
-// Tooltip personalizado
+// Tooltip personalizado con alineación a la izquierda y dimensiones mínimas
 const CustomTooltip = styled(Tooltip)(({ theme }) => ({
     tooltip: {
         backgroundColor: '#ffffff',
@@ -19,6 +18,12 @@ const CustomTooltip = styled(Tooltip)(({ theme }) => ({
         boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
         borderRadius: '8px',
         padding: '8px 12px',
+        minWidth: '80px',
+        minHeight: '60px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        textAlign: 'left'
     },
     arrow: {
         color: '#ffffff',
@@ -27,7 +32,6 @@ const CustomTooltip = styled(Tooltip)(({ theme }) => ({
         }
     },
 }));
-
 
 // Función para formatear los números
 const formatNumber = (num: number): string => {
@@ -43,8 +47,8 @@ const formatNumber = (num: number): string => {
 export function ButtonBigNumber(btnBigNumberProps: BtnBigNumberProps) {
     return (
         <>
-            <div className="col-span-2 text-right">
-                <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all duration-300">
+            <div className="flex-shrink-0">
+                <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all duration-300 min-w-[90px]">
                     <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-1">
                             <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
@@ -54,11 +58,20 @@ export function ButtonBigNumber(btnBigNumberProps: BtnBigNumberProps) {
                     </div>
                     <div className="flex items-end justify-between">
                         <CustomTooltip
-                            title={btnBigNumberProps.quantity.toLocaleString()}
+                            title={
+                                <div style={{
+                                    textAlign: 'left',
+                                    width: '100%',
+                                    display: 'flex',
+                                    justifyContent: 'flex-start'
+                                }}>
+                                    {btnBigNumberProps.quantity.toLocaleString()}
+                                </div>
+                            }
                             arrow
-                            placement="top"
+                            placement="top-start"
                         >
-                            <div className="text-lg font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent cursor-help hover:opacity-80 transition-opacity">
+                            <div className="text-lg text-right font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent cursor-help hover:opacity-80 transition-opacity">
                                 {formatNumber(btnBigNumberProps.quantity)}
                             </div>
                         </CustomTooltip>
