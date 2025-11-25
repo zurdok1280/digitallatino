@@ -309,6 +309,7 @@ export interface SpotifyArtistResult {
   popularity?: number;
 }
 
+export interface SpotifySearchResponse {
   tracks: SpotifyTrackResult[];
   artists: SpotifyArtistResult[];
 }
