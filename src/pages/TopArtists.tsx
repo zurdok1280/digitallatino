@@ -1350,13 +1350,15 @@ export default function TopArtists() {
                         <ButtonBigNumber name="Playlist" quantity={row.playlists} />
 
                         {/* Expand Button */}
+                        {/*
                         <div className="col-span-1 text-right">
                           <ButtonInfoArtist
                             index={index}
                             isExpanded={isExpanded(index)}
                             onToggle={() => handleToggleRow(index, row)}
                           />
-                        </div>
+                      </div>
+                          */}
                       </div>
                     </div>
                   </div>
@@ -1366,7 +1368,7 @@ export default function TopArtists() {
                     <div className="px-6 pb-4">
                       <ExpandRowArtist
                         artist={{
-                          spotifyid: row.spotifyid,
+                          //spotifyid: row.spotifyid,
                           artist: row.artist,
                           rk: parseInt(row.rk),
                         }}

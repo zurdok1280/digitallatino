@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Music, Search, Info, Lock } from "lucide-react";
-import { digitalLatinoApi, SpotifyTrackResult, Song } from "@/lib/api";
+import { Music, Search, Info, Lock, Users, Play } from "lucide-react";
+import { digitalLatinoApi, SpotifyTrackResult, Song, SpotifyArtistResult } from "@/lib/api";
 import ChartSongDetails from "./ChartSongDetails";
 import { useAuth } from "@/hooks/useAuth";
+import { ArtistSongs } from "./artistSongs";
 
 interface SearchResultProps {
     track: SpotifyTrackResult;
@@ -180,14 +181,82 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
     );
 }
 
+// Mostrar resultados de artistas
+interface ArtistResultProps {
+    artist: {
+        id: string;
+        name: string;
+        image_url: string;
+        followers?: number;
+    };
+    onShowTracks: (artistId: string, artistName: string) => void;
+}
+
+function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
+    return (
+        <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
+            <div className="flex items-center gap-4">
+                <div className="relative">
+                    <img
+                        src={artist.image_url}
+                        alt={artist.name}
+                        className="w-24 h-24 rounded-lg object-cover"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity rounded-lg">
+                        <Users className="w-6 h-6 text-white" />
+                    </div>
+                </div>
+                <div className="flex-1">
+                    <h3 className="font-semibold text-slate-800 mb-1">{artist.name}</h3>
+                    {artist.followers && (
+                        <p className="text-xs text-slate-500">
+                            {artist.followers.toLocaleString()} seguidores
+                        </p>
+                    )}
+                </div>
+                <div className="flex flex-col gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none hover:from-purple-700 hover:to-pink-700 flex items-center gap-1"
+                        onClick={() => onShowTracks(artist.id, artist.name)}
+                    >
+                        <Play className="w-3 h-3" />
+                        Mostrar Canciones
+                    </Button>
+                </div>
+            </div>
+        </Card>
+    );
+}
+
 export function SearchArtist() {
     const { toast } = useToast();
 
     // Spotify search state
     const [searchQuery, setSearchQuery] = useState('');
     const [loadingSearch, setLoadingSearch] = useState(false);
-    const [searchResults, setSearchResults] = useState<SpotifyTrackResult[]>([]);
+    const [searchResults, setSearchResults] = useState<{
+        tracks: SpotifyTrackResult[];
+        artists: Array<{
+            id: string;
+            name: string;
+            image_url: string;
+            followers?: number;
+        }>;
+    }>({ tracks: [], artists: [] });
     const [showSearchResults, setShowSearchResults] = useState(false);
+    const [activeTab, setActiveTab] = useState<'tracks' | 'artists'>('tracks');
+    const [artistSongsModal, setArtistSongsModal] = useState<{
+        isOpen: boolean;
+        spotifyId: string;
+        artistName: string;
+    }>({
+        isOpen: false,
+        spotifyId: '',
+        artistName: ''
+    });
+
 
     // Debouncing para limitar las búsquedas por API al usuario
     const useDebounce = (value: string, delay: number) => {
@@ -204,15 +273,15 @@ export function SearchArtist() {
         return debouncedValue;
     };
 
-    // Usar el hook de debounce con 300ms de delay
-    const debouncedSearchQuery = useDebounce(searchQuery, 300);
+    // Usar el hook de debounce con 250ms de delay
+    const debouncedSearchQuery = useDebounce(searchQuery, 250);
 
-    // Search tracks on Spotify usando la nueva API
-    const searchTracks = useCallback(async (query: string) => {
+    // Search tracks y artists on Spotify
+    const searchTracksAndArtists = useCallback(async (query: string) => {
         console.log('🔍 Buscando en Spotify:', query);
 
         if (!query.trim()) {
-            setSearchResults([]);
+            setSearchResults({ tracks: [], artists: [] });
             setShowSearchResults(false);
             return;
         }
@@ -222,15 +291,31 @@ export function SearchArtist() {
             const response = await digitalLatinoApi.getSearchSpotify(query);
             console.log('✅ Respuesta de Spotify:', response.data);
 
-            // Usar solo los tracks de la respuesta
             const tracks = response.data.tracks || [];
-            setSearchResults(tracks);
+            const allArtists = response.data.artists || [];
+
+            // Mapear los artistas
+            const artists = allArtists.slice(0, 5).map(artist => ({
+                id: artist.spotify_id,
+                name: artist.artist_name,
+                image_url: artist.image_url,
+                followers: artist.followers
+            }));
+
+            setSearchResults({ tracks, artists });
             setShowSearchResults(true);
 
-            if (tracks.length === 0) {
+            // Determinar tab activo por defecto basado en qué hay más resultados
+            if (artists.length > tracks.length) {
+                setActiveTab('artists');
+            } else {
+                setActiveTab('tracks');
+            }
+
+            if (tracks.length === 0 && artists.length === 0) {
                 toast({
                     title: "Sin resultados",
-                    description: `No se encontraron canciones para "${query}" en Spotify`,
+                    description: `No se encontraron canciones o artistas para "${query}" en Spotify`,
                 });
             }
         } catch (error) {
@@ -240,7 +325,7 @@ export function SearchArtist() {
                 description: "No se pudo buscar en Spotify. Intenta de nuevo.",
                 variant: "destructive"
             });
-            setSearchResults([]);
+            setSearchResults({ tracks: [], artists: [] });
         } finally {
             setLoadingSearch(false);
         }
@@ -265,15 +350,35 @@ export function SearchArtist() {
         }
     };
 
+    // Handle artist selection - buscar canciones del artista
+    const handleArtistSelect = (artistId: string, artistName: string) => {
+        setArtistSongsModal({
+            isOpen: true,
+            spotifyId: artistId,
+            artistName: artistName
+        });
+    };
+    // Función para cerrar el modal
+    const handleCloseArtistSongs = () => {
+        setArtistSongsModal({
+            isOpen: false,
+            spotifyId: '',
+            artistName: ''
+        });
+    };
+
     // useEffect para buscar cuando el query cambia
     useEffect(() => {
         if (debouncedSearchQuery.trim()) {
-            searchTracks(debouncedSearchQuery);
+            searchTracksAndArtists(debouncedSearchQuery);
         } else {
-            setSearchResults([]);
+            setSearchResults({ tracks: [], artists: [] });
             setShowSearchResults(false);
         }
-    }, [debouncedSearchQuery, searchTracks]);
+    }, [debouncedSearchQuery, searchTracksAndArtists]);
+
+    const hasTracks = searchResults.tracks.length > 0;
+    const hasArtists = searchResults.artists.length > 0;
 
     return (
         <>
@@ -306,7 +411,7 @@ export function SearchArtist() {
 
                         <Button
                             type="button"
-                            onClick={() => searchQuery.trim() && searchTracks(searchQuery)}
+                            onClick={() => searchQuery.trim() && searchTracksAndArtists(searchQuery)}
                             disabled={loadingSearch || !searchQuery.trim()}
                             className="rounded-2xl bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 px-6 py-3 text-white hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
                         >
@@ -319,10 +424,10 @@ export function SearchArtist() {
                     {showSearchResults && (
                         <div className="absolute z-50 mt-2 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-2xl max-h-96 overflow-hidden">
                             <div className="p-3 border-b border-gray-100">
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between mb-2">
                                     <h3 className="text-sm font-semibold text-slate-700">
-                                        {searchResults.length > 0
-                                            ? `${searchResults.length} resultados encontrados en Spotify`
+                                        {hasTracks || hasArtists
+                                            ? `${hasTracks ? searchResults.tracks.length + ' canciones' : ''}${hasTracks && hasArtists ? ' • ' : ''}${hasArtists ? searchResults.artists.length + ' artistas' : ''}`
                                             : 'Buscando...'
                                         }
                                     </h3>
@@ -330,18 +435,42 @@ export function SearchArtist() {
                                         onClick={() => {
                                             setShowSearchResults(false);
                                             setSearchQuery('');
-                                            setSearchResults([]);
+                                            setSearchResults({ tracks: [], artists: [] });
                                         }}
                                         className="text-slate-400 hover:text-slate-600 transition-colors text-xs"
                                     >
                                         ✕ Cerrar
                                     </button>
                                 </div>
+
+                                {/* Tabs para cambiar entre canciones y artistas */}
+                                {(hasTracks && hasArtists) && (
+                                    <div className="flex border-b border-gray-200">
+                                        <button
+                                            className={`flex-1 py-2 text-xs font-medium ${activeTab === 'tracks'
+                                                ? 'text-blue-600 border-b-2 border-blue-600'
+                                                : 'text-gray-500 hover:text-gray-700'
+                                                }`}
+                                            onClick={() => setActiveTab('tracks')}
+                                        >
+                                            Canciones ({searchResults.tracks.length})
+                                        </button>
+                                        <button
+                                            className={`flex-1 py-2 text-xs font-medium ${activeTab === 'artists'
+                                                ? 'text-purple-600 border-b-2 border-purple-600'
+                                                : 'text-gray-500 hover:text-gray-700'
+                                                }`}
+                                            onClick={() => setActiveTab('artists')}
+                                        >
+                                            Artistas ({searchResults.artists.length})
+                                        </button>
+                                    </div>
+                                )}
                             </div>
 
                             <div className="max-h-80 overflow-y-auto">
-                                {searchResults.length > 0 ? (
-                                    searchResults.map((track) => (
+                                {activeTab === 'tracks' && hasTracks ? (
+                                    searchResults.tracks.map((track) => (
                                         <div key={track.spotify_id} className="border-b border-gray-100 last:border-b-0">
                                             <SearchResult
                                                 track={track}
@@ -349,9 +478,21 @@ export function SearchArtist() {
                                             />
                                         </div>
                                     ))
+                                ) : activeTab === 'artists' && hasArtists ? (
+                                    searchResults.artists.map((artist) => (
+                                        <div key={artist.id} className="border-b border-gray-100 last:border-b-0">
+                                            <ArtistResult
+                                                artist={artist}
+                                                onShowTracks={handleArtistSelect}
+                                            />
+                                        </div>
+                                    ))
                                 ) : (
                                     <div className="p-4 text-center text-sm text-gray-500">
-                                        {loadingSearch ? 'Buscando en Spotify...' : 'No se encontraron resultados en Spotify'}
+                                        {loadingSearch
+                                            ? 'Buscando en Spotify...'
+                                            : `No se encontraron ${activeTab === 'tracks' ? 'canciones' : 'artistas'} en Spotify`
+                                        }
                                     </div>
                                 )}
                             </div>
@@ -365,6 +506,13 @@ export function SearchArtist() {
                     </div>
                 )}
             </div>
+            {/* Modal de canciones del artista */}
+            <ArtistSongs
+                spotifyId={artistSongsModal.spotifyId}
+                artistName={artistSongsModal.artistName}
+                isOpen={artistSongsModal.isOpen}
+                onClose={handleCloseArtistSongs}
+            />
         </>
     )
 }

@@ -110,21 +110,20 @@ export interface DebutSongs {
 // interfaces para entradas de top artists
 export interface TopTrendingArtist {
   rk: string;
-  artist?: string;
-  monthly_listeners?: number;
-  followers_total?: number;
-  popularity?: number;
-  streams_total?: number;
-  playlists?: number;
-  playlist_reach?: number;
-  followers_total_instagram?: number;
-  followers_total_tiktok?: number;
-  videos_views_total_youtube?: number;
-  followers_total_facebook?: number;
-  followers_total_twitter?: number;
-  spotify_streams?: number;
-  img?: string;
-  spotifyid?: string;
+  artist: string;
+  monthly_listeners: number;
+  followers_total: number;
+  popularity: number;
+  streams_total: number;
+  playlists: number;
+  playlist_reach: number;
+  followers_total_instagram: number;
+  followers_total_tiktok: number;
+  videos_views_total_youtube: number;
+  followers_total_facebook: number;
+  followers_total_twitter: number;
+  spotify_streams: number;
+  img: string;
 }
 
 //Interface Contry para buttonSongInfo/boxElementsDisplay
@@ -301,9 +300,22 @@ export interface SpotifyTrackResult {
   image_url: string;
   url: string;
 }
+export interface SpotifyArtistResult {
+  id: string;
+  name: string;
+  image_url: string;
+  genres?: string[];
+  followers?: number;
+  popularity?: number;
+}
+
+  tracks: SpotifyTrackResult[];
+  artists: SpotifyArtistResult[];
+}
 //
-export interface SongsArtist {
+export interface SongsArtistBySpotifyId {
   score: number;
+  cs_song: number;
   fk_artist: number;
   release_date: string;
   image_url: string;
@@ -449,6 +461,7 @@ export class ApiClient {
 // Instancia por defecto del cliente API
 export const apiClient = new ApiClient();
 
+// Funciones de conveniencia para uso directo
 export const api = {
   get: <T = any>(
     endpoint: string,
@@ -523,7 +536,7 @@ export const digitalLatinoApi = {
   ): Promise<ApiResponse<TrendingSong[]>> =>
     api.get<TrendingSong[]>(`report/getTopArtist/${format}/${country}`),
 
-  //// Obtener Trending Debut Songs  debutSongs
+  // Obtener Trending Debut Songs  debutSongs
   getDebutSongs: (
     format: number,
     country: number,
@@ -572,7 +585,7 @@ export const digitalLatinoApi = {
   //Obtener usos en Tiktok por cs_song
   getTikTokUses: (csSong: number): Promise<ApiResponse<TikTokUse[]>> =>
     api.get<TikTokUse[]>(`report/getTopTiktok/${csSong}`),
-  // Obtener recomendaciones de artistas similares
+  // Obtener recomendaciones de artistas por cs_song
   getArtistRecommendations: (
     csSong: number
   ): Promise<ApiResponse<Recommendation[]>> =>
@@ -590,12 +603,14 @@ export const digitalLatinoApi = {
     api.get<SpotifySearchResult>(
       `report/getSearchSpotify?query=${encodeURIComponent(query)}`
     ),
-  //Obtener canciones de un artista por spotifyid y countryId
-  getSongsArtist: (
-    spotifyid: string,
+  //Obtener lista top canciones por medio del SpotifyId del artista y countryId
+  getSongsArtistBySpotifyId: (
+    spotifyId: string,
     countryId: number
-  ): Promise<ApiResponse<SongsArtist>> =>
-    api.get<SongsArtist>(`report/getSongsArtist/${spotifyid}/${countryId}`),
+  ): Promise<ApiResponse<SongsArtistBySpotifyId[]>> =>
+    api.get<SongsArtistBySpotifyId[]>(
+      `report/getSongsArtist/${spotifyId}/${countryId}`
+    ),
 };
 
 // Ejemplo de uso:

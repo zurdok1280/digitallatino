@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Box, FormControl, Select, MenuItem, Typography, CircularProgress, Chip, Stack, Paper, Tooltip } from "@mui/material";
+import { Box, Typography, CircularProgress, Stack, Paper, Tooltip } from "@mui/material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import { CityDataForSong, Country, digitalLatinoApi } from "@/lib/api";
+import { CityDataForSong, digitalLatinoApi } from "@/lib/api";
 import WorldMap from "./worldMap";
 import BoxElementsDisplaySpins from "./boxElementsDisplaySpins";
 import BoxElementsDisplayAudience from "./boxElemensDisplayAudience";
@@ -15,7 +15,7 @@ export interface ElementItem {
 export interface BoxElementsDisplayProps {
     label: string;
     csSong: string;
-    selectedCountryId: string;
+    selectedCountryId?: string; // Hacerlo opcional con valor por defecto
     onDataLoaded?: (data: ElementItem[]) => void;
 }
 
@@ -39,7 +39,6 @@ const CityChip = ({ city, rank }: { city: ElementItem, rank: number }) => {
     const truncatedName = truncateText(city.name, 30);
 
     return (
-
         <Tooltip
             title={city.name}
             arrow
@@ -117,23 +116,22 @@ const CityChip = ({ city, rank }: { city: ElementItem, rank: number }) => {
                 </Typography>
             </Paper>
         </Tooltip>
-
     );
 };
 
-export default function BoxElementsDisplay({ label, csSong, selectedCountryId, onDataLoaded }: BoxElementsDisplayProps) {
+export default function BoxElementsDisplay({
+    label,
+    csSong,
+    selectedCountryId = "0", // Valor por defecto "0"
+    onDataLoaded
+}: BoxElementsDisplayProps) {
     const [elements, setElements] = useState<ElementItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedCountry, setSelectedCountry] = useState<string>(
-        countries.length > 0 ? countries[0].id.toString() : ''
-    );
     const [citiesData, setCitiesData] = useState<CityDataForSong[]>([]);
-    const [activeTab, setActiveTab] = useState(0);
 
     // Función para obtener datos de ciudades
     const fetchCityData = async (countryId: string) => {
-
         if (!csSong || !countryId) {
             console.log('❌ Faltan datos: csSong o countryId');
             setLoading(false);
@@ -145,7 +143,10 @@ export default function BoxElementsDisplay({ label, csSong, selectedCountryId, o
             setError(null);
 
             // Llamar a la API para obtener datos de ciudades
-            const response = await digitalLatinoApi.getCityData(parseInt(csSong), parseInt(countryId));
+            const response = await digitalLatinoApi.getCityData(
+                parseInt(csSong),
+                parseInt(countryId)
+            );
 
             // Guardar datos completos para el mapa
             setCitiesData(response.data);
@@ -173,39 +174,18 @@ export default function BoxElementsDisplay({ label, csSong, selectedCountryId, o
 
     // Efecto para cargar datos cuando cambia el país seleccionado o la canción
     useEffect(() => {
-        console.log('🔄 useEffect triggered:', { selectedCountry, csSong });
-        if (selectedCountry) {
-            fetchCityData(selectedCountry);
+        console.log('🔄 useEffect triggered:', { selectedCountryId, csSong });
+        if (selectedCountryId) {
+            fetchCityData(selectedCountryId);
         } else {
-            console.log('❌ selectedCountry no está definido');
+            console.log('❌ selectedCountryId no está definido');
             setLoading(false);
         }
-    }, [selectedCountry, csSong]);
-
-    // useEffect para seleccionar el primer país por defecto cuando se cargan los países
-    useEffect(() => {
-        // Siempre establecer un país por defecto, incluso si no hay países en la lista
-        if (countries.length > 0) {
-            const defaultCountry = '0'; //= countries[0].id.toString()
-            setSelectedCountry(defaultCountry);
-        } else {
-            // Usar país 0 por defecto si no hay países en la lista
-            setSelectedCountry('0');
-        }
-    }, [countries]);
-
-    // Resto del código...
-
-    const handleCountryChange = (event: any) => {
-        setSelectedCountry(event.target.value);
-    };
-
-
+    }, [selectedCountryId, csSong]);
 
     // Dividir elementos en dos filas 
     const firstRow = elements.slice(0, 4);
     const secondRow = elements.slice(4, 8);
-
 
     if (loading) {
         return (
@@ -274,15 +254,6 @@ export default function BoxElementsDisplay({ label, csSong, selectedCountryId, o
 
                 <WorldMap cities={citiesData} loading={loading} />
 
-                {selectedCountry && selectedCountry !== '0' && (
-                    <BoxElementsDisplaySpins
-                        csSong={Number(csSong)}
-                        countryId={parseInt(selectedCountry)}
-                        title="Top Mercados en Radio"
-                        label="mercados"
-                        type="markets"
-                    />
-                )}
                 {/* Header */}
                 <Box sx={{
                     border: "1px solid #E0E0E0",
@@ -369,14 +340,6 @@ export default function BoxElementsDisplay({ label, csSong, selectedCountryId, o
                         )}
                     </Box>
                 </Box>
-
-                {/* Estadisticas de Radio */}
-                <BoxElementsDisplayAudience
-                    csSong={Number(csSong)}
-                    title="Top Países en Radio"
-                    label="países"
-                    type="countries"
-                />
             </Box>
         </>
     );

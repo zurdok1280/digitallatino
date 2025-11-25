@@ -7,6 +7,8 @@ import BoxDisplayInfoPlatform from "./buttonInfoSong-components/boxDisplayInfoPl
 import BoxPlaylistsDisplay from "./buttonInfoSong-components/boxPlaylistsDisplay";
 import BoxCampaign from "./buttonInfoSong-components/boxCampaign";
 import BoxTikTokInfluencers from "./buttonInfoSong-components/boxTikTokInfluencers";
+import BoxElementsDisplaySpins from "./buttonInfoSong-components/boxElementsDisplaySpins";
+import BoxElementsDisplayAudience from "./buttonInfoSong-components/boxElemensDisplayAudience";
 
 
 export interface ButtonInfoSongProps {
@@ -47,6 +49,7 @@ export function ExpandRow({
     };
     console.log('🔵 ExpandRow rendering with:', {
         csSong: row.cs_song,
+        selectedCountry,
         selectedFormat,
         hasRow: !!row
     });
@@ -74,7 +77,7 @@ export function ExpandRow({
             <BoxElementsDisplay
                 label={"Top Ciudades Digital"}
                 csSong={row.cs_song.toString()}
-                countries={countries} // Pasar la lista de países del componente padre
+                selectedCountryId={selectedCountry} // Pasar la lista de países del componente padre
                 onDataLoaded={handleCityDataLoaded}
             />
 
@@ -90,6 +93,23 @@ export function ExpandRow({
 
             {/* TikTok Influencers */}
             <BoxTikTokInfluencers csSong={row.cs_song} />
+
+            {/* Top Mercados en Radio */}
+            <BoxElementsDisplaySpins
+                csSong={row.cs_song}
+                countryId={selectedCountry ? parseInt(selectedCountry) : undefined}
+                title="Top Mercados en Radio"
+                label="mercados"
+                type="markets"
+            />
+
+            {/* Estadísticas de Radio */}
+            <BoxElementsDisplayAudience
+                csSong={row.cs_song}
+                title="Top Países en Radio"
+                label="países"
+                type="countries"
+            />
         </div>
     );
 }
