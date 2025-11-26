@@ -53,14 +53,13 @@ export function ArtistSongs({ spotifyId, artistName, isOpen, onClose }: ArtistSo
     const fetchArtistSongs = async () => {
         setLoading(true);
         try {
-            console.log('🎵 Obteniendo canciones del artista:', spotifyId);
-            console.log('🌍 Country ID:', 0);
-
             const response = await digitalLatinoApi.getSongsArtistBySpotifyId(spotifyId, 0);
-            console.log('✅ Respuesta completa de canciones del artista:', response);
-            console.log('📊 Datos de canciones:', response.data);
 
-            const songsData = response.data || [];
+            const songsData = (response.data || []).map(song => ({
+                ...song,
+                songDetails: undefined
+            }));
+
             setSongs(songsData);
 
             if (songsData.length === 0) {
@@ -69,6 +68,7 @@ export function ArtistSongs({ spotifyId, artistName, isOpen, onClose }: ArtistSo
                     description: `No se encontraron canciones para ${artistName}`,
                 });
             } else {
+                // Cargar detalles adicionales para cada canción sin perder los datos originales
                 songsData.forEach((song, index) => {
                     if (song.cs_song) {
                         setTimeout(() => {
@@ -93,55 +93,57 @@ export function ArtistSongs({ spotifyId, artistName, isOpen, onClose }: ArtistSo
         setLoadingDetails(prev => ({ ...prev, [csSong]: true }));
 
         try {
-            console.log(`🔍 Obteniendo detalles para canción ${index + 1} con cs_song:`, csSong);
-
             const response = await digitalLatinoApi.getSongById(csSong);
-            console.log(`✅ Detalles de la canción ${index + 1}:`, response.data);
-
             setSongs(prev => prev.map(song =>
                 song.cs_song === csSong
-                    ? { ...song, songDetails: response.data }
+                    ? {
+                        ...song,
+                        songDetails: response.data
+                    }
                     : song
             ));
         } catch (error) {
-            console.error(`❌ Error obteniendo detalles para canción ${csSong}:`, error);
+            console.error(`❌ Error obteniendo detalles adicionales para canción ${csSong}:`, error);
         } finally {
             setLoadingDetails(prev => ({ ...prev, [csSong]: false }));
         }
     };
 
     const handleSongSelect = (song: SongWithDetails) => {
+
         if (song.spotifyid) {
             const campaignUrl = `/campaign?spotifyId=${song.spotifyid}`;
             window.open(campaignUrl, '_blank');
         } else {
             toast({
                 title: "Información no disponible",
-                description: "No se puede abrir la campaña para esta canción",
+                description: "No se puede abrir la campaña para esta canción - Spotify ID no disponible",
                 variant: "destructive"
             });
         }
     };
-
     const handleDetailsClick = async (song: SongWithDetails) => {
+
         if (!user) {
             setShowLoginDialog(true);
             return;
         }
 
+        if (!song.spotifyid) {
+            toast({
+                title: "Información no disponible",
+                description: "No se puede cargar los detalles - Spotify ID no disponible",
+                variant: "destructive"
+            });
+            return;
+        }
+
         setLoadingSongDetails(true);
         try {
-            console.log('🔍 Llamando a getSongBySpotifyId con spotify_id:', song.spotifyid);
-
-            // Obtener el csSong usando el spotifyId
             const csSongResponse = await digitalLatinoApi.getSongBySpotifyId(song.spotifyid);
-            console.log('📦 Respuesta de getSongBySpotifyId:', csSongResponse);
 
             if (csSongResponse.data && csSongResponse.data.cs_song) {
                 const csSong = csSongResponse.data.cs_song;
-                console.log('✅ cs_song encontrado:', csSong);
-
-                // Crear objeto Song con valores por defecto
                 const defaultSongData: Song = {
                     cs_song: csSong,
                     spotify_streams_total: 0,
@@ -167,7 +169,7 @@ export function ArtistSongs({ spotifyId, artistName, isOpen, onClose }: ArtistSo
                     crg: '',
                     avatar: song.songDetails?.avatar || song.image_url || '',
                     url: song.spotifyid ? `https://open.spotify.com/track/${song.spotifyid}` : '',
-                    spotifyid: song.spotifyid || ''
+                    spotifyid: song.spotifyid
                 };
 
                 console.log('🎵 Datos para ChartSongDetails:', defaultSongData);
@@ -205,6 +207,7 @@ export function ArtistSongs({ spotifyId, artistName, isOpen, onClose }: ArtistSo
     };
 
     const getSongName = (song: SongWithDetails, index: number) => {
+        // Prioridad: songDetails.song > songDetails.title > placeholder
         if (song.songDetails?.song) return song.songDetails.song;
         if (song.songDetails?.title) return song.songDetails.title;
         return `Canción ${index + 1}`;
@@ -346,7 +349,7 @@ export function ArtistSongs({ spotifyId, artistName, isOpen, onClose }: ArtistSo
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"
-                                                                disabled={loadingSongDetails}
+                                                                disabled={loadingSongDetails || !song.spotifyid}
                                                                 className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1"
                                                                 onClick={() => handleDetailsClick(song)}
                                                             >
