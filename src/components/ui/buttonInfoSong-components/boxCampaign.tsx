@@ -6,9 +6,11 @@ import RecommendationsModal from './Recommendations';
 interface BoxCampaignProps {
     spotifyId?: string;
     csSong?: number;
+    songName?: string;
+    artistName?: string;
 }
 
-const BoxCampaign: React.FC<BoxCampaignProps> = ({ spotifyId, csSong }) => {
+const BoxCampaign: React.FC<BoxCampaignProps> = ({ spotifyId, csSong, songName, artistName }) => {
     const [isRecommendationsOpen, setIsRecommendationsOpen] = useState(false);
 
     const handleOpenRecommendations = () => {
@@ -18,38 +20,38 @@ const BoxCampaign: React.FC<BoxCampaignProps> = ({ spotifyId, csSong }) => {
     return (
         <>
             <Paper
-                elevation={1}
+                elevation={3}
                 sx={{
-                    borderRadius: "12px",
+                    borderRadius: "16px",
                     p: 2.5,
-                    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
                     backgroundColor: "white",
-                    mb: 3,
                     background: 'linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%)',
-                    borderColor: '#6C63FF',
-                    borderWidth: '1px',
-                    border: "1px solid #E0E0E0",
-                    width: '100%'
+                    border: "2px solid #6C63FF",
+                    width: '100%',
+                    backdropFilter: 'blur(10px)',
+                    position: 'relative',
+                    zIndex: 1000,
                 }}
             >
                 <Box
                     sx={{
                         display: "flex",
-                        flexDirection: "column",
-                        justifyContent: "center",
+                        flexDirection: { xs: "column", sm: "row" },
+                        justifyContent: "space-between",
                         alignItems: "center",
                         gap: 2,
-                        textAlign: 'center',
+                        textAlign: { xs: 'center', sm: 'left' },
                     }}
                 >
                     {/* Texto */}
-                    <Box sx={{ maxWidth: '800px' }}>
+                    <Box sx={{ maxWidth: '800px', flex: 1 }}>
                         <Typography
                             variant="h6"
                             sx={{
                                 color: "#1a1a1a",
                                 fontWeight: "bold",
-                                fontSize: '1.2rem',
+                                fontSize: { xs: '1rem', sm: '1.2rem' },
                                 lineHeight: 1.4,
                                 mb: 1,
                             }}
@@ -60,40 +62,39 @@ const BoxCampaign: React.FC<BoxCampaignProps> = ({ spotifyId, csSong }) => {
                             variant="body2"
                             sx={{
                                 color: "#666",
-                                fontSize: '0.9rem',
+                                fontSize: { xs: '0.8rem', sm: '0.9rem' },
                             }}
                         >
-                            Descubre estrategias personalizadas para impulsar tu música
+                            Descubre estrategias personalizadas para impulsar {songName ? `"${songName}"` : 'tu música'}
                         </Typography>
                     </Box>
 
-                    {/* Solo botón de Recomendaciones */}
-                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
-                        <Button
-                            variant="contained"
-                            onClick={handleOpenRecommendations}
-                            sx={{
-                                backgroundColor: "#6C63FF",
-                                color: "white",
-                                borderRadius: "10px",
-                                px: 4,
-                                py: 1.5,
-                                fontSize: "1rem",
-                                fontWeight: 600,
-                                textTransform: 'none',
-                                minWidth: '220px',
-                                boxShadow: '0 2px 8px rgba(108, 99, 255, 0.3)',
-                                transition: 'all 0.3s ease',
-                                '&:hover': {
-                                    backgroundColor: "#5a52d5",
-                                    transform: 'translateY(-2px)',
-                                    boxShadow: '0 6px 16px rgba(108, 99, 255, 0.4)',
-                                },
-                            }}
-                        >
-                            Ver Recomendaciones
-                        </Button>
-                    </Box>
+                    {/* Botón de Recomendaciones */}
+                    <Button
+                        variant="contained"
+                        onClick={handleOpenRecommendations}
+                        sx={{
+                            backgroundColor: "#6C63FF",
+                            color: "white",
+                            borderRadius: "12px",
+                            px: 4,
+                            py: 1.5,
+                            fontSize: { xs: "0.9rem", sm: "1rem" },
+                            fontWeight: 600,
+                            textTransform: 'none',
+                            minWidth: { xs: '180px', sm: '220px' },
+                            boxShadow: '0 4px 16px rgba(108, 99, 255, 0.4)',
+                            transition: 'all 0.3s ease',
+                            flexShrink: 0,
+                            '&:hover': {
+                                backgroundColor: "#5a52d5",
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 24px rgba(108, 99, 255, 0.5)',
+                            },
+                        }}
+                    >
+                        Ver Recomendaciones
+                    </Button>
                 </Box>
             </Paper>
 

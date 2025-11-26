@@ -131,15 +131,6 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                         <p className="text-sm text-slate-600 mb-2">{track.artist_name}</p>
                     </div>
                     <div className="flex flex-col gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
-                            onClick={handleButtonClick}
-                        >
-                            Ver Campaña
-                        </Button>
-
                         {user ? (
                             <Button
                                 variant="outline"
@@ -162,6 +153,14 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                                 Detalles
                             </Button>
                         )}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800"
+                            onClick={handleButtonClick}
+                        >
+                            Ver Campaña
+                        </Button>
                     </div>
                 </div>
             </Card>

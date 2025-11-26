@@ -10,7 +10,6 @@ import BoxTikTokInfluencers from "./buttonInfoSong-components/boxTikTokInfluence
 import BoxElementsDisplaySpins from "./buttonInfoSong-components/boxElementsDisplaySpins";
 import BoxElementsDisplayAudience from "./buttonInfoSong-components/boxElemensDisplayAudience";
 
-
 export interface ButtonInfoSongProps {
     index: number;
     row: Song | TopTrendingPlatforms;
@@ -61,55 +60,57 @@ export function ExpandRow({
         }
     }, [isExpanded]);
 
-
-
     return (
-        <div className="border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
-            {/* Información campaña */}
-            <BoxCampaign
-                spotifyId={row.spotifyid}
-                csSong={row.cs_song}
-                songName={row.song}
-                artistName={row.artists}
-            />
+        <div className="relative border-t border-white/30 bg-background/50 rounded-lg animate-fade-in">
+            {/* Contenedor principal con scroll */}
+            <div className="max-h-96 overflow-y-auto p-4 pb-20">
+                {/* Top de ciudades */}
+                <BoxElementsDisplay
+                    label={"Top Ciudades Digital"}
+                    csSong={row.cs_song.toString()}
+                    selectedCountryId={selectedCountry}
+                    onDataLoaded={handleCityDataLoaded}
+                />
 
-            {/* Top de ciudades */}
-            <BoxElementsDisplay
-                label={"Top Ciudades Digital"}
-                csSong={row.cs_song.toString()}
-                selectedCountryId={selectedCountry} // Pasar la lista de países del componente padre
-                onDataLoaded={handleCityDataLoaded}
-            />
+                {/* Estadísticas de Plataformas */}
+                <BoxDisplayInfoPlatform
+                    csSong={row.cs_song}
+                    formatId={selectedFormat ? parseInt(selectedFormat) : 0}
+                />
 
-            {/* Estadísticas de Plataformas */}
-            <BoxDisplayInfoPlatform
-                csSong={row.cs_song}
-                formatId={selectedFormat ? parseInt(selectedFormat) : 0}
+                {/* Playlist Info */}
+                <BoxPlaylistsDisplay csSong={row.cs_song} />
 
-            />
+                {/* TikTok Influencers */}
+                <BoxTikTokInfluencers csSong={row.cs_song} />
 
-            {/* Playlist Info */}
-            <BoxPlaylistsDisplay csSong={row.cs_song} />
+                {/* Top Mercados en Radio */}
+                <BoxElementsDisplaySpins
+                    csSong={row.cs_song}
+                    countryId={selectedCountry ? parseInt(selectedCountry) : undefined}
+                    title="Top Mercados en Radio"
+                    label="mercados"
+                    type="markets"
+                />
 
-            {/* TikTok Influencers */}
-            <BoxTikTokInfluencers csSong={row.cs_song} />
+                {/* Estadísticas de Radio */}
+                <BoxElementsDisplayAudience
+                    csSong={row.cs_song}
+                    title="Top Países en Radio"
+                    label="países"
+                    type="countries"
+                />
+            </div>
 
-            {/* Top Mercados en Radio */}
-            <BoxElementsDisplaySpins
-                csSong={row.cs_song}
-                countryId={selectedCountry ? parseInt(selectedCountry) : undefined}
-                title="Top Mercados en Radio"
-                label="mercados"
-                type="markets"
-            />
-
-            {/* Estadísticas de Radio */}
-            <BoxElementsDisplayAudience
-                csSong={row.cs_song}
-                title="Top Países en Radio"
-                label="países"
-                type="countries"
-            />
+            {/* BoxCampaign sticky en la parte inferior */}
+            <div className="sticky bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/80 to-transparent backdrop-blur-sm z-10 mt-4 border-t border-white/20">
+                <BoxCampaign
+                    spotifyId={row.spotifyid}
+                    csSong={row.cs_song}
+                    songName={row.song}
+                    artistName={row.artists}
+                />
+            </div>
         </div>
     );
 }
