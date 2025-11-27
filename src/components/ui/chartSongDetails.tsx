@@ -1,6 +1,6 @@
 import BoxCampaign from './buttonInfoSong-components/boxCampaign';
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Star, X } from 'lucide-react';
+import { Play, Pause, Star, X, ChevronDown, Search } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Song, Country, CityDataForSong, digitalLatinoApi, SongBasicInfo } from '@/lib/api';
 import BoxElementsDisplay from './buttonInfoSong-components/boxElementsDisplay';
@@ -8,6 +8,8 @@ import BoxDisplayInfoPlatform from './buttonInfoSong-components/boxDisplayInfoPl
 import BoxPlaylistsDisplay from './buttonInfoSong-components/boxPlaylistsDisplay';
 import BoxTikTokInfluencers from './buttonInfoSong-components/boxTikTokInfluencers';
 import Portal from './Portal';
+import BoxElementsDisplaySpins from './buttonInfoSong-components/boxElementsDisplaySpins';
+import BoxElementsDisplayAudience from './buttonInfoSong-components/boxElemensDisplayAudience';
 
 interface ChartSongDetailsProps {
     song: Song;
@@ -22,9 +24,9 @@ interface ChartSongDetailsProps {
 
 const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
     song,
-    selectedCountry = "0",
+    selectedCountry: initialSelectedCountry = "0",
     selectedFormat = "0",
-    countries = [],
+    countries: initialCountries = [],
     onPlayPreview,
     currentlyPlaying,
     isOpen,
@@ -34,6 +36,11 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
     const [loadingCityData, setLoadingCityData] = useState(false);
     const [infoSong, setInfoSong] = useState<SongBasicInfo | null>(null);
     const [loadingInfo, setLoadingInfo] = useState(false);
+    const [countries, setCountries] = useState<Country[]>(initialCountries);
+    const [selectedCountry, setSelectedCountry] = useState<string>("1");
+    const [loadingCountries, setLoadingCountries] = useState(false);
+    const [openDropdown, setOpenDropdown] = useState(false);
+    const [dropdownSearch, setDropdownSearch] = useState("");
 
     // Bloquear scroll del body cuando el modal está abierto
     useEffect(() => {
@@ -48,23 +55,35 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         };
     }, [isOpen]);
 
+    const loadCountries = async () => {
+        if (initialCountries.length > 0) {
+            setCountries(initialCountries);
+            return;
+        }
+
+        try {
+            setLoadingCountries(true);
+            const response = await digitalLatinoApi.getCountries();
+            setCountries(response.data);
+        } catch (error) {
+            console.error('❌ Error cargando países:', error);
+        } finally {
+            setLoadingCountries(false);
+        }
+    };
+
     // Cargar datos de ciudades directamente
     const loadCityData = async () => {
         if (!song.cs_song) return;
 
         setLoadingCityData(true);
         try {
-            console.log('🔍 Cargando datos de ciudades para cs_song:', song.cs_song);
-
-            // Usar countryId = 0 por defecto ya que todos los paises traen todas las ciudades
-            const countryId = 0;
+            const countryId = parseInt(selectedCountry);
 
             const response = await digitalLatinoApi.getCityData(song.cs_song, countryId);
-            console.log('📊 Respuesta de getCityData:', response);
 
             if (response.data) {
                 setCityData(response.data);
-                console.log('✅ Datos de ciudades cargados directamente:', response.data.length, 'ciudades');
             }
         } catch (error) {
             console.error('❌ Error cargando datos de ciudades:', error);
@@ -81,7 +100,8 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         try {
             console.log('🔍 Cargando información adicional de la canción:', song.cs_song);
 
-            const countryId = 1; // Para todos los países
+            // Usar el countryId seleccionado, incluso si es 0
+            const countryId = parseInt(selectedCountry);
 
             const response = await digitalLatinoApi.getRankSongByIdCountry(song.cs_song, countryId);
             console.log('📊 Respuesta de getRankSongByIdCountry:', response);
@@ -96,13 +116,21 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
             setLoadingInfo(false);
         }
     };
-    // Llamar esta función cuando el componente se monte o cuando cambie el cs_song
+
+    // Cargar países cuando se abre el modal
+    useEffect(() => {
+        if (isOpen) {
+            loadCountries();
+        }
+    }, [isOpen]);
+
+    // Cargar datos cuando cambia el país seleccionado o se abre el modal
     useEffect(() => {
         if (isOpen && song.cs_song) {
             loadCityData();
             loadInfoSong();
         }
-    }, [isOpen, song.cs_song]);
+    }, [isOpen, song.cs_song, selectedCountry]);
 
     const handlePlayPreview = (rk: number, audioUrl: string) => {
         if (onPlayPreview) {
@@ -129,6 +157,41 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         }
     };
 
+    const handleCountrySelect = (countryId: string) => {
+        setSelectedCountry(countryId);
+        setOpenDropdown(false);
+        setDropdownSearch("");
+    };
+
+    // Filtrar países basado en la búsqueda
+    const filteredCountries = dropdownSearch.trim()
+        ? countries.filter(country =>
+            country.country_name?.toLowerCase().includes(dropdownSearch.toLowerCase()) ||
+            country.country?.toLowerCase().includes(dropdownSearch.toLowerCase()) ||
+            country.description?.toLowerCase().includes(dropdownSearch.toLowerCase())
+        )
+        : countries;
+
+    // Obtener el nombre del país seleccionado
+    const getSelectedCountryName = () => {
+        if (selectedCountry === "0") return "🌎 Todos los países";
+        const country = countries.find(c => c.id.toString() === selectedCountry);
+        return country ? `${country.country_name} (${country.country})` : "Seleccionar país";
+    };
+
+    // Cerrar dropdown con Escape
+    useEffect(() => {
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && openDropdown) {
+                setOpenDropdown(false);
+                setDropdownSearch("");
+            }
+        };
+
+        document.addEventListener('keydown', handleEscape);
+        return () => document.removeEventListener('keydown', handleEscape);
+    }, [openDropdown]);
+
     if (!isOpen) return null;
 
     return (
@@ -146,9 +209,9 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                     >
                         <X className="w-6 h-6" />
                     </button>
+
                     {/* Header fijo */}
                     <div className="flex-shrink-0 bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white relative">
-
                         <div className="grid grid-cols-12 items-center gap-4">
                             {/* Rank */}
                             <div className="col-span-1 flex items-center justify-center">
@@ -163,7 +226,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                             </div>
 
                             {/* Track Info */}
-                            <div className="col-span-8 flex items-center gap-4">
+                            <div className="col-span-7 flex items-center gap-4">
                                 <div className="relative">
                                     <Avatar className="relative h-20 w-20 rounded-xl shadow-lg border-2 border-white/30">
                                         <AvatarImage
@@ -210,17 +273,85 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                     <h1 className="text-2xl font-bold text-white leading-tight mb-2">
                                         {song.song || 'Canción no disponible'}
                                     </h1>
-                                    <p className="text-lg font-semibold text-white/90 mb-1">
-                                        {song.artists || 'Artista no disponible'}
-                                    </p>
-                                    <p className="text-base text-white/80 mb-3">
-                                        {song.label || 'Label no disponible'}
-                                    </p>
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                                        <p className="text-lg font-semibold text-white/90">
+                                            {song.artists || 'Artista no disponible'}
+                                        </p>
+                                        {/*
+                                        <p className="text-base text-white/80">
+                                            {song.label || 'Sello no disponible'}
+                                        </p>*/}
+                                    </div>
+
+                                    {/* Dropdown de países */}
+                                    <div className="relative">
+                                        <button
+                                            type="button"
+                                            onClick={() => setOpenDropdown(!openDropdown)}
+                                            className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2 text-sm font-medium text-white hover:bg-white/30 transition-all duration-200 flex items-center gap-2 min-w-[200px] text-left relative z-50"
+                                            disabled={loadingCountries}
+                                        >
+                                            <span className="flex-1 truncate">
+                                                {loadingCountries ? "Cargando países..." : getSelectedCountryName()}
+                                            </span>
+                                            <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown ? 'rotate-180' : ''}`} />
+                                        </button>
+
+                                        {openDropdown && (
+                                            <div className="absolute  z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-white/30 rounded-xl shadow-2xl max-h-60 overflow-hidden">
+                                                <div className="p-2 border-b border-white/20">
+                                                    <div className="relative">
+                                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Buscar país..."
+                                                            className="w-full pl-10 pr-4 py-2 bg-white/80 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                                            value={dropdownSearch}
+                                                            onChange={(e) => setDropdownSearch(e.target.value)}
+                                                            autoFocus
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div className="max-h-48 overflow-y-auto">
+                                                    {/* Opción "Todos los países" */}
+                                                    <button
+                                                        onClick={() => handleCountrySelect("0")}
+                                                        className={`w-full px-4 py-3 text-left text-sm hover:bg-purple-50 transition-colors ${selectedCountry === "0"
+                                                            ? "bg-purple-100 text-purple-700 font-semibold"
+                                                            : "text-gray-700"
+                                                            }`}
+                                                    >
+                                                        🌎 Todos los países
+                                                    </button>
+
+                                                    {filteredCountries.map((country) => (
+                                                        <button
+                                                            key={country.id}
+                                                            onClick={() => handleCountrySelect(country.id.toString())}
+                                                            className={`w-full px-4 py-3 text-left text-sm hover:bg-purple-50 transition-colors ${selectedCountry === country.id.toString()
+                                                                ? "bg-purple-100 text-purple-700 font-semibold"
+                                                                : "text-gray-700"
+                                                                }`}
+                                                        >
+                                                            {country.country_name} ({country.country})
+                                                        </button>
+                                                    ))}
+
+                                                    {filteredCountries.length === 0 && (
+                                                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                                                            No se encontraron países
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Digital Score */}
-                            <div className="col-span-3 text-right">
+                            <div className="col-span-4 text-right">
                                 <div className="relative bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-4 shadow-lg">
                                     <div className="flex items-center justify-between mb-2">
                                         <div className="flex items-center gap-2">
@@ -232,7 +363,10 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                         <Star className="w-4 h-4 text-yellow-300 fill-current" />
                                     </div>
                                     <div className="text-3xl font-black text-white">
-                                        {loadingInfo ? '...' : (infoSong?.score || song.score || 0)}
+                                        {loadingInfo ? '...' : (infoSong?.score)}
+                                    </div>
+                                    <div className="text-xs text-white/80 mt-1">
+                                        País seleccionado: {getSelectedCountryName()}
                                     </div>
                                 </div>
                             </div>
@@ -246,15 +380,15 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                             <BoxCampaign
                                 spotifyId={song.spotifyid}
                                 csSong={song.cs_song}
+                                songName={song.song}
+                                artistName={song.artists}
                             />
 
                             {/* Top de ciudades */}
-                            { }
                             <BoxElementsDisplay
                                 label={"Top Cities Digital"}
                                 csSong={song.cs_song.toString()}
-                                countries={countries}
-
+                                selectedCountryId={selectedCountry}
                             />
 
                             {/* Estadísticas de Plataformas */}
@@ -268,6 +402,25 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
 
                             {/* TikTok Influencers */}
                             <BoxTikTokInfluencers csSong={song.cs_song} />
+
+                            {/* Top Mercados en Radio */}
+                            {selectedCountry !== "0" && (
+                                <BoxElementsDisplaySpins
+                                    csSong={song.cs_song}
+                                    countryId={parseInt(selectedCountry)}
+                                    title="Top Mercados en Radio"
+                                    label="mercados"
+                                    type="markets"
+                                />
+                            )}
+
+                            {/* Estadísticas de Radio */}
+                            <BoxElementsDisplayAudience
+                                csSong={song.cs_song}
+                                title="Top Países en Radio"
+                                label="países"
+                                type="countries"
+                            />
                         </div>
                     </div>
                 </div>
