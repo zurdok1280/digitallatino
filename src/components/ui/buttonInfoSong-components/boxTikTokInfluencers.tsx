@@ -97,7 +97,7 @@ export default function BoxTikTokInfluencers({ csSong }: BoxTikTokInfluencersPro
                             letterSpacing: "0.05em",
                         }}
                     >
-                        Videos used my song
+                        Videos con mi canción
                     </Typography>
                 </Box>
                 <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
@@ -183,7 +183,7 @@ export default function BoxTikTokInfluencers({ csSong }: BoxTikTokInfluencersPro
                         letterSpacing: "0.05em",
                     }}
                 >
-                    Videos used my song
+                    Videos con mi canción
                 </Typography>
             </Box>
 
@@ -275,7 +275,7 @@ export default function BoxTikTokInfluencers({ csSong }: BoxTikTokInfluencersPro
                                             fontWeight: 'bold',
                                         }}
                                     >
-                                        {formatNumber(tiktokUse.tiktok_user_followers)} followers
+                                        {formatNumber(tiktokUse.tiktok_user_followers)} Seguidores
                                     </Typography>
                                 </Box>
 
@@ -335,7 +335,7 @@ export default function BoxTikTokInfluencers({ csSong }: BoxTikTokInfluencersPro
                                                 fontSize: '0.9rem',
                                             }}
                                         >
-                                            Views
+                                            Visualizaciones
                                         </Typography>
                                     </Box>
                                     <Typography
@@ -437,7 +437,7 @@ export default function BoxTikTokInfluencers({ csSong }: BoxTikTokInfluencersPro
                                                 fontSize: '0.9rem',
                                             }}
                                         >
-                                            Comments
+                                            Comentarios
                                         </Typography>
                                     </Box>
                                     <Typography
@@ -488,7 +488,7 @@ export default function BoxTikTokInfluencers({ csSong }: BoxTikTokInfluencersPro
                                                 fontSize: '0.9rem',
                                             }}
                                         >
-                                            Shares
+                                            Compartidos
                                         </Typography>
                                     </Box>
                                     <Typography

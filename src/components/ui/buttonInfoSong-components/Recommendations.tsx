@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Music, Play, Instagram, Facebook } from 'lucide-react';
-import { TopTrendingArtist } from '@/lib/api';
-import { digitalLatinoApi } from '@/lib/api';
-
-// Importar los mismos íconos que usas en boxDisplayInfoPlatform
+import { X, Music2, Instagram, Facebook, MessageCircle } from 'lucide-react';
+import { TopTrendingArtist, digitalLatinoApi, idSongs } from '@/lib/api';
 import spotifyIcon from '/src/assets/covers/icons/spotify-icon.png';
 import tiktokIcon from '/src/assets/covers/icons/tiktok-icon.png';
 
@@ -11,62 +8,113 @@ interface RecommendationsModalProps {
     csSong: number;
     isOpen: boolean;
     onClose: () => void;
-    spotifyId?: string;
+    spotifyId?: string; // Este puede venir vacío o ser el de la DB
 }
+
+interface CampaignCardProps {
+    icon?: React.ElementType;
+    iconImage?: string;
+    platform: string;
+    benefit: string;
+    metric: string;
+    platformColor: string;
+    iconBg: string;
+}
+
+const CampaignCard: React.FC<CampaignCardProps> = ({
+    icon: Icon,
+    iconImage,
+    platform,
+    benefit,
+    metric,
+    platformColor,
+    iconBg,
+}) => {
+    return (
+        <div className="group relative overflow-hidden rounded-3xl bg-card p-6 shadow-sm transition-all hover:shadow-lg">
+            <div className="flex flex-col items-center text-center">
+                <div className={`mb-4 rounded-2xl ${iconBg} p-4 transition-transform group-hover:scale-110`}>
+                    {iconImage ? (
+                        <img src={iconImage} alt={platform} className="h-7 w-7" />
+                    ) : Icon ? (
+                        <Icon className={`h-7 w-7 ${platformColor}`} />
+                    ) : null}
+                </div>
+                <h3 className="mb-1.5 text-lg font-bold text-foreground">{platform}</h3>
+                <p className="mb-4 text-xs text-muted-foreground">{benefit}</p>
+                <p className={`text-2xl font-bold ${platformColor}`}>{metric}</p>
+            </div>
+        </div>
+    );
+};
 
 const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
     csSong,
     isOpen,
     onClose,
-    spotifyId
+    spotifyId // Este es opcional y puede ser el de la DB
 }) => {
     const [recommendations, setRecommendations] = useState<TopTrendingArtist | null>(null);
+    const [realSpotifyId, setRealSpotifyId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         if (isOpen) {
-            loadRecommendations();
-            // Bloquear scroll del body cuando el modal está abierto
+            loadRecommendationsAndSpotifyId();
             document.body.style.overflow = 'hidden';
         } else {
-            // Restaurar scroll del body cuando el modal se cierra
             document.body.style.overflow = 'unset';
         }
 
-        // Cleanup: restaurar scroll cuando el componente se desmonta
         return () => {
             document.body.style.overflow = 'unset';
         };
     }, [isOpen, csSong]);
 
-    const loadRecommendations = async () => {
+    const loadRecommendationsAndSpotifyId = async () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await digitalLatinoApi.getArtistRecommendations(csSong);
-            if (response.data && response.data.length > 0) {
-                setRecommendations(response.data[0]);
+            // Cargar recomendaciones
+            const recommendationsResponse = await digitalLatinoApi.getArtistRecommendations(csSong);
+            if (recommendationsResponse.data && recommendationsResponse.data.length > 0) {
+                setRecommendations(recommendationsResponse.data[0]);
             }
+
+            // Obtener el spotifyId real usando el nuevo endpoin
+            const spotifyIdResponse = await digitalLatinoApi.getIdSongByCsSong(csSong.toString());
+            setRealSpotifyId(spotifyIdResponse.data.spotify_id);
+
+            if (spotifyIdResponse.data && spotifyIdResponse.data.spotify_id) {
+                //console.log('✅ SpotifyId real obtenido:', spotifyIdResponse.data.spotify_id);
+                setRealSpotifyId(spotifyIdResponse.data.spotify_id);
+            } else {
+                //console.log('❌ No se pudo obtener spotifyId real, usando el de la DB:', spotifyId);
+                setRealSpotifyId(spotifyId || null);
+            }
+
         } catch (err) {
+            console.error('❌ Error cargando datos:', err);
             setError('Error al cargar las recomendaciones');
-            console.error(err);
         } finally {
             setLoading(false);
         }
     };
 
-    // Misma función que en BoxCampaign.tsx
     const handleGoToCampaign = () => {
-        if (spotifyId) {
-            // Abrir en nueva pestaña
-            const campaignUrl = `/campaign?spotifyId=${spotifyId}`;
-            window.open(campaignUrl, '_blank');
-        } else {
-            // Fallback si no hay spotifyId
-            const campaignUrl = `/campaign`;
-            window.open(campaignUrl, '_blank');
-        }
+        // Usar el spotifyId real si está disponible, sino usar el que vino como prop
+        const idToUse = realSpotifyId || spotifyId;
+
+        console.log('🚀 Abriendo campaña con ID:', idToUse);
+
+        const campaignUrl = `/campaign?spotifyId=${idToUse}`;
+        window.open(campaignUrl, '_blank');
+    };
+
+    const handleContactExpert = () => {
+        const whatsappUrl = 'https://wa.me/13104699872?text=Estoy%20interesado%20en%20hacer%20una%20campaña%20personalizada';
+        window.open(whatsappUrl, '_blank');
     };
 
     const formatNumber = (num: number): string => {
@@ -87,200 +135,115 @@ const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
         }
     };
 
+    const campaigns = [
+        {
+            iconImage: spotifyIcon,
+            platform: "Playlists",
+            benefit: "Crecimiento orgánico garantizado",
+            metric: "40–60% streams",
+            platformColor: "text-green-600",
+            iconBg: "bg-green-50",
+        },
+        {
+            iconImage: tiktokIcon,
+            platform: "TikTok",
+            benefit: "Alcance viral masivo",
+            metric: "150,000+ personas",
+            platformColor: "text-pink-600",
+            iconBg: "bg-pink-50",
+        },
+        {
+            icon: Instagram,
+            platform: "Instagram",
+            benefit: "Exposición en Reels y Stories",
+            metric: "200,000+ cuentas",
+            platformColor: "text-purple-600",
+            iconBg: "bg-purple-50",
+        },
+        {
+            icon: Facebook,
+            platform: "Facebook",
+            benefit: "Conversiones directas a Spotify",
+            metric: "120,000+ cuentas",
+            platformColor: "text-blue-600",
+            iconBg: "bg-blue-50",
+        },
+    ];
+
     return (
         <div
-            className="fixed inset-0 z-[150] flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm p-4"
+            className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
             onClick={handleBackdropClick}
         >
-            <div className="bg-gradient-to-br from-purple-50 to-orange-50 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[85vh] flex flex-col overflow-hidden">
-                {/* Header - Fijo */}
-                <div className="flex-shrink-0 bg-white bg-opacity-90 backdrop-blur-sm border-b border-gray-200 p-4 flex items-center justify-between rounded-t-2xl">
-                    <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-                            <Music className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <h2 className="text-xl font-bold text-gray-900">Plan de Acción Recomendado</h2>
-                            <p className="text-xs text-gray-600">Estrategias clave para impulsar tu música</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-200 transition-colors flex-shrink-0"
-                    >
-                        <X className="w-5 h-5 text-gray-600" />
-                    </button>
-                </div>
+            <div className="relative bg-background rounded-3xl shadow-2xl max-w-7xl w-full max-h-[90vh] overflow-hidden">
+                {/* Close Button */}
+                <button
+                    onClick={onClose}
+                    className="absolute top-6 right-6 z-10 w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+                >
+                    <X className="w-6 h-6 text-muted-foreground" />
+                </button>
 
-                {/* Content */}
-                <div className="flex-1 overflow-y-auto p-4">
-                    {loading ? (
-                        <div className="flex items-center justify-center py-20">
-                            <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-500 border-t-transparent"></div>
-                        </div>
-                    ) : error ? (
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
-                            {error}
-                        </div>
-                    ) : recommendations ? (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                            {/* COLUMNA IZQUIERDA */}
-                            <div className="space-y-4">
-                                {/* Campaña de Playlists*/}
-                                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-9 h-9 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <img
-                                                src={spotifyIcon}
-                                                alt="Spotify"
-                                                className="w-5 h-5"
-                                            />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <h3 className="font-bold text-gray-900 text-sm">Campaña de Playlists</h3>
-                                            <p className="text-xs text-gray-600">
-                                                Actualmente estás en <span className="font-semibold">{formatNumber(recommendations.playlist_reach)} playlists</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="bg-purple-50 rounded-lg p-3 mb-3">
-                                        <p className="text-xs text-gray-700 leading-relaxed">
-                                            Te recomendamos activar una <span className="font-semibold text-purple-700">campaña especializada de playlists</span> para aumentar significativamente el número de oyentes que descubren tu música por este medio.
-                                        </p>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <div className="flex items-start gap-2">
-                                            <span className="text-green-500 mt-0.5 text-sm">✓</span>
-                                            <p className="text-xs text-gray-700">Nuestro servicio te garantiza entre 30 y 50 playlists adicionales</p>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <span className="text-green-500 mt-0.5 text-sm">✓</span>
-                                            <p className="text-xs text-gray-700">Networking directo con curadores independientes de tu género</p>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <span className="text-green-500 mt-0.5 text-sm">✓</span>
-                                            <p className="text-xs text-gray-700">Impacto estimado: +40-60% de streams por descubrimiento orgánico</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Campaña Instagram */}
-                                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-9 h-9 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <Instagram className="w-4 h-4 text-white" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <h3 className="font-bold text-gray-900 text-sm">Campaña Instagram</h3>
-                                            <p className="text-xs text-gray-600">
-                                                Alcance actual: <span className="font-semibold">{formatNumber(recommendations.followers_total_instagram)} cuentas</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="bg-purple-50 rounded-lg p-3 mb-3">
-                                        <p className="text-xs text-gray-700 leading-relaxed">
-                                            Te recomendamos activar una <span className="font-semibold text-purple-700">campaña promocional en Instagram</span> para maximizar tu alcance y las conversiones de tu música en esta plataforma.
-                                        </p>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <div className="flex items-start gap-2">
-                                            <span className="text-green-500 mt-0.5 text-sm">✓</span>
-                                            <p className="text-xs text-gray-700">Objetivo: Alcanzar 200,000+ cuentas mensuales</p>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <span className="text-green-500 mt-0.5 text-sm">✓</span>
-                                            <p className="text-xs text-gray-700">Incrementar conversiones a Spotify mediante Reels y Stories</p>
-                                        </div>
-                                    </div>
-                                </div>
+                {/* Scrollable Content */}
+                <div className="overflow-y-auto max-h-[90vh]">
+                    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                        {loading ? (
+                            <div className="flex items-center justify-center py-20">
+                                <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent"></div>
                             </div>
-
-                            {/* COLUMNA DERECHA */}
-                            <div className="space-y-4">
-                                {/* Campaña TikTok */}
-                                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-9 h-9 bg-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <img
-                                                src={tiktokIcon}
-                                                alt="TikTok"
-                                                className="w-5 h-5"
-                                            />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <h3 className="font-bold text-gray-900 text-sm">Campaña TikTok</h3>
-                                            <p className="text-xs text-gray-600">
-                                                Alcance actual: <span className="font-semibold">{formatNumber(recommendations.followers_total_tiktok)} cuentas</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="bg-pink-50 rounded-lg p-3 mb-3">
-                                        <p className="text-xs text-gray-700 leading-relaxed">
-                                            Te recomendamos activar una <span className="font-semibold text-pink-700">campaña promocional en TikTok</span> para maximizar tu alcance y las reproducciones de tu música en esta plataforma viral.
-                                        </p>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <div className="flex items-start gap-2">
-                                            <span className="text-green-500 mt-0.5 text-sm">✓</span>
-                                            <p className="text-xs text-gray-700">Objetivo: Alcanzar 150,000+ cuentas mensuales</p>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <span className="text-green-500 mt-0.5 text-sm">✓</span>
-                                            <p className="text-xs text-gray-700">Incrementar reproducciones directas desde TikTok a Spotify</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Campaña Facebook */}
-                                <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <div className="w-9 h-9 bg-blue-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                                            <Facebook className="w-4 h-4 text-white" />
-                                        </div>
-                                        <div className="min-w-0">
-                                            <h3 className="font-bold text-gray-900 text-sm">Campaña Facebook</h3>
-                                            <p className="text-xs text-gray-600">
-                                                Alcance actual: <span className="font-semibold">{formatNumber(recommendations.followers_total_facebook)} cuentas</span>
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="bg-blue-50 rounded-lg p-3 mb-3">
-                                        <p className="text-xs text-gray-700 leading-relaxed">
-                                            Te recomendamos activar una <span className="font-semibold text-blue-700">campaña promocional en Facebook</span> para maximizar tu alcance y las conversiones desde esta plataforma.
-                                        </p>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <div className="flex items-start gap-2">
-                                            <span className="text-green-500 mt-0.5 text-sm">✓</span>
-                                            <p className="text-xs text-gray-700">Objetivo: Alcanzar 120,000+ cuentas mensuales</p>
-                                        </div>
-                                        <div className="flex items-start gap-2">
-                                            <span className="text-green-500 mt-0.5 text-sm">✓</span>
-                                            <p className="text-xs text-gray-700">Incrementar clics directos a tu perfil de Spotify</p>
-                                        </div>
-                                    </div>
-                                </div>
+                        ) : error ? (
+                            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 text-destructive">
+                                {error}
                             </div>
-                        </div>
-                    ) : null}
-                </div>
+                        ) : recommendations ? (
+                            <>
+                                {/* Header */}
+                                <div className="mb-8 text-center">
+                                    <div className="mb-3 inline-flex items-center justify-center rounded-full bg-primary/10 p-3">
+                                        <Music2 className="h-8 w-8 text-primary" />
+                                    </div>
+                                    <h1 className="mb-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+                                        Plan de Acción Recomendado
+                                    </h1>
+                                    <p className="mx-auto max-w-2xl text-base text-muted-foreground">
+                                        Estrategias clave para impulsar tu música
+                                    </p>
+                                </div>
 
-                {/* Footer - Fijo */}
-                <div className="flex-shrink-0 bg-gradient-to-r from-purple-50 to-orange-50 p-4 rounded-b-2xl border-t border-gray-200">
-                    <div className="text-center mb-3">
-                        <h3 className="text-lg font-bold text-gray-900 mb-1">
-                            ¿Listo para impulsar tu música?
-                        </h3>
-                        <p className="text-xs text-gray-600">
-                            Nuestros expertos pueden crear una campaña personalizada
-                        </p>
+                                {/* Campaign Grid */}
+                                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                                    {campaigns.map((campaign, index) => (
+                                        <CampaignCard key={index} {...campaign} />
+                                    ))}
+                                </div>
+
+                                {/* CTA Section */}
+                                <div className="mt-10 text-center">
+                                    <p className="mb-4 text-base font-medium text-foreground">
+                                        ¿Listo para impulsar tu música?
+                                    </p>
+                                    <p className="mb-6 text-sm text-muted-foreground">
+                                        Nuestros expertos pueden crear una campaña personalizada
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                                        <button
+                                            onClick={handleGoToCampaign}
+                                            className="rounded-full bg-gradient-to-r from-purple-500 to-orange-500 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
+                                        >
+                                            Crear Campaña Ahora
+                                        </button>
+                                        <button
+                                            onClick={handleContactExpert}
+                                            className="flex items-center gap-2 rounded-full bg-green-600 px-6 py-4 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] hover:bg-green-700"
+                                        >
+                                            <MessageCircle className="w-5 h-5" />
+                                            Contacta un experto
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        ) : null}
                     </div>
-                    <button
-                        onClick={handleGoToCampaign}
-                        className="w-full bg-gradient-to-r from-purple-500 to-orange-500 hover:from-purple-600 hover:to-orange-600 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-lg hover:shadow-xl text-sm"
-                    >
-                        Crear Campaña Ahora
-                    </button>
                 </div>
             </div>
         </div>

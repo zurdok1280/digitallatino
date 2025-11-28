@@ -1,6 +1,6 @@
-import { Home, Music, BarChart3, Settings, Headphones, Sparkles, LayoutDashboard, Crown} from 'lucide-react';
+import { Home, Music, BarChart3, Settings, Headphones, Sparkles, LayoutDashboard, Crown } from 'lucide-react';
 
-import { Link, NavLink, useLocation} from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import {
   Sidebar,
@@ -22,10 +22,10 @@ type NavItem = {
 };
 
 const navigation: NavItem[] = [
-  { title: "Weekly Top Songs", url: "/weekly-top-songs", icon: Home },
- // { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, requiresAuth: true },
-  { title: "Top Platforms", url: "/top-platforms", icon: BarChart3, requiresAuth: true},
-  { title: "Top Artists", url: "/top-artists", icon: Headphones, requiresAuth: true },
+  { title: "Top Canciones Semanal", url: "/weekly-top-songs", icon: Home },
+  // { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, requiresAuth: true },
+  { title: "Top Plataformas", url: "/top-platforms", icon: BarChart3, requiresAuth: true },
+  { title: "Top Artistas", url: "/top-artists", icon: Headphones, requiresAuth: true },
   { title: "Debut", url: "/debut", icon: Sparkles, requiresAuth: true },
 ];
 
@@ -50,10 +50,10 @@ export function AppSidebar() {
       <SidebarContent className="bg-transparent">
 
         {/* Logo Section */}
-         <Link
-            to="/weekly-top-songs"
-            className="p-6 border-b border-white/10 block"
-            >
+        <Link
+          to="/weekly-top-songs"
+          className="p-6 border-b border-white/10 block"
+        >
           {!isCollapsed ? (
             <img
               src="/lovable-uploads/9f002b3b-a058-45e4-9078-ed8fe5e40320.png"
@@ -65,8 +65,8 @@ export function AppSidebar() {
               <Music className="w-4 h-4 text-white" />
             </div>
           )}
-          </Link>
-        
+        </Link>
+
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-white/60 text-xs uppercase tracking-wider px-6 py-4">
@@ -80,45 +80,45 @@ export function AppSidebar() {
                 .map((item) => {
                   const isLocked = item.requiresAuth && !user;
                   return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                     asChild={!isLocked}
-                     onClick={isLocked ? () => setShowLoginDialog(true) : undefined}
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        asChild={!isLocked}
+                        onClick={isLocked ? () => setShowLoginDialog(true) : undefined}
 
-                      className={`
+                        className={`
                       group transition-all duration-200 rounded-lg mb-1
                       ${isActive(item.url) && !isLocked
-                          ? 'bg-white/20 text-white shadow-glass border border-white/20'
-                          : 'text-white/70 hover:text-white hover:bg-white/10'
-                        }
+                            ? 'bg-white/20 text-white shadow-glass border border-white/20'
+                            : 'text-white/70 hover:text-white hover:bg-white/10'
+                          }
                         ${isLocked ? 'cursor-pointer' : ''}
                     `}
 
-                    >
-                      {isLocked ? (
-                        <>
-                        <item.icon className={`${isCollapsed ? 'mx-auto' : 'mr-3'} h-5 w-5 transition-colors`} />
-                        {!isCollapsed && (
-                          <span className="font-medium flex-1">{item.title}</span>
-                        )}
-                        {/*{!isCollapsed && (
+                      >
+                        {isLocked ? (
+                          <>
+                            <item.icon className={`${isCollapsed ? 'mx-auto' : 'mr-3'} h-5 w-5 transition-colors`} />
+                            {!isCollapsed && (
+                              <span className="font-medium flex-1">{item.title}</span>
+                            )}
+                            {/*{!isCollapsed && (
                           <Crown className="h-4 w-4 text-yellow-400" />
                         )}*/}
-                        </>
-                     ) : (
+                          </>
+                        ) : (
 
-                      <NavLink to={item.url} end={item.url === '/'}>
-                        <item.icon className={`${isCollapsed ? 'mx-auto' : 'mr-3'} h-5 w-5 transition-colors`} />
-                        {!isCollapsed && (
-                          <span className="font-medium">{item.title}</span>
+                          <NavLink to={item.url} end={item.url === '/'}>
+                            <item.icon className={`${isCollapsed ? 'mx-auto' : 'mr-3'} h-5 w-5 transition-colors`} />
+                            {!isCollapsed && (
+                              <span className="font-medium">{item.title}</span>
+                            )}
+                          </NavLink>
                         )}
-                      </NavLink>
-                     )}
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                )
-              }
-              )}
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  )
+                }
+                )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

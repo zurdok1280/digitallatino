@@ -1,3 +1,5 @@
+import { css } from "@emotion/react";
+
 // Configuración base para conexiones API
 const API_CONFIG = {
   baseURL: "https://backend.digital-latino.com/api/",
@@ -62,7 +64,11 @@ export interface Song {
   url: string;
   spotifyid: string;
 }
-
+//Interface para Ids de canciones
+export interface idSongs {
+  csSong: string;
+  spotify_id: string;
+}
 // Tipos básicos para las respuestas
 export interface ApiResponse<T = any> {
   data: T;
@@ -132,6 +138,7 @@ export interface CityDataForSong {
   spins?: number;
   sts?: number;
 
+  countryname?: string;
   countryId: number;
   csSong: number;
   country_code?: string;
@@ -204,13 +211,16 @@ export interface SongInfoPlatform {
 
 // Interface para manejar info de la canción por cs_song
 export interface SongBasicInfo {
-  id: string;
+  id?: string;
   avatar?: string;
   background?: string;
   title?: string;
   artist?: string;
   label?: string;
   url?: string;
+  rk?: number;
+  score?: number;
+  song?: string;
 }
 // Interface para manejar info de radio (Countries & Markets con Spins)
 export interface SpinData {
@@ -218,6 +228,7 @@ export interface SpinData {
   market?: string;
   spins: number;
   rank: number;
+  audience: number;
 }
 //Interface para manejar info de TopPlaylists
 export interface TopPlaylists {
@@ -288,6 +299,31 @@ export interface SpotifyTrackResult {
   spotify_id: string;
   image_url: string;
   url: string;
+}
+export interface SpotifyArtistResult {
+  id: string;
+  name: string;
+  image_url: string;
+  genres?: string[];
+  followers?: number;
+  popularity?: number;
+}
+
+export interface SpotifySearchResponse {
+  tracks: SpotifyTrackResult[];
+  artists: SpotifyArtistResult[];
+}
+//
+export interface SongsArtistBySpotifyId {
+  score: number;
+  cs_song: number;
+  fk_artist: number;
+  release_date: string;
+  image_url: string;
+  fk_track: number;
+  spotifyid: string;
+  isrc: string;
+  spotify_streams: number;
 }
 
 // Clase principal para manejar las conexiones API
@@ -484,7 +520,7 @@ export const digitalLatinoApi = {
   ): Promise<ApiResponse<TrendingSong[]>> =>
     api.get<TrendingSong[]>(`report/getTrendingSongs/${format}/${country}`),
 
-  // Obtener Trending Top Platfomrs  trendingPlatforms
+  // Obtener Trending Top Platfomrs trendingPlatforms
   getTrendingTopPlatforms: (
     platform: string,
     format: number,
@@ -501,7 +537,7 @@ export const digitalLatinoApi = {
   ): Promise<ApiResponse<TrendingSong[]>> =>
     api.get<TrendingSong[]>(`report/getTopArtist/${format}/${country}`),
 
-  //// Obtener Trending Debut Songs  debutSongs
+  // Obtener Trending Debut Songs  debutSongs
   getDebutSongs: (
     format: number,
     country: number,
@@ -526,6 +562,12 @@ export const digitalLatinoApi = {
   // Obtener información básica de la canción por cs_song
   getSongById: (csSong: number): Promise<ApiResponse<SongBasicInfo>> =>
     api.get<SongBasicInfo>(`report/getSongbyId/${csSong}`),
+  // Obtener información básica de la canción por cs_song y countryId
+  getRankSongByIdCountry: (
+    csSong: number,
+    countryId: number
+  ): Promise<ApiResponse<SongBasicInfo>> =>
+    api.get<SongBasicInfo>(`report/getSongbyId/${csSong}/${countryId}`),
   // Obtener top países de radio por canción
   getTopRadioCountries: (csSong: number): Promise<ApiResponse<SpinData[]>> =>
     api.get<SpinData[]>(`report/getTopRadioCountries/${csSong}`),
@@ -544,20 +586,31 @@ export const digitalLatinoApi = {
   //Obtener usos en Tiktok por cs_song
   getTikTokUses: (csSong: number): Promise<ApiResponse<TikTokUse[]>> =>
     api.get<TikTokUse[]>(`report/getTopTiktok/${csSong}`),
-  // Obtener recomendaciones de artistas similares
+  // Obtener recomendaciones de artistas por cs_song
   getArtistRecommendations: (
     csSong: number
   ): Promise<ApiResponse<Recommendation[]>> =>
     api.get<Recommendation[]>(`report/getRecommendations/${csSong}`),
-  //Obtener csSgon a partir de spotifyId
-  getSongBySpotifyId: (spotifyId: string): Promise<ApiResponse<Song>> =>
-    api.get<Song>(`report/getcssong?spotifyid=${spotifyId}`),
+  //Obtener csSong a partir de spotifyId
+  getSongBySpotifyId: (spotifyId: string): Promise<ApiResponse<idSongs>> =>
+    api.get<idSongs>(`report/getcssong?spotifyid=${spotifyId}`),
+  //Obtener spotifyId a partir de csSong (el de arriba pero al reves)
+  getIdSongByCsSong: (csSong: string): Promise<ApiResponse<idSongs>> =>
+    api.get<idSongs>(`report/getSpotifyId?cs_song=${csSong}`),
   // Buscar en Spotify API
   getSearchSpotify: (
     query: string
   ): Promise<ApiResponse<SpotifySearchResult>> =>
     api.get<SpotifySearchResult>(
       `report/getSearchSpotify?query=${encodeURIComponent(query)}`
+    ),
+  //Obtener lista top canciones por medio del SpotifyId del artista y countryId
+  getSongsArtistBySpotifyId: (
+    spotifyId: string,
+    countryId: number
+  ): Promise<ApiResponse<SongsArtistBySpotifyId[]>> =>
+    api.get<SongsArtistBySpotifyId[]>(
+      `report/getSongsArtist/${spotifyId}/${countryId}`
     ),
 };
 

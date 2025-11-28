@@ -7,7 +7,8 @@ import BoxDisplayInfoPlatform from "./buttonInfoSong-components/boxDisplayInfoPl
 import BoxPlaylistsDisplay from "./buttonInfoSong-components/boxPlaylistsDisplay";
 import BoxCampaign from "./buttonInfoSong-components/boxCampaign";
 import BoxTikTokInfluencers from "./buttonInfoSong-components/boxTikTokInfluencers";
-
+import BoxElementsDisplaySpins from "./buttonInfoSong-components/boxElementsDisplaySpins";
+import BoxElementsDisplayAudience from "./buttonInfoSong-components/boxElemensDisplayAudience";
 
 export interface ButtonInfoSongProps {
     index: number;
@@ -47,6 +48,7 @@ export function ExpandRow({
     };
     console.log('🔵 ExpandRow rendering with:', {
         csSong: row.cs_song,
+        selectedCountry,
         selectedFormat,
         hasRow: !!row
     });
@@ -58,34 +60,57 @@ export function ExpandRow({
         }
     }, [isExpanded]);
 
-
-
     return (
-        <div className="border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
-            {/* Información campaña */}
-            <BoxCampaign spotifyId={row?.spotifyid} csSong={row.cs_song} />
+        <div className="relative border-t border-white/30 bg-background/50 rounded-lg animate-fade-in">
+            {/* Contenedor principal con scroll */}
+            <div className="max-h-96 overflow-y-auto p-4 pb-20">
+                {/* Top de ciudades */}
+                <BoxElementsDisplay
+                    label={"Top Ciudades Digital"}
+                    csSong={row.cs_song.toString()}
+                    selectedCountryId={selectedCountry}
+                    onDataLoaded={handleCityDataLoaded}
+                />
 
+                {/* Estadísticas de Plataformas */}
+                <BoxDisplayInfoPlatform
+                    csSong={row.cs_song}
+                    formatId={selectedFormat ? parseInt(selectedFormat) : 0}
+                />
 
-            {/* Top de ciudades */}
-            <BoxElementsDisplay
-                label={"Top Cities Digital"}
-                csSong={row.cs_song.toString()}
-                countries={countries} // Pasar la lista de países del componente padre
-                onDataLoaded={handleCityDataLoaded}
-            />
+                {/* Playlist Info */}
+                <BoxPlaylistsDisplay csSong={row.cs_song} />
 
-            {/* Estadísticas de Plataformas */}
-            <BoxDisplayInfoPlatform
-                csSong={row.cs_song}
-                formatId={selectedFormat ? parseInt(selectedFormat) : 0}
+                {/* TikTok Influencers */}
+                <BoxTikTokInfluencers csSong={row.cs_song} />
 
-            />
+                {/* Top Mercados en Radio */}
+                <BoxElementsDisplaySpins
+                    csSong={row.cs_song}
+                    countryId={selectedCountry ? parseInt(selectedCountry) : undefined}
+                    title="Top Mercados en Radio"
+                    label="mercados"
+                    type="markets"
+                />
 
-            {/* Playlist Info */}
-            <BoxPlaylistsDisplay csSong={row.cs_song} />
+                {/* Estadísticas de Radio */}
+                <BoxElementsDisplayAudience
+                    csSong={row.cs_song}
+                    title="Top Países en Radio"
+                    label="países"
+                    type="countries"
+                />
+            </div>
 
-            {/* TikTok Influencers */}
-            <BoxTikTokInfluencers csSong={row.cs_song} />
+            {/* BoxCampaign sticky en la parte inferior */}
+            <div className="sticky bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/80 to-transparent backdrop-blur-sm z-10 mt-4 border-t border-white/20">
+                <BoxCampaign
+                    spotifyId={row.spotifyid}
+                    csSong={row.cs_song}
+                    songName={row.song}
+                    artistName={row.artists}
+                />
+            </div>
         </div>
     );
 }

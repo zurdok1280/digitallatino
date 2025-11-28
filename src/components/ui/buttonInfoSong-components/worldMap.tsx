@@ -315,7 +315,7 @@ export default function WorldMap({
     }
 
     return (
-        <Box sx={{ mt: 3 }}>
+        <Box sx={{ mt: 1, mb: 3 }}>
             <Paper
                 elevation={1}
                 sx={{
