@@ -376,7 +376,53 @@ export default function Charts() {
   };
 
   const filteredSongs = useMemo(() => {
+       const normalizeText = (text: string) => {
+      return text
+      .normalize("NFD") // Descompone letras de tildes
+      .replace(/[\u0300-\u036f]/g, "") // Borra las tildes
+      .toLowerCase()
+      .trim();
+    };
+      //Si es ARTIST, aplicar filtro especial
+    if (user?.role === 'ARTIST' ) {
+      if (!user.allowedArtistName && !user.allowedArtistId) return [];
+      const myArtistName = user.allowedArtistName;
+      const myArtistClean = normalizeText(myArtistName);
 
+        if (songs.length > 0) {
+        console.log(`🔒 Buscando: "${myArtistName}" (Normalizado: "${myArtistClean}")`);
+        
+      }      
+      return songs.filter((song, index) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const s: any = song;
+        const songArtistRaw = s.artists || s.artist || "";
+        const songArtistClean = normalizeText(String(songArtistRaw));
+        if (index < 3) {
+          console.log(`🔎 Comparando #${index + 1}:`);
+          console.log(`   Canción tiene: "${songArtistClean}" (Original: ${songArtistRaw})`);
+          console.log(`   Tú buscas:     "${myArtistClean}"`);
+          console.log(`   ¿Coinciden?:   ${songArtistClean.includes(myArtistClean)}`);
+        }
+        if (songArtistClean.includes(myArtistClean)) {
+          return true;
+        }
+
+       if (Array.isArray(s.artists_array)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const matchInArray = s.artists_array.some((artistObj: any) =>
+           normalizeText(String(artistObj.name || "")).includes(myArtistClean)
+        );
+          if (matchInArray) {
+            return true;
+          }
+        }
+          return false;
+        
+      });
+    }
+
+    //Si no es artista, aplicar filtro normal
     // Si no hay query de búsqueda, devolver todas las canciones
     if (!chartSearchQuery.trim()) {
       return songs;
@@ -877,7 +923,7 @@ export default function Charts() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-0 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-4 md:mb-8 flex flex-col gap-0 border-b border-white/20 pb-4 md:pb-6 bg-white/60 backdrop-blur-lg rounded-2xl md:rounded-3xl p-3 md:p-8 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -887,14 +933,40 @@ export default function Charts() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
+           {user?.role === 'ARTIST' ? (
+                      // --- VISTA PARA ARTISTA 
+                      <div className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-6 mb-6 shadow-sm flex items-center justify-between">
+                         <div>
+                           <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                              <Crown className="w-6 h-6 text-purple-600" />
+                              Panel de Artista
+                           </h2>
+                           <p className="text-sm text-gray-500 mt-1">
+                              Métricas exclusivas para tu artista seleccionado.
+                           </p>
+                         </div>
+                         
+                         {/* Badge con el nombre del artista  */}
+                         {user.name && (
+                             <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                <span className="font-semibold text-gray-700">{user.allowedArtistName}</span>
+                             </div>
+                         )}
+                      </div>
+          
+                    ) : (
+                      // Vista para PREMIUM
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
             {/* Filtro por País/Región */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🌎</span> País/Región
+            <div className="space-y-1 md:space-y-2">
+              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 md:gap-2">
+                <span className="text-sm">🌎</span>
+                <span className="hidden xs:inline">País/Región</span>
+                <span className="xs:hidden">País/Región</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+                className="w-full rounded-xl md:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 md:px-4 py-2 md:py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-pink-400"
                 value={selectedCountry}
                 onChange={handleCountryChange}
                 disabled={loadingCountries}
@@ -941,9 +1013,10 @@ export default function Charts() {
               </select>
             </div>
             {/* Filtro por Ciudad */}
-            <div className="space-y-2 relative">
-              <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🏙️</span> Ciudad Target
+            <div className="space-y-1 md:space-y-2 relative">
+              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 md:gap-2">
+                <span className="text-sm">🏙️</span>
+                <span className="xs:hidden">Ciudad Target</span>
               </label>
               <div className="relative">
                 <button
@@ -1047,6 +1120,7 @@ export default function Charts() {
               </div>
             </div>*/}
           </div>
+          )}
         </div>
 
         {/* Lista de Charts */}

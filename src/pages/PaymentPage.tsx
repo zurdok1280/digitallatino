@@ -24,7 +24,16 @@ const stripePromise = loadStripe('pk_test_51SAtWhKFPi4gMQQnl5IahKw9gDsuSYHUGgs3c
     amount: 1000,
     interval: '/año',
     features: ['Acceso completo a Charts', 'Métricas avanzadas', 'Soporte 24/7']
- }
+ },
+  //Plan Artist
+  ARTIST: {
+    id: 'price_1SXXeBKFPi4gMQQn2cx9SPB1',
+    name: 'Plan Artista',
+    amount: 10,
+    interval: '/mes',
+    features: ['Acceso único al Artista ', 'Metricas exclusivas del Artista', 'Sin acceso a comparativas']
+  }
+
 };
 
 type Plan = typeof PLANS.MONTHLY;
@@ -43,12 +52,14 @@ const PlanCard = ({ plan, onSelect, formatPrice, isPopular = false }: PlanCardPr
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">
         MÁS POPULAR
         </div>
-    )}
+    )} 
+    
     <h3 className="text-xl font-semibold text-gray-800">{plan.name}</h3>
-      <p className="mt-4">
-        <span className="text-4xl font-bold text-gray-900">{formatPrice(plan.amount)}</span>
-        <span className="text-lg font-medium text-gray-500">{plan.interval}</span>
-        </p>
+      <div className="mt-4 flex items-start">
+        <span className="text-xs font-bold text-gray-400 mt-2 mr-1">USD</span>
+        <span className="text-4xl font-bold text-gray-900 tracking-tight">{formatPrice(plan.amount)}</span>
+        <span className="text-base font-medium text-gray-500 self-center ml-1">{plan.interval}</span>
+        </div>
         <ul className="mt-6 space-y-2 text-gray-600">
           {plan.features.map(feature => (
             <li key={feature} className="flex items-center gap-2">
@@ -61,12 +72,8 @@ const PlanCard = ({ plan, onSelect, formatPrice, isPopular = false }: PlanCardPr
         </ul>
         <button
         onClick={onSelect}
-        className={`mt-8 w-full py-3 px-6 rounded-lg font-semibold text-white transition-colors ${
-          isPopular
-          ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
-          : 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
-        }`}
-        >
+        className="mt-8 w-full py-3 px-6 rounded-lg font-semibold text-white transition-colors bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+          >
           Seleccionar Plan
         </button>
     </div>
@@ -80,6 +87,7 @@ const PaymentPage = () => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
+      maximumFractionDigits: 0,
       }).format(amount);
 
     };
@@ -88,13 +96,13 @@ const PaymentPage = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
-      <div className="w-full max-w-3xl p-8 space-y-6 bg-white rounded-lg shadow-lg">
+      <div className="w-full max-w-6xl p-8 space-y-6 bg-white/50 backdrop-blur-sm rounded-xl">
         <div className="text-center">
             <img src="/lovable-uploads/4e68bccf-80d3-468a-9ffe-3f3aee0bffdd.png" alt="Digital Latino" className="h-8 mx-auto mb-4" />
             <h1 className="text-3xl font-bold text-gray-800">Elige tu Plan</h1>
             <p className="text-gray-500">Accede a todas las funciones premium.</p>
         </div>
-        <div className="grid md:grid-cols-2 gap-6 pt-4">
+        <div className="grid md:grid-cols-3 gap-6 pt-4">
           {/* ---  Monthly card --- */}
           <PlanCard
           plan={PLANS.MONTHLY}
@@ -108,6 +116,12 @@ const PaymentPage = () => {
           formatPrice={formatPrice}
           isPopular={true}
           /> 
+          {/* --- ARTIST card --- */}
+          <PlanCard
+          plan={PLANS.ARTIST}
+          onSelect={() => setSelectedPlan(PLANS.ARTIST)}
+          formatPrice={formatPrice}
+          />
         </div>
       </div>
     </div>
@@ -125,7 +139,7 @@ const PaymentPage = () => {
       {/* display the summary of the selected plan */}
       <div className="text-center border-t border-b py-4 my-6">
         <p className="text-lg text-gray-600">Total a Pagar ({selectedPlan.name}):</p>
-        <p className="text-4xl font-bold text-purple-700">{formatPrice(selectedPlan.amount)}</p>
+        <p className="text-4xl font-bold text-purple-700">{formatPrice(selectedPlan.amount)}USD</p>
         <p className="text-sm text-gray-500">(Suscripción {selectedPlan.interval.replace('/', '')})</p>
         <button onClick={() => setSelectedPlan(null)} className="text-sm text-purple-600 hover:text-purple-800 mt-2 font-medium">
           ← Cambiar de plan

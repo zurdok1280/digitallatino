@@ -516,7 +516,53 @@ export default function TopPlatforms() {
 
   const filteredSongs = useMemo(() => {
     console.log('Filtrando canciones...', chartSearchQuery, trendingPlatforms.length);
+     const normalizeText = (text: string) => {
+      return text
+      .normalize("NFD") // Descompone letras de tildes
+      .replace(/[\u0300-\u036f]/g, "") // Borra las tildes
+      .toLowerCase()
+      .trim();
+    };
+      //Si es ARTIST, aplicar filtro especial
+    if (user?.role === 'ARTIST' ) {
+      if (!user.allowedArtistName && !user.allowedArtistId) return [];
+      const myArtistName = user.allowedArtistName;
+      const myArtistClean = normalizeText(myArtistName);
 
+        if (trendingPlatforms.length > 0) {
+        console.log(`🔒 Buscando: "${myArtistName}" (Normalizado: "${myArtistClean}")`);
+        
+      }      
+      return trendingPlatforms.filter((song, index) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const s: any = song;
+        const songArtistRaw = s.artists || s.artist || "";
+        const songArtistClean = normalizeText(String(songArtistRaw));
+        if (index < 3) {
+          console.log(`🔎 Comparando #${index + 1}:`);
+          console.log(`   Canción tiene: "${songArtistClean}" (Original: ${songArtistRaw})`);
+          console.log(`   Tú buscas:     "${myArtistClean}"`);
+          console.log(`   ¿Coinciden?:   ${songArtistClean.includes(myArtistClean)}`);
+        }
+        if (songArtistClean.includes(myArtistClean)) {
+          return true;
+        }
+
+       if (Array.isArray(s.artists_array)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const matchInArray = s.artists_array.some((artistObj: any) =>
+           normalizeText(String(artistObj.name || "")).includes(myArtistClean)
+        );
+          if (matchInArray) {
+            return true;
+          }
+        }
+          return false;
+        
+      });
+    }
+
+    //Si no es artista, aplicar filtro normal
     // Si no hay query de búsqueda, devolver todas las canciones
     if (!chartSearchQuery.trim()) {
       return trendingPlatforms;
@@ -529,7 +575,7 @@ export default function TopPlatforms() {
 
       return songMatch || artistMatch;
     });
-  }, [trendingPlatforms, chartSearchQuery]);
+  }, [trendingPlatforms, chartSearchQuery, user]);
 
   // Función para alternar la visibilidad de la barra de búsqueda
   const toggleSearchBar = () => {
@@ -550,6 +596,7 @@ export default function TopPlatforms() {
   }, [showSearchBar]);
 
   // Función para filtrar opciones basado en la búsqueda
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getFilteredOptions = (options: any[], searchQuery: string, type: 'country' | 'format' | 'city') => {
     if (!searchQuery.trim()) return options;
 
@@ -1157,7 +1204,10 @@ export default function TopPlatforms() {
                           {row.song}
                         </h3>
                         <p className="text-sm font-medium text-gray-600 truncate">
-                          {row.artists}
+                          {row.artist}
+                        </p>
+                        <p className="text-sm font-medium text-gray-600 truncate">
+                          {row.label}
                         </p>
                       </div>
                     </div>
