@@ -55,7 +55,7 @@ import { useApiWithLoading } from "@/hooks/useApiWithLoading";
 import { ButtonBigNumber } from "@/components/ui/button-big-number";
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
-import { ButtonInfoArtist, ExpandRow } from "@/components/ui/buttonInfoArtist";
+import { ButtonInfoArtist } from "@/components/ui/buttonInfoArtist";
 import { ExpandRowArtist } from "@/components/ui/buttoninfoArtist-components/expandRowArtist";
 import { useExpandableRows } from "@/hooks/useExpandableRows";
 
@@ -359,12 +359,12 @@ function MovementIndicator({
   return <div className="w-4 h-4"></div>; // Same placeholder
 }
 
-interface ExpandRowSongProps {
+interface ExpandRowProps {
   row: Song;
   onPromote: () => void;
 }
 
-function ExpandRowSong({ row, onPromote }: ExpandRowSongProps) {
+function ExpandRow({ row, onPromote }: ExpandRowProps) {
   return (
     <div className="mt-4 border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in relative overflow-visible">
       {/* Blurred Content */}
@@ -710,47 +710,6 @@ export default function TopArtists() {
         .toLowerCase()
         .trim();
     };
-    //Si es ARTIST, aplicar filtro especial
-    if (user?.role === 'ARTIST') {
-      if (!user.allowedArtistName && !user.allowedArtistId) return [];
-      const myArtistName = user.allowedArtistName;
-      const myArtistClean = normalizeText(myArtistName);
-
-      if (trendingArtists.length > 0) {
-        console.log(`🔒 Buscando: "${myArtistName}" (Normalizado: "${myArtistClean}")`);
-
-      }
-      return trendingArtists.filter((song, index) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s: any = song;
-        const songArtistRaw = s.artists || s.artist || "";
-        const songArtistClean = normalizeText(String(songArtistRaw));
-        if (index < 3) {
-          console.log(`🔎 Comparando #${index + 1}:`);
-          console.log(`   Canción tiene: "${songArtistClean}" (Original: ${songArtistRaw})`);
-          console.log(`   Tú buscas:     "${myArtistClean}"`);
-          console.log(`   ¿Coinciden?:   ${songArtistClean.includes(myArtistClean)}`);
-        }
-        if (songArtistClean.includes(myArtistClean)) {
-          return true;
-        }
-
-        if (Array.isArray(s.artists_array)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const matchInArray = s.artists_array.some((artistObj: any) =>
-            normalizeText(String(artistObj.name || "")).includes(myArtistClean)
-          );
-          if (matchInArray) {
-            return true;
-          }
-        }
-        return false;
-
-      });
-    }
-
-    //Si no es artista, aplicar filtro normal
-    // Si no hay query de búsqueda, devolver todas las canciones
     if (!chartSearchQuery.trim()) {
       return trendingArtists;
     }
@@ -1320,15 +1279,16 @@ export default function TopArtists() {
                     {loadingCities
                       ? "Cargando..."
                       : !selectedCountry
-                        ? "Selecciona país primero"
-                        : selectedCity !== "0" && cities.length > 0
-                          ? cities.find((c) => c.id.toString() === selectedCity)
-                            ?.city_name || "Todas las ciudades"
-                          : "Todas las ciudades"}
+                      ? "Selecciona país primero"
+                      : selectedCity !== "0" && cities.length > 0
+                      ? cities.find((c) => c.id.toString() === selectedCity)
+                          ?.city_name || "Todas las ciudades"
+                      : "Todas las ciudades"}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${openDropdown === "city" ? "rotate-180" : ""
-                      }`}
+                    className={`w-4 h-4 transition-transform ${
+                      openDropdown === "city" ? "rotate-180" : ""
+                    }`}
                   />
                 </button>
 
@@ -1352,10 +1312,11 @@ export default function TopArtists() {
                       {/* Opción "Todas las ciudades" */}
                       <button
                         onClick={() => handleOptionSelect("0", "city")}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
-                          ? "bg-orange-100 text-orange-700 font-semibold"
-                          : "text-gray-700"
-                          }`}
+                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
+                          selectedCity === "0"
+                            ? "bg-orange-100 text-orange-700 font-semibold"
+                            : "text-gray-700"
+                        }`}
                       >
                         🎯 Todas las ciudades
                       </button>
@@ -1367,10 +1328,11 @@ export default function TopArtists() {
                             onClick={() =>
                               handleOptionSelect(city.id.toString(), "city")
                             }
-                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
-                              ? "bg-orange-100 text-orange-700 font-semibold"
-                              : "text-gray-700"
-                              }`}
+                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
+                              selectedCity === city.id.toString()
+                                ? "bg-orange-100 text-orange-700 font-semibold"
+                                : "text-gray-700"
+                            }`}
                           >
                             🎯 {city.city_name}
                           </button>
@@ -1379,10 +1341,10 @@ export default function TopArtists() {
 
                       {getFilteredOptions(cities, dropdownSearch, "city")
                         .length === 0 && (
-                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                            No se encontraron ciudades
-                          </div>
-                        )}
+                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                          No se encontraron ciudades
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1528,7 +1490,7 @@ export default function TopArtists() {
                       </div>
                     </div>
 
-                    {/* Artist Info */}
+                    {/* Track Info */}
                     <div className="col-span-3 flex items-center gap-3">
                       <div className="relative group-hover:scale-105 transition-transform">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
@@ -1536,7 +1498,7 @@ export default function TopArtists() {
                           <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
                             <AvatarImage
                               src={row.img}
-                              alt={row.artist}
+                              alt={row.img}
                               className="rounded-lg object-cover"
                             />
                             <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
@@ -1548,6 +1510,12 @@ export default function TopArtists() {
                                 .toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
+                          {/* Play Button Overlay */}
+                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
+                            <button>
+                              <Play className="w-3 h-3 ml-0.5" />
+                            </button>
+                          </div>
                         </div>
                       </div>
 
@@ -1562,12 +1530,27 @@ export default function TopArtists() {
                     </div>
 
                     {/* Artist Stats */}
-                    <div className="col-span-6 place-items-end">
-                      <div className="flex gap-3 overflow-x-auto pb-1">
+                    <div className="col-span-7 place-items-stretch">
+                      <div className="flex gap-0 overflow-x-auto pb-1">
                         {/* Monthly Listeners */}
                         <ButtonBigNumber
                           name="Oyentes Mensuales"
                           quantity={row.monthly_listeners}
+                        />
+                        {/* Instagram Followers */}
+                        <ButtonBigNumber
+                          name="Seguidores Instagram"
+                          quantity={row.followers_total_instagram}
+                        />
+                        {/* Facebook Followers */}
+                        <ButtonBigNumber
+                          name="Seguidores Facebook"
+                          quantity={row.followers_total_facebook}
+                        />
+                        {/* TitkTok Followers */}
+                        <ButtonBigNumber
+                          name="Seguidores TikTok"
+                          quantity={row.followers_total_tiktok}
                         />
                         {/* Playlist */}
                         <ButtonBigNumber
@@ -1587,35 +1570,16 @@ export default function TopArtists() {
                           */}
                       </div>
                     </div>
-
-                    {/* Expand Button - SOLO el botón aquí */}
-                    <div className="col-span-1 text-right">
-                      <ButtonInfoArtist
-                        index={index}
-                        isExpanded={isExpanded(index)}
-                        onToggle={() => handleToggleRow(index, row)}
-                        artist={{
-                          spotifyid: row.spotifyid,
-                          artist: row.artist,
-                          rk: parseInt(row.rk),
-                          img: row.img,
-                          followers_total: row.followers_total,
-                          monthly_listeners: row.monthly_listeners
-                        }}
-                        selectedCountry={selectedCountry}
-                      />
-                    </div>
                   </div>
 
-                  {/* CONTENIDO EXPANDIDO FUERA DEL GRID - igual que en Debut.tsx */}
+                  {/* Expanded Content */}
                   {isExpanded(index) && (
                     <div className="px-6 pb-4">
-                      <ExpandRow
+                      <ExpandRowArtist
                         artist={{
-                          spotifyid: row.spotifyid,
+                          //spotifyid: row.spotifyid,
                           artist: row.artist,
                           rk: parseInt(row.rk),
-                          img: row.img
                         }}
                         selectedCountry={selectedCountry}
                         isExpanded={isExpanded(index)}
@@ -1793,3 +1757,4 @@ export default function TopArtists() {
     </div>
   );
 }
+
