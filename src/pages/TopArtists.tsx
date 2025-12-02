@@ -581,21 +581,21 @@ export default function TopArtists() {
     console.log('Filtrando canciones...', chartSearchQuery, trendingArtists.length);
     const normalizeText = (text: string) => {
       return text
-      .normalize("NFD") // Descompone letras de tildes
-      .replace(/[\u0300-\u036f]/g, "") // Borra las tildes
-      .toLowerCase()
-      .trim();
+        .normalize("NFD") // Descompone letras de tildes
+        .replace(/[\u0300-\u036f]/g, "") // Borra las tildes
+        .toLowerCase()
+        .trim();
     };
-      //Si es ARTIST, aplicar filtro especial
-    if (user?.role === 'ARTIST' ) {
+    //Si es ARTIST, aplicar filtro especial
+    if (user?.role === 'ARTIST') {
       if (!user.allowedArtistName && !user.allowedArtistId) return [];
       const myArtistName = user.allowedArtistName;
       const myArtistClean = normalizeText(myArtistName);
 
-        if (trendingArtists.length > 0) {
+      if (trendingArtists.length > 0) {
         console.log(`🔒 Buscando: "${myArtistName}" (Normalizado: "${myArtistClean}")`);
-        
-      }      
+
+      }
       return trendingArtists.filter((song, index) => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const s: any = song;
@@ -611,17 +611,17 @@ export default function TopArtists() {
           return true;
         }
 
-       if (Array.isArray(s.artists_array)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (Array.isArray(s.artists_array)) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const matchInArray = s.artists_array.some((artistObj: any) =>
-           normalizeText(String(artistObj.name || "")).includes(myArtistClean)
-        );
+            normalizeText(String(artistObj.name || "")).includes(myArtistClean)
+          );
           if (matchInArray) {
             return true;
           }
         }
-          return false;
-        
+        return false;
+
       });
     }
 
@@ -1376,12 +1376,9 @@ export default function TopArtists() {
                     </div>
 
                     {/* Artist Stats */}
-                    <div className="col-span-6 place-items-stretch">
-                      <div className="flex gap-0 overflow-x-auto pb-1">
+                    <div className="col-span-6 place-items-end">
+                      <div className="flex gap-4 overflow-x-auto pb-1 text-right">
                         <ButtonBigNumber name="Oyentes Mensuales" quantity={row.monthly_listeners} />
-                        <ButtonBigNumber name="Seguidores Instagram" quantity={row.followers_total_instagram} />
-                        <ButtonBigNumber name="Seguidores Facebook" quantity={row.followers_total_facebook} />
-                        <ButtonBigNumber name="Seguidores TikTok" quantity={row.followers_total_tiktok} />
                         <ButtonBigNumber name="Playlist" quantity={row.playlists} />
                       </div>
                     </div>

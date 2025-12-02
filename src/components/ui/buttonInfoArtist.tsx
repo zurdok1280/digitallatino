@@ -1,6 +1,7 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExpandRowArtist } from "./buttoninfoArtist-components/expandRowArtist";
+import { DataPlatformArtist } from "./buttoninfoArtist-components/dataPlatformArtist";
 
 interface ButtonInfoArtistProps {
     index: number;
@@ -78,6 +79,11 @@ interface ExpandRowProps {
 export function ExpandRow({ artist, selectedCountry, isExpanded }: ExpandRowProps) {
     return (
         <div className="mt-4 animate-in fade-in duration-300">
+            <DataPlatformArtist
+                spotifyId={artist.spotifyid || ""}
+                artistName={artist.artist}
+            />
+
             <ExpandRowArtist
                 artist={artist}
                 selectedCountry={selectedCountry}
