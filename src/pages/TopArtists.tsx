@@ -1320,16 +1320,15 @@ export default function TopArtists() {
                     {loadingCities
                       ? "Cargando..."
                       : !selectedCountry
-                      ? "Selecciona país primero"
-                      : selectedCity !== "0" && cities.length > 0
-                      ? cities.find((c) => c.id.toString() === selectedCity)
-                          ?.city_name || "Todas las ciudades"
-                      : "Todas las ciudades"}
+                        ? "Selecciona país primero"
+                        : selectedCity !== "0" && cities.length > 0
+                          ? cities.find((c) => c.id.toString() === selectedCity)
+                            ?.city_name || "Todas las ciudades"
+                          : "Todas las ciudades"}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      openDropdown === "city" ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${openDropdown === "city" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -1353,11 +1352,10 @@ export default function TopArtists() {
                       {/* Opción "Todas las ciudades" */}
                       <button
                         onClick={() => handleOptionSelect("0", "city")}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                          selectedCity === "0"
-                            ? "bg-orange-100 text-orange-700 font-semibold"
-                            : "text-gray-700"
-                        }`}
+                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
+                          ? "bg-orange-100 text-orange-700 font-semibold"
+                          : "text-gray-700"
+                          }`}
                       >
                         🎯 Todas las ciudades
                       </button>
@@ -1369,11 +1367,10 @@ export default function TopArtists() {
                             onClick={() =>
                               handleOptionSelect(city.id.toString(), "city")
                             }
-                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                              selectedCity === city.id.toString()
-                                ? "bg-orange-100 text-orange-700 font-semibold"
-                                : "text-gray-700"
-                            }`}
+                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                              ? "bg-orange-100 text-orange-700 font-semibold"
+                              : "text-gray-700"
+                              }`}
                           >
                             🎯 {city.city_name}
                           </button>
@@ -1382,10 +1379,10 @@ export default function TopArtists() {
 
                       {getFilteredOptions(cities, dropdownSearch, "city")
                         .length === 0 && (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                          No se encontraron ciudades
-                        </div>
-                      )}
+                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                            No se encontraron ciudades
+                          </div>
+                        )}
                     </div>
                   </div>
                 )}
@@ -1565,27 +1562,12 @@ export default function TopArtists() {
                     </div>
 
                     {/* Artist Stats */}
-                    <div className="col-span-7 place-items-stretch">
-                      <div className="flex gap-0 overflow-x-auto pb-1">
+                    <div className="col-span-6 place-items-end">
+                      <div className="flex gap-3 overflow-x-auto pb-1">
                         {/* Monthly Listeners */}
                         <ButtonBigNumber
                           name="Oyentes Mensuales"
                           quantity={row.monthly_listeners}
-                        />
-                        {/* Instagram Followers */}
-                        <ButtonBigNumber
-                          name="Seguidores Instagram"
-                          quantity={row.followers_total_instagram}
-                        />
-                        {/* Facebook Followers */}
-                        <ButtonBigNumber
-                          name="Seguidores Facebook"
-                          quantity={row.followers_total_facebook}
-                        />
-                        {/* TitkTok Followers */}
-                        <ButtonBigNumber
-                          name="Seguidores TikTok"
-                          quantity={row.followers_total_tiktok}
                         />
                         {/* Playlist */}
                         <ButtonBigNumber
