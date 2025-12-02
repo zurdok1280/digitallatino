@@ -279,13 +279,7 @@ export function ArtistSongs({ spotifyId, artistName, isOpen, onClose }: ArtistSo
                                                     </div>
 
                                                     {/* Imagen del álbum */}
-                                                    {song.songDetails?.avatar ? (
-                                                        <img
-                                                            src={song.songDetails.avatar}
-                                                            alt="Album cover"
-                                                            className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                                                        />
-                                                    ) : song.image_url ? (
+                                                    {song.image_url ? (
                                                         <img
                                                             src={song.image_url}
                                                             alt="Album cover"

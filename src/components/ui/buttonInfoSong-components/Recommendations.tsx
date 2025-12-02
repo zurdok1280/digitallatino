@@ -93,6 +93,7 @@ const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
                 //console.log('❌ No se pudo obtener spotifyId real, usando el de la DB:', spotifyId);
                 setRealSpotifyId(spotifyId || null);
             }
+            //Obtener rank
 
         } catch (err) {
             console.error('❌ Error cargando datos:', err);
@@ -226,18 +227,20 @@ const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
                                         Nuestros expertos pueden crear una campaña personalizada
                                     </p>
                                     <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                                        {/*
                                         <button
                                             onClick={handleGoToCampaign}
                                             className="rounded-full bg-gradient-to-r from-purple-500 to-orange-500 px-8 py-4 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02]"
                                         >
                                             Crear Campaña Ahora
                                         </button>
+                                        */}
                                         <button
                                             onClick={handleContactExpert}
                                             className="flex items-center gap-2 rounded-full bg-green-600 px-6 py-4 text-lg font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] hover:bg-green-700"
                                         >
                                             <MessageCircle className="w-5 h-5" />
-                                            Contacta un experto
+                                            Contacta un asesor
                                         </button>
                                     </div>
                                 </div>
