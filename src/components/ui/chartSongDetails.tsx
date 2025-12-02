@@ -24,7 +24,7 @@ interface ChartSongDetailsProps {
 
 const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
     song,
-    selectedCountry: initialSelectedCountry = "0",
+    selectedCountry: initialSelectedCountry = "1", // Cambiado a "1" por defecto
     selectedFormat = "0",
     countries: initialCountries = [],
     onPlayPreview,
@@ -37,10 +37,21 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
     const [infoSong, setInfoSong] = useState<SongBasicInfo | null>(null);
     const [loadingInfo, setLoadingInfo] = useState(false);
     const [countries, setCountries] = useState<Country[]>(initialCountries);
-    const [selectedCountry, setSelectedCountry] = useState<string>("1");
+    const [selectedCountry, setSelectedCountry] = useState<string>("1"); // Cambiado a "1" por defecto
     const [loadingCountries, setLoadingCountries] = useState(false);
     const [openDropdown, setOpenDropdown] = useState(false);
     const [dropdownSearch, setDropdownSearch] = useState("");
+
+    // Función helper para Portal del dropdown
+    const DropdownPortal: React.FC<{ children: React.ReactNode; isOpen: boolean }> = ({ children, isOpen }) => {
+        if (!isOpen) return null;
+
+        return (
+            <Portal>
+                {children}
+            </Portal>
+        );
+    };
 
     // Bloquear scroll del body cuando el modal está abierto
     useEffect(() => {
@@ -55,6 +66,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         };
     }, [isOpen]);
 
+    // Cargar países si no se pasaron como prop
     const loadCountries = async () => {
         if (initialCountries.length > 0) {
             setCountries(initialCountries);
@@ -78,12 +90,17 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
 
         setLoadingCityData(true);
         try {
+            console.log('🔍 Cargando datos de ciudades para cs_song:', song.cs_song);
+
+            // Usar el countryId seleccionado
             const countryId = parseInt(selectedCountry);
 
             const response = await digitalLatinoApi.getCityData(song.cs_song, countryId);
+            console.log('📊 Respuesta de getCityData:', response);
 
             if (response.data) {
                 setCityData(response.data);
+                console.log('✅ Datos de ciudades cargados directamente:', response.data.length, 'ciudades');
             }
         } catch (error) {
             console.error('❌ Error cargando datos de ciudades:', error);
@@ -92,7 +109,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         }
     };
 
-    // Cargar datos de ciudades directamente
+    // Cargar información adicional de la canción
     const loadInfoSong = async () => {
         if (!song.cs_song) return;
         setLoadingInfo(true);
@@ -100,7 +117,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         try {
             console.log('🔍 Cargando información adicional de la canción:', song.cs_song);
 
-            // Usar el countryId seleccionado, incluso si es 0
+            // Usar el countryId seleccionado
             const countryId = parseInt(selectedCountry);
 
             const response = await digitalLatinoApi.getRankSongByIdCountry(song.cs_song, countryId);
@@ -127,6 +144,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
     // Cargar datos cuando cambia el país seleccionado o se abre el modal
     useEffect(() => {
         if (isOpen && song.cs_song) {
+            console.log('🎯 Cargando datos con selectedCountry:', selectedCountry);
             loadCityData();
             loadInfoSong();
         }
@@ -273,22 +291,19 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                     <h1 className="text-2xl font-bold text-white leading-tight mb-2">
                                         {song.song || 'Canción no disponible'}
                                     </h1>
-                                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                                        <p className="text-lg font-semibold text-white/90">
-                                            {song.artists || 'Artista no disponible'}
-                                        </p>
-                                        {/*
-                                        <p className="text-base text-white/80">
-                                            {song.label || 'Sello no disponible'}
-                                        </p>*/}
-                                    </div>
+                                    <p className="text-lg font-semibold text-white/90 mb-1">
+                                        {song.artists || 'Artista no disponible'}
+                                    </p>
+                                    <p className="text-base text-white/80 mb-3">
+                                        {song.label || 'Label no disponible'}
+                                    </p>
 
                                     {/* Dropdown de países */}
                                     <div className="relative">
                                         <button
                                             type="button"
                                             onClick={() => setOpenDropdown(!openDropdown)}
-                                            className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2 text-sm font-medium text-white hover:bg-white/30 transition-all duration-200 flex items-center gap-2 min-w-[200px] text-left relative z-50"
+                                            className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2 text-sm font-medium text-white hover:bg-white/30 transition-all duration-200 flex items-center gap-2 min-w-[200px] text-left"
                                             disabled={loadingCountries}
                                         >
                                             <span className="flex-1 truncate">
@@ -297,8 +312,18 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                             <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown ? 'rotate-180' : ''}`} />
                                         </button>
 
-                                        {openDropdown && (
-                                            <div className="absolute  z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-white/30 rounded-xl shadow-2xl max-h-60 overflow-hidden">
+                                        <DropdownPortal isOpen={openDropdown}>
+                                            <div
+                                                className="fixed bg-white/95 backdrop-blur-sm border border-white/30 rounded-xl shadow-2xl max-h-60 overflow-hidden z-[9999]"
+                                                style={{
+                                                    position: 'fixed',
+                                                    top: '140px', // Ajusta según la posición de tu header
+                                                    left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    width: '250px',
+                                                    zIndex: 9999
+                                                }}
+                                            >
                                                 <div className="p-2 border-b border-white/20">
                                                     <div className="relative">
                                                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -345,7 +370,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                                     )}
                                                 </div>
                                             </div>
-                                        )}
+                                        </DropdownPortal>
                                     </div>
                                 </div>
                             </div>
@@ -363,10 +388,10 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                         <Star className="w-4 h-4 text-yellow-300 fill-current" />
                                     </div>
                                     <div className="text-3xl font-black text-white">
-                                        {loadingInfo ? '...' : (infoSong?.score)}
+                                        {loadingInfo ? '...' : (infoSong?.score || song.score || 0)}
                                     </div>
                                     <div className="text-xs text-white/80 mt-1">
-                                        País seleccionado: {getSelectedCountryName()}
+                                        {getSelectedCountryName()}
                                     </div>
                                 </div>
                             </div>
@@ -403,7 +428,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                             {/* TikTok Influencers */}
                             <BoxTikTokInfluencers csSong={song.cs_song} />
 
-                            {/* Top Mercados en Radio */}
+                            {/* Top Mercados en Radio - solo mostrar si no es "Todos los países" */}
                             {selectedCountry !== "0" && (
                                 <BoxElementsDisplaySpins
                                     csSong={song.cs_song}

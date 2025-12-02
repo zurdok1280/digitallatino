@@ -35,6 +35,20 @@ export interface TrendingSong {
   rank: string;
   artist: string;
   song: string;
+  monthly_listeners?: number;
+  followers_total?: number;
+  popularity?: number;
+  streams_total?: number;
+  playlists?: number;
+  playlist_reach?: number;
+  followers_total_instagram?: number;
+  followers_total_tiktok?: number;
+  videos_views_total_youtube?: number;
+  followers_total_facebook?: number;
+  followers_total_twitter?: number;
+  spotify_streams?: number;
+  img?: string;
+  spotifyid?: string;
 }
 
 export interface Song {
@@ -122,8 +136,9 @@ export interface TopTrendingArtist {
   videos_views_total_youtube: number;
   followers_total_facebook: number;
   followers_total_twitter: number;
-  spotify_streams: number;
-  img: string;
+  spotify_streams?: number;
+  img?: string;
+  spotifyid?: string;
 }
 
 //Interface Contry para buttonSongInfo/boxElementsDisplay

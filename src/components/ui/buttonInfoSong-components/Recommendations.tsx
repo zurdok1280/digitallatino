@@ -93,6 +93,7 @@ const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
                 //console.log('❌ No se pudo obtener spotifyId real, usando el de la DB:', spotifyId);
                 setRealSpotifyId(spotifyId || null);
             }
+            //Obtener rank
 
         } catch (err) {
             console.error('❌ Error cargando datos:', err);

@@ -27,7 +27,7 @@ import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 import { ButtonBigNumber } from "@/components/ui/button-big-number";
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
-import { ButtonInfoArtist } from "@/components/ui/buttonInfoArtist";
+import { ButtonInfoArtist, ExpandRow } from "@/components/ui/buttonInfoArtist";
 import { ExpandRowArtist } from "@/components/ui/buttoninfoArtist-components/expandRowArtist";
 import { useExpandableRows } from "@/hooks/useExpandableRows";
 
@@ -277,12 +277,12 @@ function MovementIndicator({ movement, lastWeek, currentRank }: MovementIndicato
   return <div className="w-4 h-4"></div>; // Same placeholder
 }
 
-interface ExpandRowProps {
+interface ExpandRowSongProps {
   row: Song;
   onPromote: () => void;
 }
 
-function ExpandRow({ row, onPromote }: ExpandRowProps) {
+function ExpandRowSong({ row, onPromote }: ExpandRowSongProps) {
   return (
     <div className="mt-4 border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in relative overflow-visible">
       {/* Blurred Content */}
@@ -1301,7 +1301,7 @@ export default function TopArtists() {
                       </div>
                     </div>
 
-                    {/* Track Info */}
+                    {/* Artist Info */}
                     <div className="col-span-3 flex items-center gap-3">
                       <div className="relative group-hover:scale-105 transition-transform">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
@@ -1309,19 +1309,13 @@ export default function TopArtists() {
                           <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
                             <AvatarImage
                               src={row.img}
-                              alt={row.img}
+                              alt={row.artist}
                               className="rounded-lg object-cover"
                             />
                             <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
                               {row.artist.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
-                          {/* Play Button Overlay */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
-                            <button>
-                              <Play className="w-3 h-3 ml-0.5" />
-                            </button>
-                          </div>
                         </div>
                       </div>
 
@@ -1336,41 +1330,44 @@ export default function TopArtists() {
                     </div>
 
                     {/* Artist Stats */}
-                    <div className="col-span-7 place-items-stretch">
+                    <div className="col-span-6 place-items-stretch">
                       <div className="flex gap-0 overflow-x-auto pb-1">
-                        {/* Monthly Listeners */}
                         <ButtonBigNumber name="Oyentes Mensuales" quantity={row.monthly_listeners} />
-                        {/* Instagram Followers */}
                         <ButtonBigNumber name="Seguidores Instagram" quantity={row.followers_total_instagram} />
-                        {/* Facebook Followers */}
                         <ButtonBigNumber name="Seguidores Facebook" quantity={row.followers_total_facebook} />
-                        {/* TitkTok Followers */}
                         <ButtonBigNumber name="Seguidores TikTok" quantity={row.followers_total_tiktok} />
-                        {/* Playlist */}
                         <ButtonBigNumber name="Playlist" quantity={row.playlists} />
+                      </div>
+                    </div>
 
-                        {/* Expand Button */}
-                        {/*
-                        <div className="col-span-1 text-right">
-                          <ButtonInfoArtist
-                            index={index}
-                            isExpanded={isExpanded(index)}
-                            onToggle={() => handleToggleRow(index, row)}
-                          />
-                      </div>
-                          */}
-                      </div>
+                    {/* Expand Button - SOLO el botón aquí */}
+                    <div className="col-span-1 text-right">
+                      <ButtonInfoArtist
+                        index={index}
+                        isExpanded={isExpanded(index)}
+                        onToggle={() => handleToggleRow(index, row)}
+                        artist={{
+                          spotifyid: row.spotifyid,
+                          artist: row.artist,
+                          rk: parseInt(row.rk),
+                          img: row.img,
+                          followers_total: row.followers_total,
+                          monthly_listeners: row.monthly_listeners
+                        }}
+                        selectedCountry={selectedCountry}
+                      />
                     </div>
                   </div>
 
-                  {/* Expanded Content */}
+                  {/* CONTENIDO EXPANDIDO FUERA DEL GRID - igual que en Debut.tsx */}
                   {isExpanded(index) && (
                     <div className="px-6 pb-4">
-                      <ExpandRowArtist
+                      <ExpandRow
                         artist={{
-                          //spotifyid: row.spotifyid,
+                          spotifyid: row.spotifyid,
                           artist: row.artist,
                           rk: parseInt(row.rk),
+                          img: row.img
                         }}
                         selectedCountry={selectedCountry}
                         isExpanded={isExpanded(index)}
