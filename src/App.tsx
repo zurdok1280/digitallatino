@@ -23,6 +23,8 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const Payment = lazy(() => import("./pages/PaymentPage"));
 const AuthCallback = lazy(() => import("./pages/AuthCallbackPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
+const MyArtist = lazy(() => import("./pages/MyArtist"));
+
 // QueryClient optimizado para rendimiento
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -88,6 +90,7 @@ const App = () => (
             <Route path="/studio" element={withLazy(Index)} />
             <Route path="/dashboard" element={withLazy(Dashboard)} />
             <Route path="/campaign" element={withLazy(Campaign)} />
+            <Route path="/my-artist" element={withLazy(MyArtist)} />
             <Route
               path="/campaign-details"
               element={withLazy(CampaignDetails)}

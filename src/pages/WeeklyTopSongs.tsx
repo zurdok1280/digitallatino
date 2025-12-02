@@ -48,6 +48,7 @@ import taylorSwiftCover from "@/assets/covers/taylor-swift-fortnight.jpg";
 import eminemCover from "@/assets/covers/eminem-tobey.jpg";
 import chappellRoanCover from "@/assets/covers/chappell-roan-good-luck.jpg";
 import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
+import { time } from "console";
 import { useApiWithLoading } from "@/hooks/useApiWithLoading";
 import {
   ButtonInfoSong,
@@ -376,67 +377,34 @@ export default function Charts() {
   };
 
   const filteredSongs = useMemo(() => {
-       const normalizeText = (text: string) => {
+    // Función para normalizar texto
+    const normalizeText = (text: string) => {
       return text
-      .normalize("NFD") // Descompone letras de tildes
-      .replace(/[\u0300-\u036f]/g, "") // Borra las tildes
-      .toLowerCase()
-      .trim();
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
     };
-      //Si es ARTIST, aplicar filtro especial
-    if (user?.role === 'ARTIST' ) {
-      if (!user.allowedArtistName && !user.allowedArtistId) return [];
-      const myArtistName = user.allowedArtistName;
-      const myArtistClean = normalizeText(myArtistName);
 
-        if (songs.length > 0) {
-        console.log(`🔒 Buscando: "${myArtistName}" (Normalizado: "${myArtistClean}")`);
-        
-      }      
-      return songs.filter((song, index) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s: any = song;
-        const songArtistRaw = s.artists || s.artist || "";
-        const songArtistClean = normalizeText(String(songArtistRaw));
-        if (index < 3) {
-          console.log(`🔎 Comparando #${index + 1}:`);
-          console.log(`   Canción tiene: "${songArtistClean}" (Original: ${songArtistRaw})`);
-          console.log(`   Tú buscas:     "${myArtistClean}"`);
-          console.log(`   ¿Coinciden?:   ${songArtistClean.includes(myArtistClean)}`);
-        }
-        if (songArtistClean.includes(myArtistClean)) {
-          return true;
-        }
-
-       if (Array.isArray(s.artists_array)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const matchInArray = s.artists_array.some((artistObj: any) =>
-           normalizeText(String(artistObj.name || "")).includes(myArtistClean)
-        );
-          if (matchInArray) {
-            return true;
-          }
-        }
-          return false;
-        
-      });
-    }
-
-    //Si no es artista, aplicar filtro normal
-    // Si no hay query de búsqueda, devolver todas las canciones
+    // Si no hay texto en la barra de búsqueda, devolvemos TODAS las canciones
+    // (Ya NO filtramos por artista aquí, para que aparezca todo el Top 50)
     if (!chartSearchQuery.trim()) {
       return songs;
     }
-    const query = chartSearchQuery.toLowerCase().trim();
+    
+    // Si hay búsqueda, filtramos por texto
+    const query = normalizeText(chartSearchQuery);
     return songs.filter((song) => {
-      const songMatch =
-        song.song?.toLowerCase().includes(query) ||
-        song.label?.toLowerCase().includes(query);
-      const artistMatch = song.artists?.toLowerCase().includes(query);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const s: any = song;
+      
+      const songName = normalizeText(s.song || "");
+      const labelName = normalizeText(s.label || "");
+      const artistName = normalizeText(s.artists || "");
 
-      return songMatch || artistMatch;
+      return songName.includes(query) || labelName.includes(query) || artistName.includes(query);
     });
-  }, [songs, chartSearchQuery]);
+  }, [songs, chartSearchQuery]); // Quitamos 'user' de dependencias crítica
 
   //Limitar top 20
   const songsToDisplay = useMemo(() => {
@@ -468,6 +436,7 @@ export default function Charts() {
 
   // Función para filtrar opciones basado en la búsqueda
   const getFilteredOptions = (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options: any[],
     searchQuery: string,
     type: "country" | "format" | "city"
@@ -604,12 +573,14 @@ export default function Charts() {
 
     try {
       setLoadingCityData(true);
+      console.log("Fetching city data for:", { csSong, countryId });
 
       const response = await digitalLatinoApi.getCityData(
         parseInt(csSong),
         parseInt(countryId)
       );
 
+      console.log("City data response:", response.data);
       setCityData(response.data);
     } catch (error) {
       console.error("Error fetching city data:", error);
@@ -788,6 +759,7 @@ export default function Charts() {
 
   // Connect to Spotify with OAuth
   const connectToSpotify = () => {
+    console.log("connectToSpotify called");
     // Generate a random state for security
     const state = Math.random().toString(36).substring(2, 15);
     window.localStorage.setItem("spotify_auth_state", state);
@@ -799,6 +771,7 @@ export default function Charts() {
     authUrl.searchParams.append("scope", SPOTIFY_CONFIG.scope);
     authUrl.searchParams.append("state", state);
 
+    console.log("Redirecting to Spotify auth:", authUrl.toString());
     // Open Spotify auth in the same window
     window.location.href = authUrl.toString();
   };
@@ -860,6 +833,7 @@ export default function Charts() {
 
   const handlePlayPreview = useCallback(
     (trackRank: number, audioUrl: string) => {
+      console.log("handlePlayPreview called for:", trackRank, audioUrl);
 
       // Si la misma canción está sonando, pausar y limpiar
       if (currentlyPlaying === trackRank) {
@@ -902,6 +876,26 @@ export default function Charts() {
     },
     [currentlyPlaying]
   );
+  const handleRestrictedToggle = (index: number, row: Song) => {
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
+    if (user?.role === 'ARTIST') {
+      const normalize = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      const myArtistName = normalize(user.allowedArtistName || "");
+      const songArtistName = normalize(row.artists || "");
+
+      if (!songArtistName.includes(myArtistName)) {
+        toast({
+          title: "🔒 Acceso Restringido",
+          description: "Esta canción no pertenece a tu catálogo de artista.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } handleToggleRow(index, row);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
@@ -923,7 +917,7 @@ export default function Charts() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-4 md:mb-8 flex flex-col gap-0 border-b border-white/20 pb-4 md:pb-6 bg-white/60 backdrop-blur-lg rounded-2xl md:rounded-3xl p-3 md:p-8 shadow-lg relative z-10">
+        <div className="mb-8 flex flex-col gap-0 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -933,40 +927,39 @@ export default function Charts() {
           </div>
 
           {/* Filtros Profesionales */}
-           {user?.role === 'ARTIST' ? (
-                      // --- VISTA PARA ARTISTA 
-                      <div className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-6 mb-6 shadow-sm flex items-center justify-between">
-                         <div>
-                           <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                              <Crown className="w-6 h-6 text-purple-600" />
-                              Panel de Artista
-                           </h2>
-                           <p className="text-sm text-gray-500 mt-1">
-                              Métricas exclusivas para tu artista seleccionado.
-                           </p>
-                         </div>
-                         
-                         {/* Badge con el nombre del artista  */}
-                         {user.name && (
-                             <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
-                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                <span className="font-semibold text-gray-700">{user.allowedArtistName}</span>
-                             </div>
-                         )}
-                      </div>
+          {user?.role === 'ARTIST' && (
+            // --- VISTA PARA ARTISTA 
+            <div className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-6 mb-6 shadow-sm flex items-center justify-between">
+               <div>
+                 <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                    <Crown className="w-6 h-6 text-purple-600" />
+                    Panel de Artista
+                 </h2>
+                 <p className="text-sm text-gray-500 mt-1">
+                    Métricas exclusivas para tu artista seleccionado.
+                 </p>
+               </div>
+               
+               {/* Badge con el nombre del artista  */}
+               {user.name && (
+                   <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                      <span className="font-semibold text-gray-700">{user.allowedArtistName}</span>
+                   </div>
+               )}
+            </div>
+          )}
+
           
-                    ) : (
-                      // Vista para PREMIUM
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
+            
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
             {/* Filtro por País/Región */}
-            <div className="space-y-1 md:space-y-2">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 md:gap-2">
-                <span className="text-sm">🌎</span>
-                <span className="hidden xs:inline">País/Región</span>
-                <span className="xs:hidden">País/Región</span>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
+                <span>🌎</span> País/Región
               </label>
               <select
-                className="w-full rounded-xl md:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 md:px-4 py-2 md:py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-pink-400"
+                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
                 value={selectedCountry}
                 onChange={handleCountryChange}
                 disabled={loadingCountries}
@@ -1013,10 +1006,9 @@ export default function Charts() {
               </select>
             </div>
             {/* Filtro por Ciudad */}
-            <div className="space-y-1 md:space-y-2 relative">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 md:gap-2">
-                <span className="text-sm">🏙️</span>
-                <span className="xs:hidden">Ciudad Target</span>
+            <div className="space-y-2 relative">
+              <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-2">
+                <span>🏙️</span> Ciudad Target
               </label>
               <div className="relative">
                 <button
@@ -1120,8 +1112,9 @@ export default function Charts() {
               </div>
             </div>*/}
           </div>
-          )}
         </div>
+          
+        
 
         {/* Lista de Charts */}
         <div className="mb-8 flex flex-col gap-0 border-b border-white/20 pb-2 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
@@ -1329,7 +1322,7 @@ export default function Charts() {
                             index={index}
                             row={row}
                             isExpanded={isExpanded(index)}
-                            onToggle={() => handleToggleRow(index, row)}
+                            onToggle={() => handleRestrictedToggle(index, row)}
                             selectedCountry={selectedCountry}
                           />
                           {/* Separar botón para componente */}
