@@ -3,12 +3,15 @@ import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom"; 
+
 
 export const CheckoutForm = ({ priceId }: { priceId: string }) => {
     const stripe = useStripe();
     const elements = useElements();
-    const { token } = useAuth();
+    const { token, login } = useAuth();
     const { toast } = useToast();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (event: React.FormEvent) => {
@@ -26,8 +29,8 @@ export const CheckoutForm = ({ priceId }: { priceId: string }) => {
         }
 
         try {
-          // const createSubResponse = await fetch('http://localhost:8085/api/subscriptions/create', {
-             const createSubResponse = await fetch('https://security.digital-latino.com/api/subscriptions/create', {
+           // const createSubResponse = await fetch('http://localhost:8085/api/subscriptions/create', {
+            const createSubResponse = await fetch('https://security.digital-latino.com/api/subscriptions/create', {
 
                 method: 'POST',
                 headers: {
@@ -53,10 +56,34 @@ export const CheckoutForm = ({ priceId }: { priceId: string }) => {
             if (error) {
                 throw new Error(error.message || "Ocurrió un error con el pago.");
             }
+
             if (paymentIntent?.status === 'succeeded') {
                 toast({ title: "¡Pago exitoso!", description: "Tu suscripción está activa. Redirigiendo..." });
-                setTimeout(() => window.location.href = '/weekly-top-songs', 2000);
+                //Get new token with updated user info
+                try{
+                    
+                    const refreshResponse = await fetch('https://security.digital-latino.com/api/auth/refresh-token', {
+                    //const refreshResponse = await fetch('http://localhost:8085/api/auth/refresh-token', {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+                    if (refreshResponse.ok) {
+                        const data = await refreshResponse.json();
+                        // update the login state with the new token
+                        login(data.token);
+                        navigate('/');
+                    } else {
+                        console.error("No se pudo refrescar el token");
+                        window.location.href = '/';
+                }
+                } catch (refreshError) {
+                console.error("Error de red al refrescar:", refreshError);
+                window.location.href = '/';
             }
+        }
+
         {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         } catch (err: any) {
             toast({ title: "Error", description: err.message, variant: "destructive" });

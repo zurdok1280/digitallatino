@@ -376,7 +376,53 @@ export default function Charts() {
   };
 
   const filteredSongs = useMemo(() => {
+       const normalizeText = (text: string) => {
+      return text
+      .normalize("NFD") // Descompone letras de tildes
+      .replace(/[\u0300-\u036f]/g, "") // Borra las tildes
+      .toLowerCase()
+      .trim();
+    };
+      //Si es ARTIST, aplicar filtro especial
+    if (user?.role === 'ARTIST' ) {
+      if (!user.allowedArtistName && !user.allowedArtistId) return [];
+      const myArtistName = user.allowedArtistName;
+      const myArtistClean = normalizeText(myArtistName);
 
+        if (songs.length > 0) {
+        console.log(`🔒 Buscando: "${myArtistName}" (Normalizado: "${myArtistClean}")`);
+        
+      }      
+      return songs.filter((song, index) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const s: any = song;
+        const songArtistRaw = s.artists || s.artist || "";
+        const songArtistClean = normalizeText(String(songArtistRaw));
+        if (index < 3) {
+          console.log(`🔎 Comparando #${index + 1}:`);
+          console.log(`   Canción tiene: "${songArtistClean}" (Original: ${songArtistRaw})`);
+          console.log(`   Tú buscas:     "${myArtistClean}"`);
+          console.log(`   ¿Coinciden?:   ${songArtistClean.includes(myArtistClean)}`);
+        }
+        if (songArtistClean.includes(myArtistClean)) {
+          return true;
+        }
+
+       if (Array.isArray(s.artists_array)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const matchInArray = s.artists_array.some((artistObj: any) =>
+           normalizeText(String(artistObj.name || "")).includes(myArtistClean)
+        );
+          if (matchInArray) {
+            return true;
+          }
+        }
+          return false;
+        
+      });
+    }
+
+    //Si no es artista, aplicar filtro normal
     // Si no hay query de búsqueda, devolver todas las canciones
     if (!chartSearchQuery.trim()) {
       return songs;
@@ -887,6 +933,30 @@ export default function Charts() {
           </div>
 
           {/* Filtros Profesionales */}
+           {user?.role === 'ARTIST' ? (
+                      // --- VISTA PARA ARTISTA 
+                      <div className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-6 mb-6 shadow-sm flex items-center justify-between">
+                         <div>
+                           <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                              <Crown className="w-6 h-6 text-purple-600" />
+                              Panel de Artista
+                           </h2>
+                           <p className="text-sm text-gray-500 mt-1">
+                              Métricas exclusivas para tu artista seleccionado.
+                           </p>
+                         </div>
+                         
+                         {/* Badge con el nombre del artista  */}
+                         {user.name && (
+                             <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                <span className="font-semibold text-gray-700">{user.allowedArtistName}</span>
+                             </div>
+                         )}
+                      </div>
+          
+                    ) : (
+                      // Vista para PREMIUM
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
             {/* Filtro por País/Región */}
             <div className="space-y-1 md:space-y-2">
@@ -1050,6 +1120,7 @@ export default function Charts() {
               </div>
             </div>*/}
           </div>
+          )}
         </div>
 
         {/* Lista de Charts */}
