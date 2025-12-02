@@ -1,7 +1,26 @@
-import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useMemo,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap } from "lucide-react";
+import {
+  ChevronUp,
+  ChevronDown,
+  Star,
+  Plus,
+  Minus,
+  Search,
+  Music,
+  Crown,
+  Play,
+  Pause,
+  Trophy,
+  Zap,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,9 +28,18 @@ import { useToast } from "@/hooks/use-toast";
 import { LatinAmericaMap } from "@/components/LatinAmericaMap";
 import { SpotifyTrack } from "@/types/spotify";
 import { useAuth } from "@/hooks/useAuth";
-import { digitalLatinoApi, Country, Format, City, Song, TrendingSong, TopTrendingArtist, SongsArtist } from "@/lib/api";
+import {
+  digitalLatinoApi,
+  Country,
+  Format,
+  City,
+  Song,
+  TrendingSong,
+  TopTrendingArtist,
+  SongsArtist,
+} from "@/lib/api";
 // Import album covers
-import { Backdrop, CircularProgress, Fab } from '@mui/material';
+import { Backdrop, CircularProgress, Fab } from "@mui/material";
 import teddySwimsCover from "@/assets/covers/teddy-swims-lose-control.jpg";
 import badBunnyCover from "@/assets/covers/bad-bunny-monaco.jpg";
 import karolGCover from "@/assets/covers/karol-g-si-antes.jpg";
@@ -23,7 +51,7 @@ import eminemCover from "@/assets/covers/eminem-tobey.jpg";
 import chappellRoanCover from "@/assets/covers/chappell-roan-good-luck.jpg";
 import billieEilishCover from "@/assets/covers/billie-eilish-birds.jpg";
 import { time } from "console";
-import { useApiWithLoading } from '@/hooks/useApiWithLoading';
+import { useApiWithLoading } from "@/hooks/useApiWithLoading";
 import { ButtonBigNumber } from "@/components/ui/button-big-number";
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
@@ -31,15 +59,45 @@ import { ButtonInfoArtist } from "@/components/ui/buttonInfoArtist";
 import { ExpandRowArtist } from "@/components/ui/buttoninfoArtist-components/expandRowArtist";
 import { useExpandableRows } from "@/hooks/useExpandableRows";
 
-
 // Agregar más entradas para llegar a 40
 for (let i = 16; i <= 40; i++) {
-  const covers = [teddySwimsCover, badBunnyCover, karolGCover, shaboozeyCover, sabrinaCarpenterCover, pesoPlumaCover, taylorSwiftCover, eminemCover, chappellRoanCover, billieEilishCover];
-  const artists = ["Miley Cyrus", "Harry Styles", "Ariana Grande", "The Weeknd", "Drake", "Post Malone", "Rihanna", "Ed Sheeran", "Bruno Mars", "Adele"];
-  const tracks = ["Flowers", "As It Was", "positions", "Blinding Lights", "God's Plan", "Circles", "Umbrella", "Shape of You", "Uptown Funk", "Hello"];
-
+  const covers = [
+    teddySwimsCover,
+    badBunnyCover,
+    karolGCover,
+    shaboozeyCover,
+    sabrinaCarpenterCover,
+    pesoPlumaCover,
+    taylorSwiftCover,
+    eminemCover,
+    chappellRoanCover,
+    billieEilishCover,
+  ];
+  const artists = [
+    "Miley Cyrus",
+    "Harry Styles",
+    "Ariana Grande",
+    "The Weeknd",
+    "Drake",
+    "Post Malone",
+    "Rihanna",
+    "Ed Sheeran",
+    "Bruno Mars",
+    "Adele",
+  ];
+  const tracks = [
+    "Flowers",
+    "As It Was",
+    "positions",
+    "Blinding Lights",
+    "God's Plan",
+    "Circles",
+    "Umbrella",
+    "Shape of You",
+    "Uptown Funk",
+    "Hello",
+  ];
 }
-
 
 interface PlatformChipProps {
   label: string;
@@ -54,7 +112,7 @@ function PlatformChip({ label, rank }: PlatformChipProps) {
       YouTube: "🔴",
       Shazam: "🔵",
       Pandora: "🟦",
-      SoundCloud: "🟠"
+      SoundCloud: "🟠",
     };
     return logos[platform as keyof typeof logos] || "🎵";
   };
@@ -63,7 +121,9 @@ function PlatformChip({ label, rank }: PlatformChipProps) {
     <div className="flex items-center gap-2 rounded-full border border-white/30 bg-white/70 backdrop-blur-sm px-3 py-1 shadow-sm">
       <span className="text-sm">{getLogoEmoji(label)}</span>
       <span className="text-xs font-medium text-gray-700">{label}</span>
-      <span className="ml-1 text-xs text-gray-400 filter blur-[1px] select-none">#{rank}</span>
+      <span className="ml-1 text-xs text-gray-400 filter blur-[1px] select-none">
+        #{rank}
+      </span>
     </div>
   );
 }
@@ -96,11 +156,15 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
           <div className="mt-2 space-y-2">
             <div className="flex justify-between items-center p-2 bg-green-100/60 rounded">
               <span className="text-xs text-gray-700">Artista Similar:</span>
-              <span className="text-xs font-bold text-green-600">+892% streams</span>
+              <span className="text-xs font-bold text-green-600">
+                +892% streams
+              </span>
             </div>
             <div className="flex justify-between items-center p-2 bg-blue-100/60 rounded">
               <span className="text-xs text-gray-700">Campaña 30 días:</span>
-              <span className="text-xs font-bold text-blue-600">$2.4M revenue</span>
+              <span className="text-xs font-bold text-blue-600">
+                $2.4M revenue
+              </span>
             </div>
             <div className="flex justify-between items-center p-2 bg-purple-100/60 rounded">
               <span className="text-xs text-gray-700">Nuevos fans:</span>
@@ -118,7 +182,9 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
             <div className="w-8 h-8 mx-auto mb-3 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center">
               <div className="text-sm">🔓</div>
             </div>
-            <h3 className="text-xs font-bold text-foreground mb-2 leading-tight">Desbloquea Analytics</h3>
+            <h3 className="text-xs font-bold text-foreground mb-2 leading-tight">
+              Desbloquea Analytics
+            </h3>
             <p className="text-[10px] text-muted-foreground mb-3 leading-tight">
               Métricas detalladas y herramientas profesionales
             </p>
@@ -137,8 +203,12 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
                     <span className="text-white font-bold text-sm">👑</span>
                   </div>
                   <h4 className="font-bold text-foreground text-sm">Premium</h4>
-                  <p className="text-xs text-muted-foreground">Solo Charts & Analytics</p>
-                  <div className="text-lg font-bold text-foreground mt-1">$14.99/mes</div>
+                  <p className="text-xs text-muted-foreground">
+                    Solo Charts & Analytics
+                  </p>
+                  <div className="text-lg font-bold text-foreground mt-1">
+                    $14.99/mes
+                  </div>
                 </div>
 
                 <div className="space-y-1 mb-4 text-xs">
@@ -159,7 +229,7 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
                 <button
                   onClick={() => {
                     // TODO: Integrar con Stripe cuando esté listo
-                    console.log('Redirect to premium subscription');
+                    console.log("Redirect to premium subscription");
                   }}
                   className="w-full bg-gradient-primary text-white text-xs font-bold px-3 py-2 rounded-full hover:shadow-md hover:scale-105 transition-all duration-300"
                 >
@@ -179,9 +249,15 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
                   <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2">
                     <span className="text-white font-bold text-sm">🚀</span>
                   </div>
-                  <h4 className="font-bold text-foreground text-sm">Campaña Completa</h4>
-                  <p className="text-xs text-muted-foreground">Premium + Promoción</p>
-                  <div className="text-lg font-bold text-foreground mt-1">Desde $750</div>
+                  <h4 className="font-bold text-foreground text-sm">
+                    Campaña Completa
+                  </h4>
+                  <p className="text-xs text-muted-foreground">
+                    Premium + Promoción
+                  </p>
+                  <div className="text-lg font-bold text-foreground mt-1">
+                    Desde $750
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-0.5 mb-4 text-[10px]">
@@ -212,14 +288,16 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
                 </div>
 
                 <button
-                  onClick={() => onNavigate('/campaign')}
+                  onClick={() => onNavigate("/campaign")}
                   className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white text-xs font-bold px-3 py-2 rounded-full hover:shadow-md hover:scale-105 transition-all duration-300"
                 >
                   Crear Campaña
                 </button>
               </div>
             </div>
-            <p className="text-[9px] text-muted-foreground mt-2 leading-tight">ROI: +347% en 30 días</p>
+            <p className="text-[9px] text-muted-foreground mt-2 leading-tight">
+              ROI: +347% en 30 días
+            </p>
           </div>
         </div>
       </div>
@@ -233,7 +311,11 @@ interface MovementIndicatorProps {
   currentRank: number;
 }
 
-function MovementIndicator({ movement, lastWeek, currentRank }: MovementIndicatorProps) {
+function MovementIndicator({
+  movement,
+  lastWeek,
+  currentRank,
+}: MovementIndicatorProps) {
   if (movement === "NEW") {
     return (
       <div className="flex items-center justify-center">
@@ -289,56 +371,77 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
       <div className="blur-sm pointer-events-none">
         {/* Compact Billboard-style Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-
           {/* Debut Position */}
           <div className="bg-black border border-green-500 rounded-xl p-3 text-center">
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">Debut Position</div>
-            <div className="text-3xl font-bold text-green-400 mb-1">{row.rk}</div>
+            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">
+              Debut Position
+            </div>
+            <div className="text-3xl font-bold text-green-400 mb-1">
+              {row.rk}
+            </div>
             <div className="text-xs text-gray-400">Debut Chart Date</div>
             <div className="text-xs text-white">01/15/24</div>
           </div>
 
           {/* Peak Position */}
           <div className="bg-black border border-green-500 rounded-xl p-3 text-center">
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">Peak Position</div>
-            <div className="text-3xl font-bold text-green-400 mb-1">{row.rk}</div>
+            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">
+              Peak Position
+            </div>
+            <div className="text-3xl font-bold text-green-400 mb-1">
+              {row.rk}
+            </div>
             <div className="text-xs text-gray-400">Peak Chart Date</div>
             <div className="text-xs text-white">02/08/24</div>
           </div>
 
           {/* Performance Metrics */}
           <div className="bg-black border border-green-500 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Platform Rankings</div>
+            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
+              Platform Rankings
+            </div>
             <div className="grid grid-cols-2 gap-1 text-xs">
               <div className="flex justify-between">
                 <span className="text-gray-400">🟢 Spotify:</span>
-                <span className="text-white font-bold">#{row.spotify_streams_total}</span>
+                <span className="text-white font-bold">
+                  #{row.spotify_streams_total}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">⚫ TikTok:</span>
-                <span className="text-white font-bold">#{row.tiktok_views_total}</span>
+                <span className="text-white font-bold">
+                  #{row.tiktok_views_total}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">🔴 YouTube:</span>
-                <span className="text-white font-bold">#{row.youtube_video_views_total}</span>
+                <span className="text-white font-bold">
+                  #{row.youtube_video_views_total}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-400">🔵 Shazam:</span>
-                <span className="text-white font-bold">#{row.shazams_total}</span>
+                <span className="text-white font-bold">
+                  #{row.shazams_total}
+                </span>
               </div>
             </div>
           </div>
 
           {/* Awards & Share */}
           <div className="bg-black border border-green-500 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Awards</div>
+            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
+              Awards
+            </div>
             <div className="flex items-center gap-2 mb-3">
               <div className="bg-green-500 rounded-full p-1">
                 <span className="text-white text-xs">↗</span>
               </div>
               <span className="text-white text-xs">Gains In Performance</span>
             </div>
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">Share</div>
+            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">
+              Share
+            </div>
             <div className="flex gap-2">
               <div className="w-6 h-6 bg-green-600 rounded border border-green-500 flex items-center justify-center">
                 <span className="text-white text-xs">f</span>
@@ -355,7 +458,9 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
 
         {/* Top Markets - Horizontal compact display */}
         <div className="mb-4 bg-black border border-green-500/30 rounded-xl p-3">
-          <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Top Markets Performance</div>
+          <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
+            Top Markets Performance
+          </div>
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
             {/*  {row.topCountries.slice(0, 5).map((country, index) => (
               <div key={country} className="flex justify-between items-center bg-white/5 rounded p-2">
@@ -369,7 +474,9 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
         {/* Detailed Analytics Preview */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
           <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Revenue Analytics</div>
+            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
+              Revenue Analytics
+            </div>
             <div className="space-y-1 text-xs">
               <div className="flex justify-between">
                 <span className="text-gray-400">Total Streams:</span>
@@ -387,7 +494,9 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
           </div>
 
           <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Growth Metrics</div>
+            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
+              Growth Metrics
+            </div>
             <div className="space-y-1 text-xs">
               <div className="flex justify-between">
                 <span className="text-gray-400">Weekly Growth:</span>
@@ -405,7 +514,9 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
           </div>
 
           <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">Demographic Data</div>
+            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
+              Demographic Data
+            </div>
             <div className="space-y-1 text-xs">
               <div className="flex justify-between">
                 <span className="text-gray-400">Age 18-24:</span>
@@ -435,7 +546,8 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
               Desbloquea Analytics Completos
             </h3>
             <p className="text-muted-foreground text-sm">
-              Accede a métricas detalladas, datos demográficos y herramientas profesionales de promoción
+              Accede a métricas detalladas, datos demográficos y herramientas
+              profesionales de promoción
             </p>
           </div>
 
@@ -474,7 +586,9 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
               🚀 Comprar Campaña
             </button>
             <p className="text-xs text-muted-foreground">
-              ROI Promedio: <strong className="text-primary">+{row.score}%</strong> • Cancela en cualquier momento
+              ROI Promedio:{" "}
+              <strong className="text-primary">+{row.score}%</strong> • Cancela
+              en cualquier momento
             </p>
           </div>
         </div>
@@ -483,12 +597,12 @@ function ExpandRow({ row, onPromote }: ExpandRowProps) {
   );
 }
 
-// Spotify API configuration  
-const DEFAULT_CLIENT_ID = '5001fe1a36c8442781282c9112d599ca';
+// Spotify API configuration
+const DEFAULT_CLIENT_ID = "5001fe1a36c8442781282c9112d599ca";
 const SPOTIFY_CONFIG = {
   client_id: DEFAULT_CLIENT_ID,
   redirect_uri: window.location.origin,
-  scope: 'user-read-private user-read-email',
+  scope: "user-read-private user-read-email",
 };
 
 interface SearchResultProps {
@@ -516,7 +630,9 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
         </div>
         <div className="flex-1">
           <h3 className="font-semibold text-slate-800 mb-1">{track.name}</h3>
-          <p className="text-sm text-slate-600 mb-2">{track.artists.map(artist => artist.name).join(', ')}</p>
+          <p className="text-sm text-slate-600 mb-2">
+            {track.artists.map((artist) => artist.name).join(", ")}
+          </p>
           <p className="text-xs text-slate-500">{track.album.name}</p>
         </div>
         <Button
@@ -539,118 +655,88 @@ export default function TopArtists() {
   const { expandedRows, toggleRow, isExpanded } = useExpandableRows();
 
   // Spotify search state
-  const [searchQuery, setSearchQuery] = useState('');     //Aislar
+  const [searchQuery, setSearchQuery] = useState(""); //Aislar
   const [accessToken, setAccessToken] = useState<string | null>(null); //Aislar
   const [isConnected, setIsConnected] = useState(false); //Aislar
 
   // Countries API state
   const [countries, setCountries] = useState<Country[]>([]);
   const [loadingCountries, setLoadingCountries] = useState(true);
-  const [selectedCountry, setSelectedCountry] = useState('2'); // USA ID = 2 por defecto
+  const [selectedCountry, setSelectedCountry] = useState("2"); // USA ID = 2 por defecto
 
   // Formats API state
   const [formats, setFormats] = useState<Format[]>([]);
   const [loadingFormats, setLoadingFormats] = useState(false);
-  const [selectedFormat, setSelectedFormat] = useState('0'); // General ID = 0 por defecto
+  const [selectedFormat, setSelectedFormat] = useState("0"); // General ID = 0 por defecto
 
   // Cities API state
   const [cities, setCities] = useState<City[]>([]);
   const [loadingCities, setLoadingCities] = useState(false);
-  const [selectedCity, setSelectedCity] = useState('0'); // All ID = 0 por defecto
+  const [selectedCity, setSelectedCity] = useState("0"); // All ID = 0 por defecto
 
   // Charts API state
-  const [trendingArtists, setTrendingArtists] = useState<TopTrendingArtist[]>([]);
+  const [trendingArtists, setTrendingArtists] = useState<TopTrendingArtist[]>(
+    []
+  );
   const [loadingArtists, setLoadingArtists] = useState(true);
-  const [selectedSong, setSelectedSong] = useState('2'); // USA ID = 2 por defecto
+  const [selectedSong, setSelectedSong] = useState("2"); // USA ID = 2 por defecto
 
   // Period API state
-  const [selectedPeriod, setSelectedPeriod] = useState('C'); // Current por defecto 
+  const [selectedPeriod, setSelectedPeriod] = useState("C"); // Current por defecto
 
   const [showGenreOverlay, setShowGenreOverlay] = useState(false);
   const [showCrgOverlay, setShowCrgOverlay] = useState(false);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
-  const [chartSearchQuery, setChartSearchQuery] = useState('');
-  const [showSearchBar, setShowSearchBar] = useState(false)
+  const [chartSearchQuery, setChartSearchQuery] = useState("");
+  const [showSearchBar, setShowSearchBar] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Dropdown state keyboard navigation
-  const [openDropdown, setOpenDropdown] = useState<'country' | 'format' | 'city' | null>(null);
-  const [dropdownSearch, setDropdownSearch] = useState('');
+  const [openDropdown, setOpenDropdown] = useState<
+    "country" | "format" | "city" | null
+  >(null);
+  const [dropdownSearch, setDropdownSearch] = useState("");
 
   const filteredSongs = useMemo(() => {
-    console.log('Filtrando canciones...', chartSearchQuery, trendingArtists.length);
+    console.log(
+      "Filtrando canciones...",
+      chartSearchQuery,
+      trendingArtists.length
+    );
     const normalizeText = (text: string) => {
       return text
-      .normalize("NFD") // Descompone letras de tildes
-      .replace(/[\u0300-\u036f]/g, "") // Borra las tildes
-      .toLowerCase()
-      .trim();
+        .normalize("NFD") // Descompone letras de tildes
+        .replace(/[\u0300-\u036f]/g, "") // Borra las tildes
+        .toLowerCase()
+        .trim();
     };
-      //Si es ARTIST, aplicar filtro especial
-    if (user?.role === 'ARTIST' ) {
-      if (!user.allowedArtistName && !user.allowedArtistId) return [];
-      const myArtistName = user.allowedArtistName;
-      const myArtistClean = normalizeText(myArtistName);
-
-        if (trendingArtists.length > 0) {
-        console.log(`🔒 Buscando: "${myArtistName}" (Normalizado: "${myArtistClean}")`);
-        
-      }      
-      return trendingArtists.filter((song, index) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s: any = song;
-        const songArtistRaw = s.artists || s.artist || "";
-        const songArtistClean = normalizeText(String(songArtistRaw));
-        if (index < 3) {
-          console.log(`🔎 Comparando #${index + 1}:`);
-          console.log(`   Canción tiene: "${songArtistClean}" (Original: ${songArtistRaw})`);
-          console.log(`   Tú buscas:     "${myArtistClean}"`);
-          console.log(`   ¿Coinciden?:   ${songArtistClean.includes(myArtistClean)}`);
-        }
-        if (songArtistClean.includes(myArtistClean)) {
-          return true;
-        }
-
-       if (Array.isArray(s.artists_array)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const matchInArray = s.artists_array.some((artistObj: any) =>
-           normalizeText(String(artistObj.name || "")).includes(myArtistClean)
-        );
-          if (matchInArray) {
-            return true;
-          }
-        }
-          return false;
-        
-      });
-    }
-
-    //Si no es artista, aplicar filtro normal
-    // Si no hay query de búsqueda, devolver todas las canciones
     if (!chartSearchQuery.trim()) {
       return trendingArtists;
     }
-    const query = chartSearchQuery.toLowerCase().trim();
-    return trendingArtists.filter(song => {
-      const songMatch = song.artist?.toLowerCase().includes(query)
-      const artistMatch = song.artist?.toLowerCase().includes(query);
 
-      return songMatch || artistMatch;
+    const query = normalizeText(chartSearchQuery);
+    return trendingArtists.filter((artistItem) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const s: any = artistItem;
+      const artistName = normalizeText(s.artist || s.name || "");
+      return artistName.includes(query);
     });
-  }, [trendingArtists, chartSearchQuery, user]);
+  }, [trendingArtists, chartSearchQuery]);
 
   // Función para alternar la visibilidad de la barra de búsqueda
   const toggleSearchBar = () => {
     setShowSearchBar(!showSearchBar);
     if (showSearchBar) {
-      setChartSearchQuery('');
+      setChartSearchQuery("");
     }
   };
 
   // Enfocar el input cuando se muestra la barra
   useEffect(() => {
     if (showSearchBar) {
-      const searchInput = document.querySelector('input[placeholder="Buscar artista o canción en los charts..."]') as HTMLInputElement;
+      const searchInput = document.querySelector(
+        'input[placeholder="Buscar artista o canción en los charts..."]'
+      ) as HTMLInputElement;
       if (searchInput) {
         setTimeout(() => searchInput.focus(), 100);
       }
@@ -658,18 +744,24 @@ export default function TopArtists() {
   }, [showSearchBar]);
 
   // Función para filtrar opciones basado en la búsqueda
-  const getFilteredOptions = (options: any[], searchQuery: string, type: 'country' | 'format' | 'city') => {
+  const getFilteredOptions = (
+    options: any[],
+    searchQuery: string,
+    type: "country" | "format" | "city"
+  ) => {
     if (!searchQuery.trim()) return options;
 
     const query = searchQuery.toLowerCase().trim();
-    return options.filter(option => {
-      if (type === 'country') {
-        return option.country_name?.toLowerCase().includes(query) ||
+    return options.filter((option) => {
+      if (type === "country") {
+        return (
+          option.country_name?.toLowerCase().includes(query) ||
           option.country?.toLowerCase().includes(query) ||
-          option.description?.toLowerCase().includes(query);
-      } else if (type === 'format') {
+          option.description?.toLowerCase().includes(query)
+        );
+      } else if (type === "format") {
         return option.format?.toLowerCase().includes(query);
-      } else if (type === 'city') {
+      } else if (type === "city") {
         return option.city_name?.toLowerCase().includes(query);
       }
       return false;
@@ -677,28 +769,31 @@ export default function TopArtists() {
   };
 
   // Función para manejar la selección
-  const handleOptionSelect = (value: string, type: 'country' | 'format' | 'city') => {
-    if (type === 'country') {
+  const handleOptionSelect = (
+    value: string,
+    type: "country" | "format" | "city"
+  ) => {
+    if (type === "country") {
       setSelectedCountry(value);
-    } else if (type === 'format') {
+    } else if (type === "format") {
       setSelectedFormat(value);
-    } else if (type === 'city') {
+    } else if (type === "city") {
       setSelectedCity(value);
     }
     setOpenDropdown(null);
-    setDropdownSearch('');
+    setDropdownSearch("");
   };
 
   // Efecto para manejar la tecla Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setOpenDropdown(null);
-        setDropdownSearch('');
+        setDropdownSearch("");
       }
     };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
   //Debouncing para limitar las busquedas por API al usuario
@@ -714,17 +809,14 @@ export default function TopArtists() {
       };
     }, [value, delay]);
     return debouncedValue;
-  }
+  };
   // Usar el hook de debounce con 300ms de delay
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-
-
-
   // Check for existing Spotify connection
   useEffect(() => {
-    const savedToken = window.localStorage.getItem('spotify_access_token');
-    const tokenExpiry = window.localStorage.getItem('spotify_token_expiry');
+    const savedToken = window.localStorage.getItem("spotify_access_token");
+    const tokenExpiry = window.localStorage.getItem("spotify_token_expiry");
 
     if (savedToken && tokenExpiry && Date.now() < parseInt(tokenExpiry)) {
       setAccessToken(savedToken);
@@ -738,16 +830,15 @@ export default function TopArtists() {
       const response = await digitalLatinoApi.getCountries();
       setCountries(response.data);
     } catch (error) {
-      console.error('Error fetching countries:', error);
+      console.error("Error fetching countries:", error);
       toast({
         title: "Error",
         description: "No se pudieron cargar los países. Intenta de nuevo.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoadingCountries(false);
     }
-
   };
   //ESTA FUNCION CARGA LAS CANCIONES CON LOS FILTROS SELECCIONADOS (COUNTRY Y FORMAT)
   const fetchSongs = async () => {
@@ -759,18 +850,20 @@ export default function TopArtists() {
 
       try {
         setLoadingArtists(true);
-        if (Number.isNaN(selectedCity)) setSelectedCity('0');
-        console.log('Songs loaded:', (selectedFormat), (selectedCountry));
-        const response = await digitalLatinoApi.getTrendingTopArtists((selectedFormat), (selectedCountry));
-        console.log('Fetched trendingArtists:', response.data);
+        if (Number.isNaN(selectedCity)) setSelectedCity("0");
+        console.log("Songs loaded:", selectedFormat, selectedCountry);
+        const response = await digitalLatinoApi.getTrendingTopArtists(
+          selectedFormat,
+          selectedCountry
+        );
+        console.log("Fetched trendingArtists:", response.data);
         setTrendingArtists(response.data);
-
       } catch (error) {
-        console.error('Error fetching trendingArtists:', error);
+        console.error("Error fetching trendingArtists:", error);
         toast({
           title: "Error",
           description: "No se pudieron cargar las canciones. Intenta de nuevo.",
-          variant: "destructive"
+          variant: "destructive",
         });
         setTrendingArtists([]);
       } finally {
@@ -794,22 +887,26 @@ export default function TopArtists() {
 
       try {
         setLoadingFormats(true);
-        const response = await digitalLatinoApi.getFormatsByCountry(parseInt(selectedCountry));
+        const response = await digitalLatinoApi.getFormatsByCountry(
+          parseInt(selectedCountry)
+        );
         setFormats(response.data);
 
         // Set General as default if available, otherwise set first format
-        const generalFormat = response.data.find(format => format.format.toLowerCase() === 'general');
+        const generalFormat = response.data.find(
+          (format) => format.format.toLowerCase() === "general"
+        );
         if (generalFormat) {
           setSelectedFormat(generalFormat.id.toString());
         } else if (response.data.length > 0) {
           setSelectedFormat(response.data[0].id.toString());
         }
       } catch (error) {
-        console.error('Error fetching formats:', error);
+        console.error("Error fetching formats:", error);
         toast({
           title: "Error",
           description: "No se pudieron cargar los géneros. Intenta de nuevo.",
-          variant: "destructive"
+          variant: "destructive",
         });
         setFormats([]);
       } finally {
@@ -825,21 +922,23 @@ export default function TopArtists() {
     const fetchCities = async () => {
       if (!selectedCountry) {
         setCities([]);
-        setSelectedCity('0');
+        setSelectedCity("0");
         return;
       }
 
       try {
         setLoadingCities(true);
-        const response = await digitalLatinoApi.getCitiesByCountry(parseInt(selectedCountry));
+        const response = await digitalLatinoApi.getCitiesByCountry(
+          parseInt(selectedCountry)
+        );
         setCities(response.data);
-        setSelectedCity('0'); // Reset to "All" when country changes
+        setSelectedCity("0"); // Reset to "All" when country changes
       } catch (error) {
-        console.error('Error fetching cities:', error);
+        console.error("Error fetching cities:", error);
         toast({
           title: "Error",
           description: "No se pudieron cargar las ciudades. Intenta de nuevo.",
-          variant: "destructive"
+          variant: "destructive",
         });
         setCities([]);
       } finally {
@@ -850,11 +949,8 @@ export default function TopArtists() {
     fetchCities();
   }, [selectedCountry, toast]);
 
-
   // Fetch Songs when country changes
   useEffect(() => {
-
-
     fetchSongs();
   }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
 
@@ -863,27 +959,34 @@ export default function TopArtists() {
     const handleSpotifyCallback = () => {
       const hash = window.location.hash.substring(1);
       const params = new URLSearchParams(hash);
-      const token = params.get('access_token');
-      const expiresIn = params.get('expires_in');
-      const state = params.get('state');
-      const storedState = window.localStorage.getItem('spotify_auth_state');
+      const token = params.get("access_token");
+      const expiresIn = params.get("expires_in");
+      const state = params.get("state");
+      const storedState = window.localStorage.getItem("spotify_auth_state");
 
       if (token && state === storedState) {
-        const expiryTime = Date.now() + (parseInt(expiresIn || '3600') * 1000);
+        const expiryTime = Date.now() + parseInt(expiresIn || "3600") * 1000;
 
-        window.localStorage.setItem('spotify_access_token', token);
-        window.localStorage.setItem('spotify_token_expiry', expiryTime.toString());
-        window.localStorage.removeItem('spotify_auth_state');
+        window.localStorage.setItem("spotify_access_token", token);
+        window.localStorage.setItem(
+          "spotify_token_expiry",
+          expiryTime.toString()
+        );
+        window.localStorage.removeItem("spotify_auth_state");
 
         setAccessToken(token);
         setIsConnected(true);
-        console.log('Spotify connected, token saved.', token);
+        console.log("Spotify connected, token saved.", token);
         // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname);
+        window.history.replaceState(
+          {},
+          document.title,
+          window.location.pathname
+        );
 
         toast({
           title: "Conectado exitosamente",
-          description: "Ya puedes buscar artistas en Spotify."
+          description: "Ya puedes buscar artistas en Spotify.",
         });
       }
     };
@@ -893,19 +996,19 @@ export default function TopArtists() {
 
   // Connect to Spotify with OAuth
   const connectToSpotify = () => {
-    console.log('connectToSpotify called');
+    console.log("connectToSpotify called");
     // Generate a random state for security
     const state = Math.random().toString(36).substring(2, 15);
-    window.localStorage.setItem('spotify_auth_state', state);
+    window.localStorage.setItem("spotify_auth_state", state);
 
-    const authUrl = new URL('https://accounts.spotify.com/authorize');
-    authUrl.searchParams.append('client_id', DEFAULT_CLIENT_ID);
-    authUrl.searchParams.append('response_type', 'token');
-    authUrl.searchParams.append('redirect_uri', window.location.origin);
-    authUrl.searchParams.append('scope', SPOTIFY_CONFIG.scope);
-    authUrl.searchParams.append('state', state);
+    const authUrl = new URL("https://accounts.spotify.com/authorize");
+    authUrl.searchParams.append("client_id", DEFAULT_CLIENT_ID);
+    authUrl.searchParams.append("response_type", "token");
+    authUrl.searchParams.append("redirect_uri", window.location.origin);
+    authUrl.searchParams.append("scope", SPOTIFY_CONFIG.scope);
+    authUrl.searchParams.append("state", state);
 
-    console.log('Redirecting to Spotify auth:', authUrl.toString());
+    console.log("Redirecting to Spotify auth:", authUrl.toString());
     // Open Spotify auth in the same window
     window.location.href = authUrl.toString();
   };
@@ -914,12 +1017,17 @@ export default function TopArtists() {
     toggleRow(index);
   };
 
-  const handlePromote = (artist: string, track: string, coverUrl?: string, artistImageUrl?: string) => {
+  const handlePromote = (
+    artist: string,
+    track: string,
+    coverUrl?: string,
+    artistImageUrl?: string
+  ) => {
     const params = new URLSearchParams({
       artist,
       track,
       ...(coverUrl && { coverUrl }),
-      ...(artistImageUrl && { artistImageUrl })
+      ...(artistImageUrl && { artistImageUrl }),
     });
 
     navigate(`/campaign?${params.toString()}`);
@@ -927,27 +1035,28 @@ export default function TopArtists() {
 
   const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedCountry(e.target.value);
-    setSelectedCity(''); // Reset city when country changes
+    setSelectedCity(""); // Reset city when country changes
   };
 
   const handleGenreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     e.preventDefault();
     setShowGenreOverlay(true);
     setSelectedCountry(e.target.value);
-    setSelectedCity('0'); // Reset city when country changes
+    setSelectedCity("0"); // Reset city when country changes
     // Resetear el select a su valor inicial
     //e.target.selectedIndex = 0;
-
   };
 
   const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const cityId = e.target.value;
     setSelectedCity(cityId);
 
-    if (cityId && cityId !== '0') {
+    if (cityId && cityId !== "0") {
       // Find the selected city object
-      const selectedCityObj = cities.find(city => city.id.toString() === cityId);
-      const cityName = selectedCityObj?.city_name || '';
+      const selectedCityObj = cities.find(
+        (city) => city.id.toString() === cityId
+      );
+      const cityName = selectedCityObj?.city_name || "";
       // Redirect to campaign with the selected city
       //navigate(`/campaign?city=${encodeURIComponent(cityName)}&country=${encodeURIComponent(selectedCountry)}`);
       setSelectedCity(cityId);
@@ -961,59 +1070,81 @@ export default function TopArtists() {
     e.target.selectedIndex = 0;
   };
 
+  const handlePlayPreview = useCallback(
+    (trackRank: number, audioUrl: string) => {
+      console.log("handlePlayPreview called for:", trackRank, audioUrl);
 
-  const handlePlayPreview = useCallback((trackRank: number, audioUrl: string) => {
-    console.log("handlePlayPreview called for:", trackRank, audioUrl);
+      // Si la misma canción está sonando, pausar y limpiar
+      if (currentlyPlaying === trackRank) {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          audioRef.current.currentTime = 0; // reinicia a inicio
+          audioRef.current = null;
+        }
+        setCurrentlyPlaying(null);
+        return;
+      }
 
-    // Si la misma canción está sonando, pausar y limpiar
-    if (currentlyPlaying === trackRank) {
+      // Si hay una canción sonando, detenerla
       if (audioRef.current) {
         audioRef.current.pause();
-        audioRef.current.currentTime = 0; // reinicia a inicio
-        audioRef.current = null;
+        audioRef.current.currentTime = 0;
       }
-      setCurrentlyPlaying(null);
-      return;
-    }
 
-    // Si hay una canción sonando, detenerla
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-    }
+      // Crear y reproducir nueva canción
+      const audio = new Audio(audioUrl); // aquí se asigna la URL real del MP3
+      audioRef.current = audio;
 
-    // Crear y reproducir nueva canción
-    const audio = new Audio(audioUrl); // aquí se asigna la URL real del MP3
-    audioRef.current = audio;
+      // Cuando termine el audio, limpiar estado
+      audio.addEventListener("ended", () => {
+        setCurrentlyPlaying(null);
+        audioRef.current = null;
+      });
 
-    // Cuando termine el audio, limpiar estado
-    audio.addEventListener("ended", () => {
-      setCurrentlyPlaying(null);
-      audioRef.current = null;
-    });
-
-    // Intentar reproducir (algunos navegadores requieren interacción de usuario)
-    audio.play().then(() => {
-      setCurrentlyPlaying(trackRank);
-    }).catch((err) => {
-      console.error("Error al reproducir el audio:", err);
-      setCurrentlyPlaying(null);
-      audioRef.current = null;
-    });
-
-  }, [currentlyPlaying]);
+      // Intentar reproducir (algunos navegadores requieren interacción de usuario)
+      audio
+        .play()
+        .then(() => {
+          setCurrentlyPlaying(trackRank);
+        })
+        .catch((err) => {
+          console.error("Error al reproducir el audio:", err);
+          setCurrentlyPlaying(null);
+          audioRef.current = null;
+        });
+    },
+    [currentlyPlaying]
+  );
 
   // Función para formatear los números (para followers)
   const formatNumber = (num: number): string => {
     if (num >= 1000000) {
-      return (num / 1000000).toFixed(1).replace(/\.0$/, '') + ' M';
+      return (num / 1000000).toFixed(1).replace(/\.0$/, "") + " M";
     }
     if (num >= 1000) {
-      return (num / 1000).toFixed(1).replace(/\.0$/, '') + ' K';
+      return (num / 1000).toFixed(1).replace(/\.0$/, "") + " K";
     }
     return num.toLocaleString();
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleRestrictedToggle = (index: number, row: any) => {
+
+    if (user?.role === 'ARTIST') {
+      const normalize = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      const myArtistName = normalize(user.allowedArtistName || "");
+      const rowArtistName = normalize(row.artist || row.name || "");
+
+      if (!rowArtistName.includes(myArtistName)) {
+        toast({
+          title: "🔒 Acceso Restringido",
+          description: "Solo puedes ver las métricas detalladas de tu propio perfil de artista.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } toggleRow(index);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
@@ -1062,7 +1193,6 @@ export default function TopArtists() {
         </div>
       )}*/}
 
-
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
         {/* Header */}
         <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
@@ -1094,7 +1224,8 @@ export default function TopArtists() {
                     <option value="">Selecciona un país</option>
                     {countries.map((country) => (
                       <option key={country.id} value={country.id.toString()}>
-                        {country.country || country.description} ({country.country_name})
+                        {country.country || country.description} (
+                        {country.country_name})
                       </option>
                     ))}
                   </>
@@ -1129,7 +1260,6 @@ export default function TopArtists() {
               </select>
             </div>
 
-
             {/* Filtro por Ciudad */}
             <div className="space-y-2 relative">
               <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-2">
@@ -1139,23 +1269,30 @@ export default function TopArtists() {
                 <button
                   type="button"
                   onClick={() => {
-                    setOpenDropdown(openDropdown === 'city' ? null : 'city');
-                    setDropdownSearch('');
+                    setOpenDropdown(openDropdown === "city" ? null : "city");
+                    setDropdownSearch("");
                   }}
                   className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 text-left flex justify-between items-center"
                   disabled={loadingCities || !selectedCountry}
                 >
                   <span className="truncate">
-                    {loadingCities ? 'Cargando...' :
-                      !selectedCountry ? 'Selecciona país primero' :
-                        selectedCity !== '0' && cities.length > 0
-                          ? cities.find(c => c.id.toString() === selectedCity)?.city_name || 'Todas las ciudades'
-                          : 'Todas las ciudades'}
+                    {loadingCities
+                      ? "Cargando..."
+                      : !selectedCountry
+                      ? "Selecciona país primero"
+                      : selectedCity !== "0" && cities.length > 0
+                      ? cities.find((c) => c.id.toString() === selectedCity)
+                          ?.city_name || "Todas las ciudades"
+                      : "Todas las ciudades"}
                   </span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'city' ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform ${
+                      openDropdown === "city" ? "rotate-180" : ""
+                    }`}
+                  />
                 </button>
 
-                {openDropdown === 'city' && cities.length > 0 && (
+                {openDropdown === "city" && cities.length > 0 && (
                   <div className="absolute z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-2xl max-h-60 overflow-hidden transform translate-z-0 will-change-transform">
                     <div className="p-2 border-b border-gray-100">
                       <div className="relative">
@@ -1174,29 +1311,36 @@ export default function TopArtists() {
                     <div className="max-h-48 overflow-y-auto">
                       {/* Opción "Todas las ciudades" */}
                       <button
-                        onClick={() => handleOptionSelect('0', 'city')}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === '0'
-                          ? 'bg-orange-100 text-orange-700 font-semibold'
-                          : 'text-gray-700'
-                          }`}
+                        onClick={() => handleOptionSelect("0", "city")}
+                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
+                          selectedCity === "0"
+                            ? "bg-orange-100 text-orange-700 font-semibold"
+                            : "text-gray-700"
+                        }`}
                       >
                         🎯 Todas las ciudades
                       </button>
 
-                      {getFilteredOptions(cities, dropdownSearch, 'city').map((city) => (
-                        <button
-                          key={city.id}
-                          onClick={() => handleOptionSelect(city.id.toString(), 'city')}
-                          className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
-                            ? 'bg-orange-100 text-orange-700 font-semibold'
-                            : 'text-gray-700'
+                      {getFilteredOptions(cities, dropdownSearch, "city").map(
+                        (city) => (
+                          <button
+                            key={city.id}
+                            onClick={() =>
+                              handleOptionSelect(city.id.toString(), "city")
+                            }
+                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
+                              selectedCity === city.id.toString()
+                                ? "bg-orange-100 text-orange-700 font-semibold"
+                                : "text-gray-700"
                             }`}
-                        >
-                          🎯 {city.city_name}
-                        </button>
-                      ))}
+                          >
+                            🎯 {city.city_name}
+                          </button>
+                        )
+                      )}
 
-                      {getFilteredOptions(cities, dropdownSearch, 'city').length === 0 && (
+                      {getFilteredOptions(cities, dropdownSearch, "city")
+                        .length === 0 && (
                         <div className="px-4 py-3 text-sm text-gray-500 text-center">
                           No se encontraron ciudades
                         </div>
@@ -1206,7 +1350,6 @@ export default function TopArtists() {
                 )}
               </div>
             </div>
-
 
             {/* Filtro por Periodo Musical */}
             <div className="space-y-2">
@@ -1229,8 +1372,6 @@ export default function TopArtists() {
           </div>
         </div>
 
-
-
         {/* Lista de Charts */}
         <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
           {/* Fab button de MUI para buscar */}
@@ -1241,14 +1382,14 @@ export default function TopArtists() {
               aria-label="search"
               onClick={toggleSearchBar}
               sx={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)',
-                  transform: 'scale(1.05)',
+                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                "&:hover": {
+                  background:
+                    "linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%)",
+                  transform: "scale(1.05)",
                 },
-                transition: 'all 0.3s ease',
-                boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
-
+                transition: "all 0.3s ease",
+                boxShadow: "0 4px 20px rgba(102, 126, 234, 0.3)",
               }}
             >
               {showSearchBar ? (
@@ -1276,7 +1417,7 @@ export default function TopArtists() {
                     />
                     {chartSearchQuery && (
                       <button
-                        onClick={() => setChartSearchQuery('')}
+                        onClick={() => setChartSearchQuery("")}
                         className="text-slate-400 hover:text-slate-600 transition-colors"
                         aria-label="Limpiar búsqueda"
                       >
@@ -1289,7 +1430,8 @@ export default function TopArtists() {
                   {chartSearchQuery && (
                     <div className="mt-2 text-xs text-slate-600 flex justify-between items-center px-1">
                       <span className="font-medium">
-                        {filteredSongs.length} de {trendingArtists.length} canciones encontradas
+                        {filteredSongs.length} de {trendingArtists.length}{" "}
+                        canciones encontradas
                       </span>
                       {filteredSongs.length === 0 && (
                         <span className="text-orange-600 font-medium">
@@ -1319,10 +1461,11 @@ export default function TopArtists() {
                   No se encontraron resultados
                 </h3>
                 <p className="text-sm text-slate-500 mb-4">
-                  No hay artistas que coincidan con "<strong>{chartSearchQuery}</strong>"
+                  No hay artistas que coincidan con "
+                  <strong>{chartSearchQuery}</strong>"
                 </p>
                 <button
-                  onClick={() => setChartSearchQuery('')}
+                  onClick={() => setChartSearchQuery("")}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
                   Ver todas los artistas
@@ -1359,7 +1502,12 @@ export default function TopArtists() {
                               className="rounded-lg object-cover"
                             />
                             <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
-                              {row.artist.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                              {row.artist
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .slice(0, 2)
+                                .toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           {/* Play Button Overlay */}
@@ -1385,15 +1533,30 @@ export default function TopArtists() {
                     <div className="col-span-7 place-items-stretch">
                       <div className="flex gap-0 overflow-x-auto pb-1">
                         {/* Monthly Listeners */}
-                        <ButtonBigNumber name="Oyentes Mensuales" quantity={row.monthly_listeners} />
+                        <ButtonBigNumber
+                          name="Oyentes Mensuales"
+                          quantity={row.monthly_listeners}
+                        />
                         {/* Instagram Followers */}
-                        <ButtonBigNumber name="Seguidores Instagram" quantity={row.followers_total_instagram} />
+                        <ButtonBigNumber
+                          name="Seguidores Instagram"
+                          quantity={row.followers_total_instagram}
+                        />
                         {/* Facebook Followers */}
-                        <ButtonBigNumber name="Seguidores Facebook" quantity={row.followers_total_facebook} />
+                        <ButtonBigNumber
+                          name="Seguidores Facebook"
+                          quantity={row.followers_total_facebook}
+                        />
                         {/* TitkTok Followers */}
-                        <ButtonBigNumber name="Seguidores TikTok" quantity={row.followers_total_tiktok} />
+                        <ButtonBigNumber
+                          name="Seguidores TikTok"
+                          quantity={row.followers_total_tiktok}
+                        />
                         {/* Playlist */}
-                        <ButtonBigNumber name="Playlist" quantity={row.playlists} />
+                        <ButtonBigNumber
+                          name="Playlist"
+                          quantity={row.playlists}
+                        />
 
                         {/* Expand Button */}
                         {/*
@@ -1401,7 +1564,7 @@ export default function TopArtists() {
                           <ButtonInfoArtist
                             index={index}
                             isExpanded={isExpanded(index)}
-                            onToggle={() => handleToggleRow(index, row)}
+                            onToggle={() => handleRestrictedToggle(index, row)}
                           />
                       </div>
                           */}
@@ -1450,20 +1613,44 @@ export default function TopArtists() {
               {/* Canciones borrosas simulando contenido bloqueado */}
               <div className="grid gap-2 opacity-50 pointer-events-none">
                 {[
-                  { rank: 21, artist: "Rauw Alejandro", track: "Touching The Sky", streams: "2.1M" },
-                  { rank: 22, artist: "Anuel AA", track: "Mcgregor", streams: "1.9M" },
-                  { rank: 23, artist: "J Balvin", track: "Doblexxó", streams: "1.8M" }
+                  {
+                    rank: 21,
+                    artist: "Rauw Alejandro",
+                    track: "Touching The Sky",
+                    streams: "2.1M",
+                  },
+                  {
+                    rank: 22,
+                    artist: "Anuel AA",
+                    track: "Mcgregor",
+                    streams: "1.9M",
+                  },
+                  {
+                    rank: 23,
+                    artist: "J Balvin",
+                    track: "Doblexxó",
+                    streams: "1.8M",
+                  },
                 ].map((song) => (
-                  <div key={song.rank} className="flex items-center gap-3 p-3 bg-white/30 rounded-xl">
+                  <div
+                    key={song.rank}
+                    className="flex items-center gap-3 p-3 bg-white/30 rounded-xl"
+                  >
                     <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center">
-                      <span className="text-sm font-bold text-gray-600">{song.rank}</span>
+                      <span className="text-sm font-bold text-gray-600">
+                        {song.rank}
+                      </span>
                     </div>
                     <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
                     <div className="flex-1">
-                      <div className="font-semibold text-gray-700">{song.track}</div>
+                      <div className="font-semibold text-gray-700">
+                        {song.track}
+                      </div>
                       <div className="text-sm text-gray-500">{song.artist}</div>
                     </div>
-                    <div className="text-sm font-medium text-gray-600">{song.streams}</div>
+                    <div className="text-sm font-medium text-gray-600">
+                      {song.streams}
+                    </div>
                   </div>
                 ))}
               </div>
@@ -1472,82 +1659,101 @@ export default function TopArtists() {
         )}
       </div>
 
-      {
-        !user && (showGenreOverlay || showCrgOverlay) && (
-          <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
-              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                <span className="text-3xl">🔒</span>
-              </div>
-              <h3 className="text-2xl font-bold mb-2 text-foreground">
-                {showGenreOverlay ? 'Filtros por Género' : 'Filtros por Plataforma'}
-              </h3>
-              <p className="text-muted-foreground mb-4">
-                Esta función es parte de las herramientas avanzadas. Activa una campaña para desbloquearla.
-              </p>
-              <div className="grid md:grid-cols-2 gap-3">
-                <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
-                  <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
-                    <Crown className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="mb-3">
-                    <div className="text-sm font-bold text-foreground">Premium</div>
-                    <div className="text-xs text-muted-foreground mb-1">Solo Charts & Analytics</div>
-                    <div className="text-sm font-bold text-foreground">$14.99/mes</div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      // TODO: Integrar con Stripe cuando esté listo
-                      console.log('Redirect to premium subscription');
-                      setShowGenreOverlay(false);
-                      setShowCrgOverlay(false);
-                    }}
-                    className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                  >
-                    Suscribirse
-                  </button>
-                </div>
-
-                <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
-                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
-                      INCLUYE TODO
-                    </span>
-                  </div>
-
-                  <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
-                    <span className="text-white font-bold text-sm">🚀</span>
-                  </div>
-                  <div className="mb-3">
-                    <div className="text-sm font-bold text-foreground">Campaña Completa</div>
-                    <div className="text-xs text-muted-foreground mb-1">Premium + Promoción</div>
-                    <div className="text-sm font-bold text-foreground">Desde $750</div>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      navigate('/campaign');
-                      setShowGenreOverlay(false);
-                      setShowCrgOverlay(false);
-                    }}
-                    className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                  >
-                    Crear Campaña
-                  </button>
-                </div>
-              </div>
-              <button onClick={() => { setShowGenreOverlay(false); setShowCrgOverlay(false); }} className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm">
-                Cerrar
-              </button>
+      {!user && (showGenreOverlay || showCrgOverlay) && (
+        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
+            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+              <span className="text-3xl">🔒</span>
             </div>
+            <h3 className="text-2xl font-bold mb-2 text-foreground">
+              {showGenreOverlay
+                ? "Filtros por Género"
+                : "Filtros por Plataforma"}
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              Esta función es parte de las herramientas avanzadas. Activa una
+              campaña para desbloquearla.
+            </p>
+            <div className="grid md:grid-cols-2 gap-3">
+              <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
+                <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                  <Crown className="w-4 h-4 text-white" />
+                </div>
+                <div className="mb-3">
+                  <div className="text-sm font-bold text-foreground">
+                    Premium
+                  </div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Solo Charts & Analytics
+                  </div>
+                  <div className="text-sm font-bold text-foreground">
+                    $14.99/mes
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    // TODO: Integrar con Stripe cuando esté listo
+                    console.log("Redirect to premium subscription");
+                    setShowGenreOverlay(false);
+                    setShowCrgOverlay(false);
+                  }}
+                  className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                >
+                  Suscribirse
+                </button>
+              </div>
+
+              <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
+                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
+                    INCLUYE TODO
+                  </span>
+                </div>
+
+                <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
+                  <span className="text-white font-bold text-sm">🚀</span>
+                </div>
+                <div className="mb-3">
+                  <div className="text-sm font-bold text-foreground">
+                    Campaña Completa
+                  </div>
+                  <div className="text-xs text-muted-foreground mb-1">
+                    Premium + Promoción
+                  </div>
+                  <div className="text-sm font-bold text-foreground">
+                    Desde $750
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    navigate("/campaign");
+                    setShowGenreOverlay(false);
+                    setShowCrgOverlay(false);
+                  }}
+                  className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                >
+                  Crear Campaña
+                </button>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setShowGenreOverlay(false);
+                setShowCrgOverlay(false);
+              }}
+              className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm"
+            >
+              Cerrar
+            </button>
           </div>
-        )
-      }
+        </div>
+      )}
       {/* Overlay global mientras se carga */}
-      <Backdrop open={loading} sx={{ color: '#fff', zIndex: 9999 }}>
+      <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-    </div >
+    </div>
   );
 }

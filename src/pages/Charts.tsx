@@ -377,67 +377,34 @@ export default function Charts() {
   };
 
   const filteredSongs = useMemo(() => {
+    // Función para normalizar texto
     const normalizeText = (text: string) => {
       return text
-      .normalize("NFD") // Descompone letras de tildes
-      .replace(/[\u0300-\u036f]/g, "") // Borra las tildes
-      .toLowerCase()
-      .trim();
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim();
     };
-      //Si es ARTIST, aplicar filtro especial
-    if (user?.role === 'ARTIST' ) {
-      if (!user.allowedArtistName && !user.allowedArtistId) return [];
-      const myArtistName = user.allowedArtistName;
-      const myArtistClean = normalizeText(myArtistName);
 
-        if (songs.length > 0) {
-        console.log(`🔒 Buscando: "${myArtistName}" (Normalizado: "${myArtistClean}")`);
-        
-      }      
-      return songs.filter((song, index) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s: any = song;
-        const songArtistRaw = s.artists || s.artist || "";
-        const songArtistClean = normalizeText(String(songArtistRaw));
-        if (index < 3) {
-          console.log(`🔎 Comparando #${index + 1}:`);
-          console.log(`   Canción tiene: "${songArtistClean}" (Original: ${songArtistRaw})`);
-          console.log(`   Tú buscas:     "${myArtistClean}"`);
-          console.log(`   ¿Coinciden?:   ${songArtistClean.includes(myArtistClean)}`);
-        }
-        if (songArtistClean.includes(myArtistClean)) {
-          return true;
-        }
-
-       if (Array.isArray(s.artists_array)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const matchInArray = s.artists_array.some((artistObj: any) =>
-           normalizeText(String(artistObj.name || "")).includes(myArtistClean)
-        );
-          if (matchInArray) {
-            return true;
-          }
-        }
-          return false;
-        
-      });
-    }
-
-    //Si no es artista, aplicar filtro normal
-    // Si no hay query de búsqueda, devolver todas las canciones
+    // Si no hay texto en la barra de búsqueda, devolvemos TODAS las canciones
+    // (Ya NO filtramos por artista aquí, para que aparezca todo el Top 50)
     if (!chartSearchQuery.trim()) {
       return songs;
     }
-    const query = chartSearchQuery.toLowerCase().trim();
+    
+    // Si hay búsqueda, filtramos por texto
+    const query = normalizeText(chartSearchQuery);
     return songs.filter((song) => {
-      const songMatch =
-        song.song?.toLowerCase().includes(query) ||
-        song.label?.toLowerCase().includes(query);
-      const artistMatch = song.artists?.toLowerCase().includes(query);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const s: any = song;
+      
+      const songName = normalizeText(s.song || "");
+      const labelName = normalizeText(s.label || "");
+      const artistName = normalizeText(s.artists || "");
 
-      return songMatch || artistMatch;
+      return songName.includes(query) || labelName.includes(query) || artistName.includes(query);
     });
-  }, [songs, chartSearchQuery, user]);
+  }, [songs, chartSearchQuery]); // Quitamos 'user' de dependencias crítica
 
   //Limitar top 20
   const songsToDisplay = useMemo(() => {
@@ -909,6 +876,26 @@ export default function Charts() {
     },
     [currentlyPlaying]
   );
+  const handleRestrictedToggle = (index: number, row: Song) => {
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
+    if (user?.role === 'ARTIST') {
+      const normalize = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      const myArtistName = normalize(user.allowedArtistName || "");
+      const songArtistName = normalize(row.artists || "");
+
+      if (!songArtistName.includes(myArtistName)) {
+        toast({
+          title: "🔒 Acceso Restringido",
+          description: "Esta canción no pertenece a tu catálogo de artista.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } handleToggleRow(index, row);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
@@ -940,7 +927,7 @@ export default function Charts() {
           </div>
 
           {/* Filtros Profesionales */}
-          {user?.role === 'ARTIST' ? (
+          {user?.role === 'ARTIST' && (
             // --- VISTA PARA ARTISTA 
             <div className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-6 mb-6 shadow-sm flex items-center justify-between">
                <div>
@@ -961,9 +948,10 @@ export default function Charts() {
                    </div>
                )}
             </div>
+          )}
 
-          ) : (
-            // --- VISTA PARA PREMIUM
+          
+            
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
             {/* Filtro por País/Región */}
             <div className="space-y-2">
@@ -1124,7 +1112,6 @@ export default function Charts() {
               </div>
             </div>*/}
           </div>
-          )}
         </div>
           
         
@@ -1335,7 +1322,7 @@ export default function Charts() {
                             index={index}
                             row={row}
                             isExpanded={isExpanded(index)}
-                            onToggle={() => handleToggleRow(index, row)}
+                            onToggle={() => handleRestrictedToggle(index, row)}
                             selectedCountry={selectedCountry}
                           />
                           {/* Separar botón para componente */}
