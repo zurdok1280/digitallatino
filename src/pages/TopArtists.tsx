@@ -55,7 +55,7 @@ import { useApiWithLoading } from "@/hooks/useApiWithLoading";
 import { ButtonBigNumber } from "@/components/ui/button-big-number";
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
-import { ButtonInfoArtist } from "@/components/ui/buttonInfoArtist";
+import { ButtonInfoArtist, ExpandRow } from "@/components/ui/buttonInfoArtist";
 import { ExpandRowArtist } from "@/components/ui/buttoninfoArtist-components/expandRowArtist";
 import { useExpandableRows } from "@/hooks/useExpandableRows";
 
@@ -364,238 +364,7 @@ interface ExpandRowProps {
   onPromote: () => void;
 }
 
-function ExpandRow({ row, onPromote }: ExpandRowProps) {
-  return (
-    <div className="mt-4 border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in relative overflow-visible">
-      {/* Blurred Content */}
-      <div className="blur-sm pointer-events-none">
-        {/* Compact Billboard-style Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-          {/* Debut Position */}
-          <div className="bg-black border border-green-500 rounded-xl p-3 text-center">
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">
-              Debut Position
-            </div>
-            <div className="text-3xl font-bold text-green-400 mb-1">
-              {row.rk}
-            </div>
-            <div className="text-xs text-gray-400">Debut Chart Date</div>
-            <div className="text-xs text-white">01/15/24</div>
-          </div>
 
-          {/* Peak Position */}
-          <div className="bg-black border border-green-500 rounded-xl p-3 text-center">
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">
-              Peak Position
-            </div>
-            <div className="text-3xl font-bold text-green-400 mb-1">
-              {row.rk}
-            </div>
-            <div className="text-xs text-gray-400">Peak Chart Date</div>
-            <div className="text-xs text-white">02/08/24</div>
-          </div>
-
-          {/* Performance Metrics */}
-          <div className="bg-black border border-green-500 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-              Platform Rankings
-            </div>
-            <div className="grid grid-cols-2 gap-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">🟢 Spotify:</span>
-                <span className="text-white font-bold">
-                  #{row.spotify_streams_total}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">⚫ TikTok:</span>
-                <span className="text-white font-bold">
-                  #{row.tiktok_views_total}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">🔴 YouTube:</span>
-                <span className="text-white font-bold">
-                  #{row.youtube_video_views_total}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">🔵 Shazam:</span>
-                <span className="text-white font-bold">
-                  #{row.shazams_total}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Awards & Share */}
-          <div className="bg-black border border-green-500 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-              Awards
-            </div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="bg-green-500 rounded-full p-1">
-                <span className="text-white text-xs">↗</span>
-              </div>
-              <span className="text-white text-xs">Gains In Performance</span>
-            </div>
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">
-              Share
-            </div>
-            <div className="flex gap-2">
-              <div className="w-6 h-6 bg-green-600 rounded border border-green-500 flex items-center justify-center">
-                <span className="text-white text-xs">f</span>
-              </div>
-              <div className="w-6 h-6 bg-green-600 rounded border border-green-500 flex items-center justify-center">
-                <span className="text-white text-xs">X</span>
-              </div>
-              <div className="w-6 h-6 bg-green-600 rounded border border-green-500 flex items-center justify-center">
-                <span className="text-white text-xs">🔗</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Top Markets - Horizontal compact display */}
-        <div className="mb-4 bg-black border border-green-500/30 rounded-xl p-3">
-          <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-            Top Markets Performance
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
-            {/*  {row.topCountries.slice(0, 5).map((country, index) => (
-              <div key={country} className="flex justify-between items-center bg-white/5 rounded p-2">
-                <span className="text-gray-400">{index === 0 ? '🇺🇸' : index === 1 ? '🇲🇽' : index === 2 ? '🇨🇴' : index === 3 ? '🇦🇷' : '🇨🇱'} {country.split(' ')[0]}</span>
-                <span className="text-green-400 font-bold">{34 - (index * 6)}%</span>
-              </div>
-            ))} */}
-          </div>
-        </div>
-
-        {/* Detailed Analytics Preview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-          <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-              Revenue Analytics
-            </div>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Total Streams:</span>
-                <span className="text-white font-bold">2.4M</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Revenue:</span>
-                <span className="text-green-400 font-bold">$8,420</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">RPM:</span>
-                <span className="text-white font-bold">$3.51</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-              Growth Metrics
-            </div>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Weekly Growth:</span>
-                <span className="text-green-400 font-bold">+234%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">New Listeners:</span>
-                <span className="text-white font-bold">45.2K</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Retention:</span>
-                <span className="text-white font-bold">68%</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-              Demographic Data
-            </div>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Age 18-24:</span>
-                <span className="text-white font-bold">42%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Age 25-34:</span>
-                <span className="text-white font-bold">35%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Male/Female:</span>
-                <span className="text-white font-bold">48/52</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Unlock Overlay - Digital Latino, sin oscurecer ni blur */}
-      <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="text-center p-6 bg-gradient-to-br from-background/90 to-background/85 border border-primary/20 rounded-2xl shadow-2xl max-w-md mx-4">
-          <div className="mb-5">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl">🔓</span>
-            </div>
-            <h3 className="text-xl font-bold text-foreground mb-1">
-              Desbloquea Analytics Completos
-            </h3>
-            <p className="text-muted-foreground text-sm">
-              Accede a métricas detalladas, datos demográficos y herramientas
-              profesionales de promoción
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-5 text-xs">
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Dashboard Completo</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Analytics en Tiempo Real</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Datos Demográficos</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Reportes de Revenue</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Pitch con Curadores</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Promoción en Redes</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <button
-              onClick={onPromote}
-              className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground px-6 py-3 rounded-full font-bold text-base transition-all hover:shadow-lg hover:scale-105"
-            >
-              🚀 Comprar Campaña
-            </button>
-            <p className="text-xs text-muted-foreground">
-              ROI Promedio:{" "}
-              <strong className="text-primary">+{row.score}%</strong> • Cancela
-              en cualquier momento
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Spotify API configuration
 const DEFAULT_CLIENT_ID = "5001fe1a36c8442781282c9112d599ca";
@@ -1279,16 +1048,15 @@ export default function TopArtists() {
                     {loadingCities
                       ? "Cargando..."
                       : !selectedCountry
-                      ? "Selecciona país primero"
-                      : selectedCity !== "0" && cities.length > 0
-                      ? cities.find((c) => c.id.toString() === selectedCity)
-                          ?.city_name || "Todas las ciudades"
-                      : "Todas las ciudades"}
+                        ? "Selecciona país primero"
+                        : selectedCity !== "0" && cities.length > 0
+                          ? cities.find((c) => c.id.toString() === selectedCity)
+                            ?.city_name || "Todas las ciudades"
+                          : "Todas las ciudades"}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      openDropdown === "city" ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 transition-transform ${openDropdown === "city" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -1312,11 +1080,10 @@ export default function TopArtists() {
                       {/* Opción "Todas las ciudades" */}
                       <button
                         onClick={() => handleOptionSelect("0", "city")}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                          selectedCity === "0"
-                            ? "bg-orange-100 text-orange-700 font-semibold"
-                            : "text-gray-700"
-                        }`}
+                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
+                          ? "bg-orange-100 text-orange-700 font-semibold"
+                          : "text-gray-700"
+                          }`}
                       >
                         🎯 Todas las ciudades
                       </button>
@@ -1328,11 +1095,10 @@ export default function TopArtists() {
                             onClick={() =>
                               handleOptionSelect(city.id.toString(), "city")
                             }
-                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                              selectedCity === city.id.toString()
-                                ? "bg-orange-100 text-orange-700 font-semibold"
-                                : "text-gray-700"
-                            }`}
+                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                              ? "bg-orange-100 text-orange-700 font-semibold"
+                              : "text-gray-700"
+                              }`}
                           >
                             🎯 {city.city_name}
                           </button>
@@ -1341,10 +1107,10 @@ export default function TopArtists() {
 
                       {getFilteredOptions(cities, dropdownSearch, "city")
                         .length === 0 && (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                          No se encontraron ciudades
-                        </div>
-                      )}
+                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                            No se encontraron ciudades
+                          </div>
+                        )}
                     </div>
                   </div>
                 )}
@@ -1530,56 +1296,47 @@ export default function TopArtists() {
                     </div>
 
                     {/* Artist Stats */}
-                    <div className="col-span-7 place-items-stretch">
+                    <div className="col-span-6 place-items-end">
                       <div className="flex gap-0 overflow-x-auto pb-1">
                         {/* Monthly Listeners */}
                         <ButtonBigNumber
                           name="Oyentes Mensuales"
                           quantity={row.monthly_listeners}
                         />
-                        {/* Instagram Followers */}
-                        <ButtonBigNumber
-                          name="Seguidores Instagram"
-                          quantity={row.followers_total_instagram}
-                        />
-                        {/* Facebook Followers */}
-                        <ButtonBigNumber
-                          name="Seguidores Facebook"
-                          quantity={row.followers_total_facebook}
-                        />
-                        {/* TitkTok Followers */}
-                        <ButtonBigNumber
-                          name="Seguidores TikTok"
-                          quantity={row.followers_total_tiktok}
-                        />
                         {/* Playlist */}
                         <ButtonBigNumber
                           name="Playlist"
                           quantity={row.playlists}
                         />
-
-                        {/* Expand Button */}
-                        {/*
-                        <div className="col-span-1 text-right">
-                          <ButtonInfoArtist
-                            index={index}
-                            isExpanded={isExpanded(index)}
-                            onToggle={() => handleRestrictedToggle(index, row)}
-                          />
-                      </div>
-                          */}
                       </div>
                     </div>
-                  </div>
-
-                  {/* Expanded Content */}
-                  {isExpanded(index) && (
-                    <div className="px-6 pb-4">
-                      <ExpandRowArtist
+                    {/* Expand Button */}
+                    <div className="col-span-1 text-right">
+                      <ButtonInfoArtist
+                        index={index}
+                        isExpanded={isExpanded(index)}
+                        onToggle={() => handleRestrictedToggle(index, row)}
                         artist={{
-                          //spotifyid: row.spotifyid,
+                          spotifyid: row.spotifyid,
                           artist: row.artist,
                           rk: parseInt(row.rk),
+                          img: row.img,
+                          followers_total: row.followers_total,
+                          monthly_listeners: row.monthly_listeners,
+                        }}
+                        selectedCountry={selectedCountry}
+                      />
+                    </div>
+                  </div>
+                  {/* Expanded Row Content fuera del Grid */}
+                  {isExpanded(index) && (
+                    <div className="px-6 pb-4">
+                      <ExpandRow
+                        artist={{
+                          spotifyid: row.spotifyid,
+                          artist: row.artist,
+                          rk: parseInt(row.rk),
+                          img: row.img
                         }}
                         selectedCountry={selectedCountry}
                         isExpanded={isExpanded(index)}
