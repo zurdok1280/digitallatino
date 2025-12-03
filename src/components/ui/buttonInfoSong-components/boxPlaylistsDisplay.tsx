@@ -151,17 +151,7 @@ export default function BoxPlaylistsDisplay({ csSong }: BoxPlaylistsDisplayProps
     }
 
     return (
-        <Box
-            sx={{
-                border: "1px solid #E0E0E0",
-                borderRadius: "12px",
-                p: 3,
-                boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-                backgroundColor: "white",
-                mb: 3,
-                width: '100%',
-            }}
-        >
+        <Box sx={{ border: "1px solid #E0E0E0", borderRadius: "12px", p: 3, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", backgroundColor: "white", mb: 3 }}>
             {/* Header con selector de tipo */}
             <Box
                 sx={{

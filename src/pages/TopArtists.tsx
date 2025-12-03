@@ -1,26 +1,7 @@
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  useMemo,
-} from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo, } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  ChevronUp,
-  ChevronDown,
-  Star,
-  Plus,
-  Minus,
-  Search,
-  Music,
-  Crown,
-  Play,
-  Pause,
-  Trophy,
-  Zap,
-} from "lucide-react";
+import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap, } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,16 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LatinAmericaMap } from "@/components/LatinAmericaMap";
 import { SpotifyTrack } from "@/types/spotify";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  digitalLatinoApi,
-  Country,
-  Format,
-  City,
-  Song,
-  TrendingSong,
-  TopTrendingArtist,
-  SongsArtist,
-} from "@/lib/api";
+import { digitalLatinoApi, Country, Format, City, Song, TrendingSong, TopTrendingArtist, } from "@/lib/api";
 // Import album covers
 import { Backdrop, CircularProgress, Fab } from "@mui/material";
 import teddySwimsCover from "@/assets/covers/teddy-swims-lose-control.jpg";
@@ -127,14 +99,7 @@ function PlatformChip({ label, rank }: PlatformChipProps) {
     </div>
   );
 }
-interface ExpandRowArtistProps {
-  row: SongsArtist;
-  onPromote: () => void;
-  selectedCountry?: string;
-  selectedFormat?: string;
-  countries?: any[];
-  isExpanded?: boolean;
-}
+
 
 interface BlurBlockProps {
   title: string;

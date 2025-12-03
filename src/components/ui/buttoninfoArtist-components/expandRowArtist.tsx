@@ -264,7 +264,7 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
     }
 
     return (
-        <>
+        <div style={{ border: "1px solid #E0E0E0", borderRadius: "12px", padding: "24px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", backgroundColor: "white", marginBottom: "24px" }}>
             <div className="mt-4 border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
                 <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
                     <span className="text-lg">🎵</span>
@@ -425,6 +425,6 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
                     onClose={handleCloseDetails}
                 />
             )}
-        </>
+        </div>
     );
 }

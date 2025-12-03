@@ -4,6 +4,12 @@ import { Youtube, Music, Users, Heart, MessageSquare, Share2, Eye, TrendingUp, V
 import { digitalLatinoApi, DataArtist } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+//imports icons
+import tiktokIcon from '/src/assets/covers/icons/tiktok-icon.png';
+import youtubeIcon from '/src/assets/covers/icons/youtube-icon.svg';
+import instagramIcon from '/src/assets/covers/icons/instagram-icon.svg';
+import facebookIcon from '/src/assets/covers/icons/facebook-icon.svg';
+import twitterIcon from '/src/assets/covers/icons/x-icon.svg';
 
 interface DataPlatformArtistProps {
     spotifyId: string;
@@ -62,7 +68,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
     };
 
     // Estilos para papers de TikTok (negro claro)
-    const tiktokPaperStyles = { ...paperStyles, backgroundColor: "#f5f5f5", borderColor: "#e0e0e0" };
+    const tiktokPaperStyles = { ...paperStyles, backgroundColor: "#E0E0E0", borderColor: "#e0e0e0" };
 
     // Estilos para papers de YouTube (rojo claro)
     const youtubePaperStyles = { ...paperStyles, backgroundColor: "#fff5f5", borderColor: "#ffcdd2" };
@@ -103,13 +109,57 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                 </Box>
 
                 <Box sx={{ display: "flex", gap: 1 }}>
-                    <Button variant={activeTab === 'tiktok' ? 'contained' : 'outlined'} size="small" onClick={() => setActiveTab('tiktok')} startIcon={<Music style={{ width: 16, height: 16 }} />} sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 600, ...(activeTab === 'tiktok' && { backgroundColor: '#000', '&:hover': { backgroundColor: '#333' } }) }}>
+                    <Button
+                        variant={activeTab === 'tiktok' ? 'contained' : 'outlined'}
+                        size="medium"
+                        onClick={() => setActiveTab('tiktok')}
+                        startIcon={
+                            <Box
+                                component="img"
+                                src={tiktokIcon}
+                                alt="TikTok"
+                                sx={{ width: 16, height: 16, objectFit: 'contain' }}
+                            />
+                        }
+                        sx={{
+                            borderRadius: '8px',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            ...(activeTab === 'tiktok' && {
+                                backgroundColor: '#69C9D0',
+                                '&:hover': { backgroundColor: '#333' }
+                            })
+                        }}
+                    >
                         TikTok
                     </Button>
-                    <Button variant={activeTab === 'youtube' ? 'contained' : 'outlined'} size="small" onClick={() => setActiveTab('youtube')} startIcon={<Youtube style={{ width: 16, height: 16 }} />} sx={{ borderRadius: '8px', textTransform: 'none', fontWeight: 600, ...(activeTab === 'youtube' && { backgroundColor: '#FF0000', '&:hover': { backgroundColor: '#CC0000' } }) }}>
+
+                    <Button
+                        variant={activeTab === 'youtube' ? 'contained' : 'outlined'}
+                        size="medium"
+                        onClick={() => setActiveTab('youtube')}
+                        startIcon={
+                            <Box
+                                component="img"
+                                src={youtubeIcon}
+                                alt="YouTube"
+                                sx={{ width: 16, height: 16, objectFit: 'contain' }}
+                            />
+                        }
+                        sx={{
+                            borderRadius: '8px',
+                            textTransform: 'none',
+                            fontWeight: 600,
+                            ...(activeTab === 'youtube' && {
+                                backgroundColor: '#CC0000',
+                                '&:hover': { backgroundColor: '#FF0000' }
+                            })
+                        }}
+                    >
                         YouTube
                     </Button>
                 </Box>
+
             </Box>
 
             {/* Contenido por plataforma */}
@@ -291,19 +341,22 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
 
                 <Grid container spacing={2}>
                     {[
-                        { platform: 'Instagram', key: 'followers_total_instagram', color: '#E4405F' },
-                        { platform: 'Facebook', key: 'followers_total_facebook', color: '#1877F2' },
-                        { platform: 'Twitter', key: 'followers_total_twitter', color: '#1DA1F2' },
+                        { platform: 'Instagram', key: 'followers_total_instagram', color: '#E4405F', icon: instagramIcon, bgColor: '#FCE4EC' },
+                        { platform: 'Facebook', key: 'followers_total_facebook', color: '#1877F2', icon: facebookIcon, bgColor: '#E3F2FD' },
+                        { platform: 'Twitter', key: 'followers_total_twitter', color: '#1DA1F2', icon: twitterIcon, bgColor: '#F5F5F5' },
                     ].map((social) => (
                         <Grid item xs={12} sm={4} key={social.key} sx={{ flexGrow: 1 }}>
-                            <Paper sx={paperStyles}>
-                                <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center' }}>
-                                    {social.platform}
-                                </Typography>
+                            <Paper sx={{ ...paperStyles, backgroundColor: social.bgColor, borderColor: `${social.color}33`, '&:hover': { transform: "translateY(-2px)", boxShadow: "0 4px 12px rgba(0,0,0,0.1)", backgroundColor: social.bgColor } }}>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+                                    <Box component="img" src={social.icon} alt={social.platform} sx={{ width: 40, height: 40, objectFit: 'contain', mb: 1, p: 0.5, backgroundColor: 'white', borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }} />
+                                    <Typography variant="body2" sx={{ color: social.color, fontWeight: 600, fontSize: '0.8rem', textAlign: 'center' }}>
+                                        {social.platform}
+                                    </Typography>
+                                </Box>
                                 <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333", textAlign: 'center', fontSize: '1.1rem' }}>
                                     {formatNumber(artistData[social.key as keyof DataArtist] as number)}
                                 </Typography>
-                                <Typography variant="caption" sx={{ color: "#666", textAlign: 'center', display: 'block', mt: 0.5 }}>
+                                <Typography variant="caption" sx={{ color: social.color, textAlign: 'center', display: 'block', mt: 0.5, fontWeight: 500 }}>
                                     Seguidores
                                 </Typography>
                             </Paper>
