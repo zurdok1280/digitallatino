@@ -368,6 +368,14 @@ export interface DataArtist {
   followers_total_facebook: number;
   followers_total_instagram: number;
 }
+// Interface para datos de artista by SpotifyId y CountryId
+export interface DataArtistCountry {
+  current_listeners: number;
+  city_name: string;
+  peak_listeners: number;
+  part: number;
+  rk: number;
+}
 
 // Clase principal para manejar las conexiones API
 export class ApiClient {
@@ -658,6 +666,14 @@ export const digitalLatinoApi = {
   // Obtener datos digitales de un artista por medio del SpotifyId
   getDataArtist: (spotifyId: string): Promise<ApiResponse<DataArtist>> =>
     api.get<DataArtist>(`report/getDataArtist/${spotifyId}`),
+  // Obtener datos digitales de un artista por medio del SpotifyId
+  getDataArtistCountry: (
+    countryId: number,
+    spotifyId: string,
+  ): Promise<ApiResponse<DataArtistCountry>> =>
+    api.get<DataArtistCountry>(
+      `report/getDataArtistCountry/${countryId}/${spotifyId}`
+    ),
 };
 
 // Ejemplo de uso:

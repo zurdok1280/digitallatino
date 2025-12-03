@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { digitalLatinoApi, SongsArtistBySpotifyId, SongBasicInfo, Song } from "@/lib/api";
-import { Backdrop, CircularProgress } from '@mui/material';
+import { Backdrop, CircularProgress, Typography } from '@mui/material';
 import { Play, Pause, Calendar, TrendingUp, Disc, User, Info, Lock, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -266,10 +266,10 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
     return (
         <div style={{ border: "1px solid #E0E0E0", borderRadius: "12px", padding: "24px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", backgroundColor: "white", marginBottom: "24px" }}>
             <div className="mt-4 border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
-                <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                    <span className="text-lg">🎵</span>
+                <Typography variant="subtitle2" sx={{ color: "#6C63FF", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                    <span className="text-lg col-span-2 ">🎵 </span>
                     Canciones de {artist.artist}
-                </h4>
+                </Typography>
 
                 {songs.length === 0 ? (
                     <div className="text-center py-6 text-slate-500">

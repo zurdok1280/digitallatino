@@ -2,6 +2,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExpandRowArtist } from "./buttoninfoArtist-components/expandRowArtist";
 import { DataPlatformArtist } from "./buttoninfoArtist-components/dataPlatformArtist";
+import BoxListenersArtist from "./buttoninfoArtist-components/boxListenersArtist";
 
 interface ButtonInfoArtistProps {
     index: number;
@@ -83,12 +84,17 @@ export function ExpandRow({ artist, selectedCountry, isExpanded }: ExpandRowProp
                 spotifyId={artist.spotifyid || ""}
                 artistName={artist.artist}
             />
-
+            <BoxListenersArtist
+                label="Audiencia por Ciudad"
+                spotifyId={artist.spotifyid || ""}
+                selectedCountryId={selectedCountry}
+            />
             <ExpandRowArtist
                 artist={artist}
                 selectedCountry={selectedCountry}
                 isExpanded={isExpanded}
             />
+
         </div>
     );
 }

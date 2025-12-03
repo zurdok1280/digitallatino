@@ -4,6 +4,7 @@ import { Youtube, Music, Users, Heart, MessageSquare, Share2, Eye, TrendingUp, V
 import { digitalLatinoApi, DataArtist } from "@/lib/api";
 import { useToast } from "@/hooks/use-toast";
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import PeopleIcon from "@mui/icons-material/People";
 //imports icons
 import tiktokIcon from '/src/assets/covers/icons/tiktok-icon.png';
 import youtubeIcon from '/src/assets/covers/icons/youtube-icon.svg';
@@ -100,10 +101,10 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
     return (
         <Box sx={{ border: "1px solid #E0E0E0", borderRadius: "12px", p: 3, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", backgroundColor: "white", mb: 3 }}>
             {/* Header */}
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: 'wrap', gap: 2, backgroundColor: 'rgba(248, 249, 250, 0.8)', borderRadius: '12px', p: 2, border: '1px solid rgba(224, 224, 224, 0.5)' }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: 'wrap', gap: 2, borderRadius: '12px', p: 2, border: '1px solid rgba(224, 224, 224, 0.5)' }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                     <EmojiEventsIcon sx={{ color: "#6C63FF" }} />
-                    <Typography variant="h6" sx={{ color: "#6C63FF", fontWeight: "bold", textTransform: "uppercase", fontSize: '1.3rem' }}>
+                    <Typography variant="subtitle2" sx={{ color: "#6C63FF", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                         Plataformas Digitales - {artistName}
                     </Typography>
                 </Box>
@@ -335,9 +336,12 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
 
             {/* Redes Sociales adicionales */}
             <Box sx={{ pt: 3, borderTop: '1px solid #e0e0e0' }}>
-                <Typography variant="h4" sx={{ color: "#6C63FF", fontWeight: 700, mb: 2, fontSize: '1.3rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Users sx={{ color: "#6C63FF" }} /> Otras Redes Sociales
-                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                    <PeopleIcon sx={{ color: "#6C63FF" }} />
+                    <Typography variant="subtitle2" sx={{ color: "#6C63FF", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                        Otras Redes Sociales
+                    </Typography>
+                </Box>
 
                 <Grid container spacing={2}>
                     {[
