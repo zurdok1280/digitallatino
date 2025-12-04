@@ -375,6 +375,8 @@ export interface DataArtistCountry {
   peak_listeners: number;
   part: number;
   rk: number;
+  city_lng: number;
+  city_lat: number;
 }
 
 // Clase principal para manejar las conexiones API
@@ -584,9 +586,12 @@ export const digitalLatinoApi = {
   // Obtener Trending Top Artists
   getTrendingTopArtists: (
     format: string,
-    country: string
+    country: string,
+    cityId: number
   ): Promise<ApiResponse<TrendingSong[]>> =>
-    api.get<TrendingSong[]>(`report/getTopArtist/${format}/${country}`),
+    api.get<TrendingSong[]>(
+      `report/getTopArtist/${format}/${country}/${cityId}`
+    ),
 
   // Obtener Trending Debut Songs  debutSongs
   getDebutSongs: (
@@ -669,7 +674,7 @@ export const digitalLatinoApi = {
   // Obtener datos digitales de un artista por medio del SpotifyId
   getDataArtistCountry: (
     countryId: number,
-    spotifyId: string,
+    spotifyId: string
   ): Promise<ApiResponse<DataArtistCountry>> =>
     api.get<DataArtistCountry>(
       `report/getDataArtistCountry/${countryId}/${spotifyId}`

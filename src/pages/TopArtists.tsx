@@ -588,7 +588,8 @@ export default function TopArtists() {
         console.log("Songs loaded:", selectedFormat, selectedCountry);
         const response = await digitalLatinoApi.getTrendingTopArtists(
           selectedFormat,
-          selectedCountry
+          selectedCountry,
+          parseInt(selectedCity)
         );
         console.log("Fetched trendingArtists:", response.data);
         setTrendingArtists(response.data);
@@ -939,7 +940,7 @@ export default function TopArtists() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 relative z-30">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
             {/* Filtro por País/Región */}
             <div className="space-y-2">
               <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
@@ -1083,6 +1084,7 @@ export default function TopArtists() {
             </div>
 
             {/* Filtro por Periodo Musical */}
+            {/*
             <div className="space-y-2">
               <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-2">
                 <span>⏰</span> Periodo Musical
@@ -1100,6 +1102,7 @@ export default function TopArtists() {
                 </select>
               </div>
             </div>
+            */}
           </div>
         </div>
 

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ExpandRowArtist } from "./buttoninfoArtist-components/expandRowArtist";
 import { DataPlatformArtist } from "./buttoninfoArtist-components/dataPlatformArtist";
 import BoxListenersArtist from "./buttoninfoArtist-components/boxListenersArtist";
+import WorldMapArtist from "./buttoninfoArtist-components/worldMapArtist";
 
 interface ButtonInfoArtistProps {
     index: number;
@@ -80,6 +81,16 @@ interface ExpandRowProps {
 export function ExpandRow({ artist, selectedCountry, isExpanded }: ExpandRowProps) {
     return (
         <div className="mt-4 animate-in fade-in duration-300">
+
+            {artist.spotifyid && (
+                <WorldMapArtist
+                    countryId={parseInt(selectedCountry)}
+                    spotifyId={artist.spotifyid}
+                    title="📍 Distribución por Ciudades del Artista"
+                    height={400}
+                />
+            )}
+
             <DataPlatformArtist
                 spotifyId={artist.spotifyid || ""}
                 artistName={artist.artist}
