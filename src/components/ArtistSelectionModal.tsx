@@ -138,7 +138,7 @@ export function ArtistSelectionModal({
               Para comenzar, busca y selecciona el artista que desea monitoriar.
               <br />
               <span className="text-xs text-orange-500 font-medium">
-                Nota: Esta selección para tu suscripción actual.
+                Nota: Esta selección es para tu suscripción actual.
               </span>
             </DialogDescription>
           </DialogHeader>
