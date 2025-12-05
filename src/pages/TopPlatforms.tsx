@@ -520,21 +520,21 @@ export default function TopPlatforms() {
       return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
     };
 
-    
+
     if (!chartSearchQuery.trim()) {
       return trendingPlatforms;
     }
 
-    
+
     const query = normalizeText(chartSearchQuery);
     return trendingPlatforms.filter((item) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const s: any = item;
-      
+
       const songName = normalizeText(s.song || "");
-      
+
       const artistName = normalizeText(s.artist || s.artists || "");
-      
+
       return songName.includes(query) || artistName.includes(query);
     });
   }, [trendingPlatforms, chartSearchQuery]);
@@ -1184,12 +1184,9 @@ export default function TopPlatforms() {
                           {row.song}
                         </h3>
                         <p className="text-sm font-medium text-gray-600 truncate">
-                          {row.artist}
+                          {row.artists}
                         </p>
-                        <p className="text-sm font-medium text-gray-600 truncate">
-                          {row.label}
-                        </p>
-                        <p className="text-sm font-medium text-gray-600 truncate">
+                        <p className="text-sm font-medium text-gray-400 truncate">
                           {row.label}
                         </p>
                       </div>
