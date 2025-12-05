@@ -14,7 +14,7 @@ const stripePromise = loadStripe('pk_test_51SAtWhKFPi4gMQQnl5IahKw9gDsuSYHUGgs3c
     name: 'Plan Mensual',
     amount: 120,
     interval: '/mes',
-    features: ['Acceso completo a Charts', 'Métricas avanzadas', 'Soporte 24/7']
+    features: ['Información de todos los artistas','Acceso completo a Charts', 'Métricas avanzadas']
 
   },
   //Yearly plan 
@@ -23,7 +23,7 @@ const stripePromise = loadStripe('pk_test_51SAtWhKFPi4gMQQnl5IahKw9gDsuSYHUGgs3c
     name: 'Plan Anual',
     amount: 1000,
     interval: '/año',
-    features: ['Acceso completo a Charts', 'Métricas avanzadas', 'Soporte 24/7']
+    features: ['Información de todos los artistas','Acceso completo a Charts', 'Métricas avanzadas']
  },
   //Plan Artist
   ARTIST: {
@@ -47,11 +47,18 @@ interface PlanCardProps {
 }
 
 const PlanCard = ({ plan, onSelect, formatPrice, isPopular = false }: PlanCardProps) => (
-  <div className={`relative border rounded-lg p-6 ${isPopular ? 'border-purple-500 border-2 shadow-lg' : 'border-gray-300'}`}>
+  
+  <div 
+    className={`relative border rounded-lg p-6 
+      transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl cursor-pointer
+      ${isPopular ? 'border-purple-500 border-2 shadow-lg' : 'border-gray-300'}
+    `}
+    onClick={onSelect} 
+  >
     {isPopular && (
       <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-full">
         MÁS POPULAR
-        </div>
+      </div>
     )} 
     
     <h3 className="text-xl font-semibold text-gray-800">{plan.name}</h3>
@@ -59,24 +66,25 @@ const PlanCard = ({ plan, onSelect, formatPrice, isPopular = false }: PlanCardPr
         <span className="text-xs font-bold text-gray-400 mt-2 mr-1">USD</span>
         <span className="text-4xl font-bold text-gray-900 tracking-tight">{formatPrice(plan.amount)}</span>
         <span className="text-base font-medium text-gray-500 self-center ml-1">{plan.interval}</span>
-        </div>
-        <ul className="mt-6 space-y-2 text-gray-600">
-          {plan.features.map(feature => (
-            <li key={feature} className="flex items-center gap-2">
-              <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
-              <span>{feature}</span>
-
-            </li>
-          ))}
-
-        </ul>
-        <button
-        onClick={onSelect}
+      </div>
+      <ul className="mt-6 space-y-2 text-gray-600">
+        {plan.features.map(feature => (
+          <li key={feature} className="flex items-center gap-2">
+            <Check className="h-5 w-5 text-green-500 flex-shrink-0" />
+            <span>{feature}</span>
+          </li>
+        ))}
+      </ul>
+      <button
+        onClick={(e) => {
+            e.stopPropagation(); 
+            onSelect();
+        }}
         className="mt-8 w-full py-3 px-6 rounded-lg font-semibold text-white transition-colors bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-          >
-          Seleccionar Plan
-        </button>
-    </div>
+      >
+        Seleccionar Plan
+      </button>
+  </div>
 );
 
 const PaymentPage = () => {
