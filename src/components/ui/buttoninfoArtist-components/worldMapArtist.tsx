@@ -79,7 +79,6 @@ const createCustomIcon = (rank: number) => {
     });
 };
 
-// Formatear números para mostrar
 const formatNumber = (num: number): string => {
     if (num >= 1000000) {
         return `${(num / 1000000).toFixed(1)}M`;
@@ -106,7 +105,6 @@ export default function WorldMapArtist({
     const [mapInitialized, setMapInitialized] = useState(false);
     const [mapLoading, setMapLoading] = useState(false);
 
-    // Función para verificar si el contenedor está listo
     const checkContainerReady = useCallback(() => {
         if (!mapRef.current) {
             console.log('❌ mapRef.current es null');
@@ -116,17 +114,13 @@ export default function WorldMapArtist({
         const rect = mapRef.current.getBoundingClientRect();
         const isVisible = rect.width > 0 && rect.height > 0;
 
-        console.log(`📏 Verificando contenedor: ${rect.width}x${rect.height}, visible: ${isVisible}`);
-
         return isVisible;
     }, []);
 
     // Función para inicializar el mapa
     const initializeMap = useCallback(() => {
-        console.log('🚀 Intentando inicializar mapa...');
 
         if (mapInstanceRef.current || mapLoading) {
-            console.log('⏸️ Mapa ya inicializado o en proceso');
             return;
         }
 
@@ -138,7 +132,6 @@ export default function WorldMapArtist({
         setMapLoading(true);
 
         try {
-            console.log('🗺️ Creando instancia de Leaflet...');
             const map = L.map(mapRef.current!, {
                 minZoom: 2,
                 maxZoom: 18,
@@ -147,7 +140,6 @@ export default function WorldMapArtist({
             }).setView([20, 0], 2);
 
             mapInstanceRef.current = map;
-            console.log('✅ Instancia de mapa creada');
 
             // Agregar capas base con un pequeño retraso
             setTimeout(() => {
@@ -166,15 +158,12 @@ export default function WorldMapArtist({
                 // Crear grupo de marcadores
                 markersRef.current = L.layerGroup().addTo(mapInstanceRef.current);
 
-                console.log('✅ Capas base y marcadores agregados');
                 setMapInitialized(true);
                 setMapLoading(false);
 
-                // Forzar actualización de tamaño
                 requestAnimationFrame(() => {
                     if (mapInstanceRef.current) {
                         mapInstanceRef.current.invalidateSize();
-                        console.log('✅ Tamaño del mapa actualizado');
                     }
                 });
             }, 50);
@@ -186,14 +175,12 @@ export default function WorldMapArtist({
         }
     }, [checkContainerReady, mapLoading]);
 
-    // Efecto para inicializar el mapa - versión mejorada
+    // Inicializar el mapa 
     useEffect(() => {
-        console.log('🔵 Componente montado, verificando condiciones...');
 
-        // Intentar inicializar inmediatamente
         initializeMap();
 
-        // Si no se pudo inicializar, configurar un intervalo para reintentar
+        // Reintentar inicializar
         let retryInterval: NodeJS.Timeout;
         let retryCount = 0;
         const maxRetries = 10; // Máximo 10 intentos (5 segundos)
@@ -217,7 +204,6 @@ export default function WorldMapArtist({
 
         return () => {
             if (retryInterval) clearInterval(retryInterval);
-            console.log('🧹 Cleanup de efectos de inicialización');
         };
     }, [initializeMap, checkContainerReady, mapLoading]);
 
@@ -229,10 +215,6 @@ export default function WorldMapArtist({
                 return;
             }
 
-            console.log('📥 Iniciando carga de datos...');
-            setLoading(true);
-            setError(null);
-
             try {
                 const response = await digitalLatinoApi.getDataArtistCountry(countryId, spotifyId);
 
@@ -240,8 +222,6 @@ export default function WorldMapArtist({
                     const dataArray = Array.isArray(response.data)
                         ? response.data
                         : [response.data];
-
-                    console.log(`📊 ${dataArray.length} ciudades recibidas`);
 
                     const validCities = dataArray
                         .filter(city => {
@@ -254,7 +234,6 @@ export default function WorldMapArtist({
                         }))
                         .slice(0, 100);
 
-                    console.log(`📍 ${validCities.length} ciudades válidas`);
                     setCitiesData(validCities);
                 } else {
                     console.warn('⚠️ Respuesta sin datos válidos');
@@ -273,13 +252,8 @@ export default function WorldMapArtist({
         loadData();
     }, [countryId, spotifyId]);
 
-    // Actualizar marcadores cuando cambian los datos Y el mapa está inicializado
     useEffect(() => {
-        console.log('📍 Verificando actualización de marcadores...');
-        console.log(`- Mapa inicializado: ${mapInitialized}`);
-        console.log(`- Instancia de mapa: ${!!mapInstanceRef.current}`);
-        console.log(`- Capa de marcadores: ${!!markersRef.current}`);
-        console.log(`- Ciudades: ${citiesData.length}`);
+
 
         if (!mapInitialized || !mapInstanceRef.current || !markersRef.current) {
             console.log('⏸️ Condiciones no cumplidas para actualizar marcadores');
@@ -293,9 +267,7 @@ export default function WorldMapArtist({
             return;
         }
 
-        console.log(`🎯 Actualizando ${citiesData.length} marcadores...`);
-
-        // Usar requestAnimationFrame para asegurar que el DOM esté listo
+        // RequestAnimationFrame para asegurar que el DOM esté listo
         requestAnimationFrame(() => {
             try {
                 // Limpiar marcadores anteriores
@@ -356,10 +328,8 @@ export default function WorldMapArtist({
                                 maxZoom: 18,
                                 minZoom: 2
                             });
-                            console.log('🔍 Vista ajustada a bounds');
                         } else {
                             mapInstanceRef.current.setView([20, 0], 2);
-                            console.log('🌎 Usando vista por defecto');
                         }
                     } catch (boundsError) {
                         console.error('❌ Error ajustando bounds:', boundsError);
@@ -378,7 +348,6 @@ export default function WorldMapArtist({
     // Cleanup
     useEffect(() => {
         return () => {
-            console.log('🧹 Cleanup completo del componente');
             if (mapInstanceRef.current) {
                 mapInstanceRef.current.remove();
                 mapInstanceRef.current = null;
@@ -388,7 +357,6 @@ export default function WorldMapArtist({
         };
     }, []);
 
-    // Mostrar error si hay algún problema
     if (error) {
         return (
             <Box sx={{ mt: 1, mb: 3 }}>
@@ -397,9 +365,7 @@ export default function WorldMapArtist({
                 </Alert>
                 <Paper sx={{ p: 3, textAlign: 'center' }}>
                     <Typography variant="h4" sx={{ mb: 1 }}>🌎</Typography>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        No se pudieron cargar los datos del mapa
-                    </Typography>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>No se pudieron cargar los datos del mapa</Typography>
                 </Paper>
             </Box>
         );
@@ -408,111 +374,37 @@ export default function WorldMapArtist({
     return (
         <Box sx={{ mt: 1, mb: 3 }}>
             <Paper sx={{ p: 3 }}>
-                <Typography
-                    variant="subtitle2"
-                    sx={{
-                        color: "#6C63FF",
-                        fontWeight: "bold",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.05em",
-                        mb: 2
-                    }}
-                >
-                    {title}
-                </Typography>
+                <Typography variant="subtitle2" sx={{ color: "#6C63FF", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", mb: 2 }}>{title}</Typography>
 
                 {/* Contenedor del mapa con overlay de carga */}
-                <Box
-                    ref={mapRef}
-                    sx={{
-                        width: '100%',
-                        height: height,
-                        minHeight: height,
-                        borderRadius: '8px',
-                        overflow: 'hidden',
-                        mb: 2,
-                        border: '1px solid #e0e0e0',
-                        backgroundColor: '#f5f5f5',
-                        position: 'relative'
-                    }}
-                >
+                <Box ref={mapRef} sx={{ width: '100%', height: height, minHeight: height, borderRadius: '8px', overflow: 'hidden', mb: 2, border: '1px solid #e0e0e0', backgroundColor: '#f5f5f5', position: 'relative' }}>
                     {/* Overlay de carga mientras se inicializa el mapa */}
                     {(mapLoading || !mapInitialized) && (
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                backgroundColor: 'rgba(245, 245, 245, 0.95)',
-                                zIndex: 1000,
-                                borderRadius: '8px'
-                            }}
-                        >
+                        <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(245, 245, 245, 0.95)', zIndex: 1000, borderRadius: '8px' }}>
                             <Box sx={{ textAlign: 'center' }}>
                                 <CircularProgress size={32} sx={{ color: "#6C63FF", mb: 2 }} />
-                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                    {mapLoading ? 'Inicializando mapa...' : 'Preparando mapa...'}
-                                </Typography>
+                                <Typography variant="body2" sx={{ color: 'text.secondary' }}>{mapLoading ? 'Inicializando mapa...' : 'Preparando mapa...'}</Typography>
                             </Box>
                         </Box>
                     )}
                 </Box>
 
                 {/* Leyenda del mapa */}
-                <Box sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: 3,
-                    mb: 2,
-                    flexWrap: 'wrap'
-                }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mb: 2, flexWrap: 'wrap' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: '50%',
-                            backgroundColor: '#FFD700',
-                            border: '2px solid white',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
-                        }} />
+                        <Box sx={{ width: 20, height: 20, borderRadius: '50%', backgroundColor: '#FFD700', border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
                         <Typography variant="caption" sx={{ fontWeight: 'bold' }}>#1 Oro (Grande)</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{
-                            width: 16,
-                            height: 16,
-                            borderRadius: '50%',
-                            backgroundColor: '#C0C0C0',
-                            border: '2px solid white',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
-                        }} />
+                        <Box sx={{ width: 16, height: 16, borderRadius: '50%', backgroundColor: '#C0C0C0', border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
                         <Typography variant="caption" sx={{ fontWeight: 'bold' }}>#2 Plata (Mediano)</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{
-                            width: 14,
-                            height: 14,
-                            borderRadius: '50%',
-                            backgroundColor: '#CD7F32',
-                            border: '2px solid white',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
-                        }} />
+                        <Box sx={{ width: 14, height: 14, borderRadius: '50%', backgroundColor: '#CD7F32', border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
                         <Typography variant="caption" sx={{ fontWeight: 'bold' }}>#3 Bronce</Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{
-                            width: 12,
-                            height: 12,
-                            borderRadius: '50%',
-                            backgroundColor: '#6C63FF',
-                            border: '2px solid white',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
-                        }} />
+                        <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: '#6C63FF', border: '2px solid white', boxShadow: '0 1px 3px rgba(0,0,0,0.3)' }} />
                         <Typography variant="caption" sx={{ fontWeight: 'bold' }}>Otros (Pequeño)</Typography>
                     </Box>
                 </Box>
@@ -520,54 +412,19 @@ export default function WorldMapArtist({
                 {/* Información de ciudades */}
                 {citiesData.length > 0 && (
                     <>
-                        <Box sx={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                            gap: 1.5
-                        }}>
+                        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 1.5 }}>
                             {citiesData.slice(0, 5).map((city) => (
-                                <Paper
-                                    key={`${city.city_name}-${city.rk}`}
-                                    elevation={0}
-                                    sx={{
-                                        backgroundColor: 'grey.50',
-                                        borderRadius: '8px',
-                                        p: 1.5,
-                                        border: '1px solid',
-                                        borderColor: 'grey.200',
-                                    }}
-                                >
-                                    <Typography
-                                        variant="body2"
-                                        sx={{
-                                            fontWeight: 'bold',
-                                            color: 'text.primary',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: 0.5,
-                                            mb: 0.5
-                                        }}
-                                    >
-                                        <Box
-                                            sx={{
-                                                width: 8,
-                                                height: 8,
-                                                borderRadius: '50%',
-                                            }}
-                                            style={{ backgroundColor: getMarkerColor(city.rk || 1) }}
-                                        />
+                                <Paper key={`${city.city_name}-${city.rk}`} elevation={0} sx={{ backgroundColor: 'grey.50', borderRadius: '8px', p: 1.5, border: '1px solid', borderColor: 'grey.200' }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'text.primary', display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
+                                        <Box sx={{ width: 8, height: 8, borderRadius: '50%' }} style={{ backgroundColor: getMarkerColor(city.rk || 1) }} />
                                         {city.city_name}
                                     </Typography>
-                                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                        #{city.rk} • {city.current_listeners ? formatNumber(city.current_listeners) : '0'} oyentes
-                                    </Typography>
+                                    <Typography variant="caption" sx={{ color: 'text.secondary' }}>#{city.rk} • {city.current_listeners ? formatNumber(city.current_listeners) : '0'} oyentes</Typography>
                                 </Paper>
                             ))}
                         </Box>
                         <Box sx={{ mt: 2, textAlign: 'center' }}>
-                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-                                Mostrando {Math.min(5, citiesData.length)} de {citiesData.length} ciudades
-                            </Typography>
+                            <Typography variant="caption" sx={{ color: 'text.secondary' }}>Mostrando {Math.min(5, citiesData.length)} de {citiesData.length} ciudades</Typography>
                         </Box>
                     </>
                 )}
@@ -575,9 +432,7 @@ export default function WorldMapArtist({
                 {citiesData.length === 0 && !loading && (
                     <Box sx={{ textAlign: 'center', py: 4, color: 'text.secondary' }}>
                         <Typography variant="h4" sx={{ mb: 1 }}>🌎</Typography>
-                        <Typography variant="body2">
-                            No hay datos de distribución por ciudades para este artista
-                        </Typography>
+                        <Typography variant="body2">No hay datos de distribución por ciudades para este artista</Typography>
                     </Box>
                 )}
             </Paper>
