@@ -342,31 +342,31 @@ export interface SongsArtistBySpotifyId {
 }
 // Interface para datos de artista by SpotifyId
 export interface DataArtist {
-  Id: number;
-  fk_artist: number;
-  playlist_reach: number;
-  popularity: number;
-  followers_total: number;
-  streams_total: number;
-  playlists: number;
-  monthly_listeners: number;
-  videos_total_tiktok: number;
-  followers_total_tiktok: number;
-  likes_total_tiktok: number;
-  comments_total_tiktok: number;
-  shares_total_tiktok: number;
-  views_total_tiktok: number;
-  engagement_rate_tiktok: number;
-  subscribers_total_youtube: number;
-  videos_total_youtube: number;
-  video_views_total_youtube: number;
-  video_likes_total_youtube: number;
-  shorts_total_youtube: number;
-  short_views_total_youtube: number;
-  engagement_rate_youtube: number;
-  followers_total_twitter: number;
-  followers_total_facebook: number;
-  followers_total_instagram: number;
+  Id?: number;
+  fk_artist?: number;
+  playlist_reach?: number;
+  popularity?: number;
+  followers_total?: number;
+  streams_total?: number;
+  playlists?: number;
+  monthly_listeners?: number;
+  videos_total_tiktok?: number;
+  followers_total_tiktok?: number;
+  likes_total_tiktok?: number;
+  comments_total_tiktok?: number;
+  shares_total_tiktok?: number;
+  views_total_tiktok?: number;
+  engagement_rate_tiktok?: number;
+  subscribers_total_youtube?: number;
+  videos_total_youtube?: number;
+  video_views_total_youtube?: number;
+  video_likes_total_youtube?: number;
+  shorts_total_youtube?: number;
+  short_views_total_youtube?: number;
+  engagement_rate_youtube?: number;
+  followers_total_twitter?: number;
+  followers_total_facebook?: number;
+  followers_total_instagram?: number;
 }
 // Interface para datos de artista by SpotifyId y CountryId
 export interface DataArtistCountry {

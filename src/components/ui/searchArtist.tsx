@@ -8,10 +8,20 @@ import { digitalLatinoApi, SpotifyTrackResult, Song, SpotifyArtistResult } from 
 import ChartSongDetails from "./ChartSongDetails";
 import { useAuth } from "@/hooks/useAuth";
 import { ArtistSongs } from "./artistSongs";
+import ChartArtistDetails from "./ChartArtistDetails";
 
 interface SearchResultProps {
     track: SpotifyTrackResult;
     onSelect: (track: SpotifyTrackResult) => void;
+}
+interface ArtistDetails {
+    spotifyid?: string;
+    artist: string;
+    img?: string;
+    followers_total?: number;
+    monthly_listeners?: number;
+    rk?: number;
+    score?: number;
 }
 
 function SearchResult({ track, onSelect }: SearchResultProps) {
@@ -192,40 +202,126 @@ interface ArtistResultProps {
 }
 
 function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [artistDetails, setArtistDetails] = useState<ArtistDetails | null>(null);
+    const [loadingDetails, setLoadingDetails] = useState(false);
+    const { toast } = useToast();
+    const { user, setShowLoginDialog } = useAuth();
+
+    const handleDetailsClick = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        if (!user) {
+            setShowLoginDialog(true);
+            return;
+        }
+
+        setLoadingDetails(true);
+        try {
+            console.log('🔍 Obteniendo detalles del artista:', artist.id);
+
+            // Crear objeto ArtistDetails con la información básica
+            const artistData: ArtistDetails = {
+                spotifyid: artist.id,
+                artist: artist.name,
+                img: artist.image_url,
+                followers_total: artist.followers,
+                rk: 0, // Puedes obtener este dato de una API si está disponible
+                score: 0 // Puedes obtener este dato de una API si está disponible
+            };
+
+            setArtistDetails(artistData);
+            setIsDetailsOpen(true);
+
+        } catch (error) {
+            console.error('❌ Error obteniendo detalles del artista:', error);
+            toast({
+                title: "Error",
+                description: "No se pudo cargar la información detallada del artista",
+                variant: "destructive"
+            });
+        } finally {
+            setLoadingDetails(false);
+        }
+    };
+
+    const handleCloseDetails = () => {
+        setIsDetailsOpen(false);
+        setArtistDetails(null);
+    };
+
     return (
-        <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
-            <div className="flex items-center gap-4">
-                <div className="relative">
-                    <img
-                        src={artist.image_url}
-                        alt={artist.name}
-                        className="w-24 h-24 rounded-lg object-cover"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity rounded-lg">
-                        <Users className="w-6 h-6 text-white" />
+        <>
+            <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm">
+                <div className="flex items-center gap-4">
+                    <div className="relative">
+                        <img
+                            src={artist.image_url}
+                            alt={artist.name}
+                            className="w-24 h-24 rounded-lg object-cover"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 transition-opacity rounded-lg">
+                            <Users className="w-6 h-6 text-white" />
+                        </div>
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="font-semibold text-slate-800 mb-1">{artist.name}</h3>
+                        {artist.followers && (
+                            <p className="text-xs text-slate-500">
+                                {artist.followers.toLocaleString()} seguidores
+                            </p>
+                        )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        {/* Botón de detalles */}
+                        {user ? (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                disabled={loadingDetails}
+                                className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1"
+                                onClick={handleDetailsClick}
+                            >
+                                <Info className="w-3 h-3" />
+                                {loadingDetails ? "Cargando..." : "Detalles"}
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1 cursor-pointer"
+                                onClick={() => setShowLoginDialog(true)}
+                            >
+                                <Lock className="w-3 h-3" />
+                                Detalles
+                            </Button>
+                        )}
+
+                        {/* Botón para mostrar canciones */}
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none hover:from-purple-700 hover:to-pink-700 flex items-center gap-1"
+                            onClick={() => onShowTracks(artist.id, artist.name)}
+                        >
+                            <Play className="w-3 h-3" />
+                            Mostrar Canciones
+                        </Button>
                     </div>
                 </div>
-                <div className="flex-1">
-                    <h3 className="font-semibold text-slate-800 mb-1">{artist.name}</h3>
-                    {artist.followers && (
-                        <p className="text-xs text-slate-500">
-                            {artist.followers.toLocaleString()} seguidores
-                        </p>
-                    )}
-                </div>
-                <div className="flex flex-col gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none hover:from-purple-700 hover:to-pink-700 flex items-center gap-1"
-                        onClick={() => onShowTracks(artist.id, artist.name)}
-                    >
-                        <Play className="w-3 h-3" />
-                        Mostrar Canciones
-                    </Button>
-                </div>
-            </div>
-        </Card>
+            </Card>
+
+            {/* Modal de Detalles del Artista */}
+            {isDetailsOpen && artistDetails && (
+                <ChartArtistDetails
+                    artist={artistDetails}
+                    selectedCountry="0"
+                    countries={[]}
+                    isOpen={isDetailsOpen}
+                    onClose={handleCloseDetails}
+                />
+            )}
+        </>
     );
 }
 
@@ -390,7 +486,7 @@ export function SearchArtist() {
                     </div>*/}
                 </div>
 
-                <div className="relative">
+                <div className="relative flex flex-col items-center">
                     <div className="flex gap-2 items-center" >
 
                         <div className="flex-1 relative">
