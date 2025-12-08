@@ -78,11 +78,14 @@ export function ExpandRow({
                     formatId={selectedFormat ? parseInt(selectedFormat) : 0}
                 />
 
-                {/* Playlist Info */}
-                <BoxPlaylistsDisplay csSong={row.cs_song} />
+                <div className="overflow-y-auto grid grid-cols-1 md:grid-cols-1 gap-4">
+                    {/* Playlist Info */}
+                    <BoxPlaylistsDisplay csSong={row.cs_song} />
 
-                {/* TikTok Influencers */}
-                <BoxTikTokInfluencers csSong={row.cs_song} />
+                    {/* TikTok Influencers */}
+                    <BoxTikTokInfluencers csSong={row.cs_song} />
+                </div>
+
 
                 {/* Top Mercados en Radio */}
                 <BoxElementsDisplaySpins
