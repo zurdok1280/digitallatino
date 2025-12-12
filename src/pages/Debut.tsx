@@ -437,11 +437,11 @@ export default function Charts() {
     return songsDebut.filter((item) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const s: any = item;
-      
+
       const songName = normalizeText(s.song || "");
       // En este archivo la propiedad suele ser 'artist' (singular)
       const artistName = normalizeText(s.artist || s.artists || "");
-      
+
       return songName.includes(query) || artistName.includes(query);
     });
   }, [songsDebut, chartSearchQuery]);
@@ -568,7 +568,10 @@ export default function Charts() {
         setLoadingSongs(true);
         if (Number.isNaN(selectedCity)) setSelectedCity('0');
         const response = await digitalLatinoApi.getDebutSongs(parseInt(selectedFormat), parseInt(selectedCountry), (selectedPeriod), parseInt(selectedCity));
+        console.log('params', selectedFormat, selectedCountry, selectedPeriod, selectedCity);
+        console.log('Songs Debut fetched:', response.data);
         setSongsDebut(response.data);
+
 
       } catch (error) {
         console.error('Error fetching songsDebut:', error);
@@ -886,14 +889,15 @@ export default function Charts() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 relative z-30">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto px-3 sm:px-0">
             {/* Filtro por País/Región */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🌎</span> País/Región
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">🌎</span>
+                <span className="truncate">País/Región</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+                className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-1 sm:focus:ring-offset-2"
                 value={selectedCountry}
                 onChange={handleCountryChange}
                 disabled={loadingCountries}
@@ -914,12 +918,13 @@ export default function Charts() {
             </div>
 
             {/* Filtro por Género */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-2">
-                <span>📊</span> Género
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">📊</span>
+                <span className="truncate">Género</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 sm:focus:ring-offset-2"
                 value={selectedFormat}
                 onChange={(e) => setSelectedFormat(e.target.value)}
                 disabled={loadingFormats || !selectedCountry}
@@ -940,11 +945,11 @@ export default function Charts() {
               </select>
             </div>
 
-
             {/* Filtro por Ciudad */}
-            <div className="space-y-2 relative">
-              <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🏙️</span> Ciudad Target
+            <div className="space-y-1 sm:space-y-2 relative">
+              <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">🏙️</span>
+                <span className="truncate">Ciudad Target</span>
               </label>
               <div className="relative">
                 <button
@@ -953,28 +958,28 @@ export default function Charts() {
                     setOpenDropdown(openDropdown === 'city' ? null : 'city');
                     setDropdownSearch('');
                   }}
-                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 text-left flex justify-between items-center"
+                  className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-orange-400 focus:ring-offset-1 sm:focus:ring-offset-2 text-left flex justify-between items-center"
                   disabled={loadingCities || !selectedCountry}
                 >
-                  <span className="truncate">
+                  <span className="truncate pr-2">
                     {loadingCities ? 'Cargando...' :
                       !selectedCountry ? 'Selecciona país primero' :
                         selectedCity !== '0' && cities.length > 0
                           ? cities.find(c => c.id.toString() === selectedCity)?.city_name || 'Todas las ciudades'
                           : 'Todas las ciudades'}
                   </span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'city' ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === 'city' ? 'rotate-180' : ''}`} />
                 </button>
 
                 {openDropdown === 'city' && cities.length > 0 && (
-                  <div className="absolute z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-2xl max-h-60 overflow-hidden transform translate-z-0 will-change-transform">
+                  <div className="absolute z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl max-h-48 sm:max-h-60 overflow-hidden transform translate-z-0 will-change-transform">
                     <div className="p-2 border-b border-gray-100">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                         <input
                           type="text"
                           placeholder="Buscar ciudad..."
-                          className="w-full pl-10 pr-4 py-2 bg-white/80 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                          className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg sm:rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                           value={dropdownSearch}
                           onChange={(e) => setDropdownSearch(e.target.value)}
                           autoFocus
@@ -982,33 +987,33 @@ export default function Charts() {
                       </div>
                     </div>
 
-                    <div className="max-h-48 overflow-y-auto">
+                    <div className="max-h-36 sm:max-h-48 overflow-y-auto">
                       {/* Opción "Todas las ciudades" */}
                       <button
                         onClick={() => handleOptionSelect('0', 'city')}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === '0'
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === '0'
                           ? 'bg-orange-100 text-orange-700 font-semibold'
                           : 'text-gray-700'
                           }`}
                       >
-                        🎯 Todas las ciudades
+                        🎯 <span className="truncate">Todas las ciudades</span>
                       </button>
 
                       {getFilteredOptions(cities, dropdownSearch, 'city').map((city) => (
                         <button
                           key={city.id}
                           onClick={() => handleOptionSelect(city.id.toString(), 'city')}
-                          className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                          className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
                             ? 'bg-orange-100 text-orange-700 font-semibold'
                             : 'text-gray-700'
                             }`}
                         >
-                          🎯 {city.city_name}
+                          🎯 <span className="truncate">{city.city_name}</span>
                         </button>
                       ))}
 
                       {getFilteredOptions(cities, dropdownSearch, 'city').length === 0 && (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                        <div className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-500 text-center">
                           No se encontraron ciudades
                         </div>
                       )}
@@ -1019,20 +1024,21 @@ export default function Charts() {
             </div>
 
             {/* Filtro por Periodo Musical */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-2">
-                <span>⏰</span> Periodo Musical
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">⏰</span>
+                <span className="truncate">Periodo Musical</span>
               </label>
               <div className="relative">
                 <select
                   value={selectedPeriod}
                   onChange={(e) => setSelectedPeriod(e.target.value)}
-                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 cursor-pointer"
+                  className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-1 sm:focus:ring-offset-2 cursor-pointer"
                 >
-                  <option value="N">🎵 Todos los periodos</option>
-                  <option value="C">🟢 Current - Novedades</option>
-                  <option value="R">🟡 Recurrent - 1-3 años</option>
-                  <option value="G">🟠 Gold - Más de 3 años</option>
+                  <option value="N">🎵 <span className="truncate">Todos los periodos</span></option>
+                  <option value="C">🟢 <span className="truncate">Current - Novedades</span></option>
+                  <option value="R">🟡 <span className="truncate">Recurrent - 1-3 años</span></option>
+                  <option value="G">🟠 <span className="truncate">Gold - Más de 3 años</span></option>
                 </select>
               </div>
             </div>
@@ -1058,7 +1064,6 @@ export default function Charts() {
                 },
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
-
               }}
             >
               {showSearchBar ? (
@@ -1112,7 +1117,7 @@ export default function Charts() {
               </div>
             )}
 
-            {/* Lista de caciones filtradas */}
+            {/* Lista de canciones filtradas */}
             {loadingSongs ? (
               <div className="text-center py-8">
                 <div className="inline-flex items-center gap-2 text-slate-600">
@@ -1144,13 +1149,13 @@ export default function Charts() {
                   key={`${row.cs_song}-${index}`}
                   className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
                 >
-                  <div className="grid grid-cols-9 items-center gap-3 px-6 py-2">
+                  <div className="grid grid-cols-9 items-center gap-1 sm:gap-3 pl-1 sm:pl-6 pr-1 sm:pr-6 py-2 sm:py-2">
                     {/* Rank */}
-                    <div className="col-span-1 flex items-center gap-2">
+                    <div className="col-span-1 flex items-center justify-center">
                       <div className="relative group/rank">
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-11 h-11 flex items-center justify-center shadow-sm group-hover/rank:shadow-md transition-all">
-                          <span className="text-lg font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
+                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded w-7 h-7 sm:w-11 sm:h-11 flex items-center justify-center shadow-xs sm:shadow-sm group-hover/rank:shadow-md transition-all">
+                          <span className="text-xs sm:text-lg font-bold text-slate-700 sm:bg-gradient-to-br sm:from-slate-700 sm:to-gray-800 sm:bg-clip-text sm:text-transparent">
                             {row.rk_trending}
                           </span>
                         </div>
@@ -1158,22 +1163,22 @@ export default function Charts() {
                     </div>
 
                     {/* Track Info */}
-                    <div className="col-span-6 flex items-center gap-3">
+                    <div className="col-span-5 sm:col-span-6 flex items-center gap-1 sm:gap-3">
                       <div className="relative group-hover:scale-105 transition-transform">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
                         <div className="relative">
-                          <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
+                          <Avatar className="relative h-9 w-9 sm:h-14 sm:w-14 rounded shadow-xs sm:shadow-sm group-hover:shadow-md transition-shadow">
                             <AvatarImage
                               src={row.img}
                               alt={row.img}
-                              className="rounded-lg object-cover"
+                              className="rounded object-cover"
                             />
-                            <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
-                              {row.artists.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            <AvatarFallback className="rounded bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-xs">
+                              {row.artists.split(' ').map(n => n[0]).join('').slice(0, 1).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           {/* Play Button Overlay */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
+                          <div className="absolute inset-0 sm:flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 hidden">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1192,57 +1197,88 @@ export default function Charts() {
                         </div>
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <h3 className="font-bold text-xs sm:text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
                           {row.song}
                         </h3>
-                        <p className="text-sm font-medium text-gray-600 truncate">
+                        <p className="text-xs sm:text-sm font-medium text-gray-600 truncate mb-0.5">
                           {row.artists}
                         </p>
-                        <p className="text-sm font-medium text-gray-400 truncate">
+                        {/* Label solo visible en desktop */}
+                        <p className="text-xs sm:text-sm font-medium text-gray-400 truncate hidden sm:block">
                           {row.label}
                         </p>
                       </div>
                     </div>
 
                     {/* Digital Score */}
-                    <div className="col-span-2 text-right">
-                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-1">
-                            <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                            <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Score</span>
-                            {/* Botón de información de score digital con tooltip a la derecha */}
-                            <div className="relative group/info">
+                    <div className="col-span-3 sm:col-span-2">
+                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded p-1.5 sm:p-2.5 shadow-xs sm:shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all min-h-[50px] sm:min-h-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2 h-full">
+
+                          {/* Score Digital */}
+                          <div className="flex flex-col items-center sm:hidden">
+                            {/* Label Score */}
+                            <div className="flex items-center gap-0.5 mb-0.5">
+                              <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Score</span>
+                              {/* Botón info pequeño */}
                               <button
-                                className="w-3 h-3 rounded-full bg-gray-200 hover:bg-purple-500 flex items-center justify-center transition-all duration-200 text-[8px] font-bold text-gray-400 hover:text-white hover:scale-110"
+                                className="w-2.5 h-2.5 rounded-full bg-gray-200 flex items-center justify-center text-[7px] font-bold text-gray-400"
                                 aria-label="Información sobre el Score Digital"
-                                onMouseEnter={handleScoreInfoHover}
-                                onMouseLeave={handleScoreInfoLeave}
                               >
                                 ?
                               </button>
                             </div>
+
+                            {/* Valor del Score */}
+                            <div className="text-base font-bold text-slate-800">
+                              {row.tw_score}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                            {row.tw_score}
+
+                          {/* Score Digital */}
+                          <div className="hidden sm:block">
+                            <div className="flex items-center justify-between mb-1">
+                              <div className="flex items-center gap-1">
+                                <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+                                <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Score</span>
+                                {/* Botón de información de score digital */}
+                                <div className="relative group/info">
+                                  <button
+                                    className="w-3 h-3 rounded-full bg-gray-200 hover:bg-purple-500 flex items-center justify-center transition-all duration-200 text-[8px] font-bold text-gray-400 hover:text-white hover:scale-110"
+                                    aria-label="Información sobre el Score Digital"
+                                    onMouseEnter={handleScoreInfoHover}
+                                    onMouseLeave={handleScoreInfoLeave}
+                                  >
+                                    ?
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
+                              {row.tw_score}
+                            </div>
                           </div>
-                          <ButtonInfoSong
-                            index={index}
-                            row={adaptDebutToSong(row)}
-                            isExpanded={isExpanded(index)}
-                            onToggle={() => handleRestrictedToggle(index, row)}
-                            selectedCountry={selectedCountry}
-                          />
+
+                          {/* ButtonInfoSong */}
+                          <div className="flex items-center justify-center sm:block mt-1 sm:mt-0">
+                            <ButtonInfoSong
+                              index={index}
+                              row={adaptDebutToSong(row)}
+                              isExpanded={isExpanded(index)}
+                              onToggle={() => handleRestrictedToggle(index, row)}
+                              selectedCountry={selectedCountry}
+                              compact={true}
+                              className="text-xs px-2 py-1 h-7 sm:text-sm sm:px-2 sm:py-1"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {isExpanded(index) && (
-                    <div className="px-6 pb-4">
+                    <div className="px-2 sm:px-6 pb-4">
                       <ExpandRow
                         row={adaptDebutToSong(row)}
                         onPromote={() => handlePromote(row.artists, row.song, row.img)}
@@ -1258,7 +1294,7 @@ export default function Charts() {
             )}
           </div>
         </div>
-        {/* Sección para mostrar más del Top 10 - Solo si NO está autenticado */}
+        {/* Sección para mostrar más del Top 20 - Solo si NO está autenticado */}
         {!user && (
           <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
             <div className="text-center space-y-6">

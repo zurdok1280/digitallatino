@@ -105,6 +105,7 @@ export interface TopTrendingPlatforms {
   data_res: number;
   cs_song: number;
   img: string;
+  spotifyartistid?: string;
 }
 
 // interfaces para entradas de Debut Songs
@@ -119,6 +120,7 @@ export interface DebutSongs {
   rk_trending: number;
   crg: string;
   img: string;
+  spotifyartistid?: string;
 }
 
 // interfaces para entradas de top artists

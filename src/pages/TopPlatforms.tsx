@@ -825,7 +825,7 @@ export default function TopPlatforms() {
     }
 
     // Crear y reproducir nueva canción
-    const audio = new Audio(audioUrl); // aquí se asigna la URL real del MP3
+    const audio = new Audio(audioUrl);
     audioRef.current = audio;
 
     // Cuando termine el audio, limpiar estado
@@ -834,7 +834,6 @@ export default function TopPlatforms() {
       audioRef.current = null;
     });
 
-    // Intentar reproducir (algunos navegadores requieren interacción de usuario)
     audio.play().then(() => {
       setCurrentlyPlaying(trackRank);
     }).catch((err) => {
@@ -923,14 +922,15 @@ export default function TopPlatforms() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto px-3 sm:px-0">
             {/* Filtro por País/Región */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🌎</span> País/Región
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">🌎</span>
+                <span className="truncate">País/Región</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+                className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-1 sm:focus:ring-offset-2"
                 value={selectedCountry}
                 onChange={handleCountryChange}
                 disabled={loadingCountries}
@@ -951,12 +951,13 @@ export default function TopPlatforms() {
             </div>
 
             {/* Filtro por Género */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-2">
-                <span>📊</span> Género
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">📊</span>
+                <span className="truncate">Género</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 sm:focus:ring-offset-2"
                 value={selectedFormat}
                 onChange={(e) => setSelectedFormat(e.target.value)}
                 disabled={loadingFormats || !selectedCountry}
@@ -978,9 +979,10 @@ export default function TopPlatforms() {
             </div>
 
             {/* Filtro por Plataforma */}
-            <div className="space-y-2 platform-filter">
-              <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🌐</span> Plataforma
+            <div className="space-y-1 sm:space-y-2 platform-filter">
+              <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">🌐</span>
+                <span className="truncate">Plataforma</span>
               </label>
 
               {/* Custom Select para Plataformas */}
@@ -988,22 +990,22 @@ export default function TopPlatforms() {
                 <button
                   type="button"
                   onClick={() => setOpenDropdown(openDropdown === 'platform' ? null : 'platform')}
-                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 cursor-pointer flex items-center gap-3 justify-between"
+                  className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-1 sm:focus:ring-offset-2 cursor-pointer flex items-center gap-2 sm:gap-3 justify-between"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     <img
                       src={getPlatformIcon(selectedPlatform)}
                       alt={selectedPlatform}
-                      className="w-5 h-5 object-contain"
+                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain flex-shrink-0"
                     />
-                    <span>{getPlatformLabel(selectedPlatform)}</span>
+                    <span className="truncate">{getPlatformLabel(selectedPlatform)}</span>
                   </div>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'platform' ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === 'platform' ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Dropdown Menu */}
                 {openDropdown === 'platform' && (
-                  <div className="absolute z-50 mt-2 w-full rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg py-2 max-h-60 overflow-y-auto">
+                  <div className="absolute z-50 mt-1 sm:mt-2 w-full rounded-xl sm:rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg sm:shadow-xl py-1 sm:py-2 max-h-48 sm:max-h-60 overflow-y-auto">
                     {[
                       { value: 'spotify', label: 'Spotify' },
                       { value: 'tiktok', label: 'TikTok' },
@@ -1018,17 +1020,17 @@ export default function TopPlatforms() {
                           setSelectedPlatform(platform.value);
                           setOpenDropdown(null);
                         }}
-                        className={`w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-purple-50 transition-colors ${selectedPlatform === platform.value ? 'bg-purple-100 text-purple-700' : 'text-gray-800'
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left flex items-center gap-2 sm:gap-3 hover:bg-purple-50 transition-colors ${selectedPlatform === platform.value ? 'bg-purple-100 text-purple-700' : 'text-gray-800'
                           }`}
                       >
                         <img
                           src={getPlatformIcon(platform.value)}
                           alt={platform.value}
-                          className="w-5 h-5 object-contain flex-shrink-0"
+                          className="w-4 h-4 sm:w-5 sm:h-5 object-contain flex-shrink-0"
                         />
-                        <span className="font-medium">{platform.label}</span>
+                        <span className="font-medium truncate">{platform.label}</span>
                         {selectedPlatform === platform.value && (
-                          <div className="ml-auto w-2 h-2 bg-purple-500 rounded-full" />
+                          <div className="ml-auto w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-500 rounded-full flex-shrink-0" />
                         )}
                       </button>
                     ))}
@@ -1056,7 +1058,6 @@ export default function TopPlatforms() {
                 },
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
-
               }}
             >
               {showSearchBar ? (
@@ -1142,13 +1143,14 @@ export default function TopPlatforms() {
                   key={`${row.rk}-${index}`}
                   className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
                 >
-                  <div className="grid grid-cols-9 items-center gap-3 px-6 py-2">
-                    {/* Rank */}
-                    <div className="col-span-1 flex items-center gap-2">
+                  <div className="grid grid-cols-9 items-center gap-1 sm:gap-3 pl-1 sm:pl-6 pr-1 sm:pr-6 py-2 sm:py-2">
+
+                    {/* Rank  */}
+                    <div className="col-span-1 flex items-center justify-center">
                       <div className="relative group/rank">
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-11 h-11 flex items-center justify-center shadow-sm group-hover/rank:shadow-md transition-all">
-                          <span className="text-lg font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
+                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded w-7 h-7 sm:w-11 sm:h-11 flex items-center justify-center shadow-xs sm:shadow-sm group-hover/rank:shadow-md transition-all">
+                          <span className="text-xs sm:text-lg font-bold text-slate-700 sm:bg-gradient-to-br sm:from-slate-700 sm:to-gray-800 sm:bg-clip-text sm:text-transparent">
                             {row.rk}
                           </span>
                         </div>
@@ -1156,62 +1158,78 @@ export default function TopPlatforms() {
                     </div>
 
                     {/* Track Info */}
-                    <div className="col-span-6 flex items-center gap-3">
-                      <div className="relative group-hover:scale-105 transition-transform">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
-                        <div className="relative">
-                          <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
-                            <AvatarImage
-                              src={row.img}
-                              alt={row.img}
-                              className="rounded-lg object-cover"
-                            />
-                            <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
-                              {row.song.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          {/* Play Button Overlay */}
-                          {/*<div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
-                            <button
-                              
-                            </button>
-                          </div>*/}
-                        </div>
+                    <div className="col-span-5 sm:col-span-6 flex items-center gap-1 sm:gap-3">
+                      <div className="relative">
+                        <Avatar className="relative h-9 w-9 sm:h-14 sm:w-14 rounded shadow-xs sm:shadow-sm group-hover:shadow-md transition-shadow">
+                          <AvatarImage
+                            src={row.img}
+                            alt={row.img}
+                            className="rounded object-cover"
+                          />
+                          <AvatarFallback className="rounded bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-xs">
+                            {row.song.split(' ').map(n => n[0]).join('').slice(0, 1).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
+                      {/* Info principal */}
+                      <div className="flex-1 min-w-0 overflow-hidden px-1">
+                        <h3 className="font-bold text-xs sm:text-base text-gray-900 truncate leading-tight">
                           {row.song}
                         </h3>
-                        <p className="text-sm font-medium text-gray-600 truncate">
+                        <p className="text-xs text-gray-600 truncate" >
                           {row.artists}
                         </p>
-                        <p className="text-sm font-medium text-gray-400 truncate">
+                        <p className="text-xs sm:text-sm font-medium text-gray-400 truncate ">
                           {row.label}
                         </p>
                       </div>
                     </div>
 
-                    {/* Digital Score - REEMPLAZAR ESTA SECCIÓN */}
-                    <div className="col-span-2 text-right">
-                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
-                        <div className="flex items-center justify-between">
-                          <ButtonBigNumber name=" Streams / Views " quantity={row.data_res} />
-                          {/* Agregar el ButtonInfoSong aquí */}
-                          <ButtonInfoSong
-                            index={index}
-                            row={adaptPlatformToSong(row)}
-                            isExpanded={isExpanded(index)}
-                            onToggle={() => handleRestrictedToggle(index, row)}
-                            selectedCountry={selectedCountry}
-                          />
+                    {/* Digital Score */}
+                    <div className="col-span-3 sm:col-span-2">
+                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded p-1.5 sm:p-2.5 shadow-xs sm:shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all min-h-[50px] sm:min-h-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2 h-full">
+
+                          <div className="flex flex-col items-center sm:hidden">
+                            <span className="text-[9px] font-semibold text-slate-500 tracking-wide mb-0.5">
+                              Reproducciones
+                            </span>
+
+                            {/* Número formateado */}
+                            <div className="text-xs font-bold text-slate-700">
+                              {row.data_res >= 1000000
+                                ? (row.data_res / 1000000).toFixed(1).replace('.0', '') + 'M'
+                                : row.data_res >= 1000
+                                  ? (row.data_res / 1000).toFixed(1).replace('.0', '') + 'K'
+                                  : row.data_res.toLocaleString()}
+                            </div>
+                          </div>
+
+                          {/* ButtonBigNumber solo en desktop */}
+                          <div className="hidden sm:block">
+                            <ButtonBigNumber name=" Reproducciones " quantity={row.data_res} />
+                          </div>
+
+                          {/* ButtonInfoSong */}
+                          <div className="flex items-center justify-center sm:block mt-1 sm:mt-0">
+                            <ButtonInfoSong
+                              index={index}
+                              row={adaptPlatformToSong(row)}
+                              isExpanded={isExpanded(index)}
+                              onToggle={() => handleRestrictedToggle(index, row)}
+                              selectedCountry={selectedCountry}
+                              compact={true}
+                              className="text-xs px-2 py-1 h-7 sm:text-sm sm:px-2 sm:py-1"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {isExpanded(index) && (
-                    <div className="px-6 pb-4">
+                    <div className="px-2 sm:px-6 pb-4">
                       {/* Usar el ExpandRow con datos adaptados */}
                       <ExpandRow
                         row={adaptPlatformToSong(row)}
@@ -1230,7 +1248,7 @@ export default function TopPlatforms() {
             )}
           </div>
         </div>
-        {/* Sección para mostrar más del Top 10 - Solo si NO está autenticado */}
+        {/* Sección para mostrar más del Top 20 - Solo si NO está autenticado */}
         {!user && (
           <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
             <div className="text-center space-y-6">
@@ -1256,8 +1274,8 @@ export default function TopPlatforms() {
                   { rank: 22, artist: "Anuel AA", track: "Mcgregor", streams: "1.9M" },
                   { rank: 23, artist: "J Balvin", track: "Doblexxó", streams: "1.8M" }
                 ].map((song) => (
-                  <div key={song.rank} className="flex items-center gap-3 p-3 bg-white/30 rounded-xl">
-                    <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center">
+                  <div key={song.rank} className="flex items-center lg:gap-3 lg:p-3 bg-white/30 rounded-xl">
+                    <div className="lg:w-8 lg:h-8 sm:w-4 sm:h-4 bg-gray-300 rounded-lg flex items-center justify-center">
                       <span className="text-sm font-bold text-gray-600">{song.rank}</span>
                     </div>
                     <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>

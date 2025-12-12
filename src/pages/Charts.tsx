@@ -367,7 +367,7 @@ export default function Charts() {
     const rect = event.currentTarget.getBoundingClientRect();
     setTooltipPosition({
       x: rect.right + 8,
-      y: rect.top + rect.height / 2,
+      y: rect.top + (rect.height / 2),
     });
     setShowScoreTooltip(true);
   };
@@ -391,13 +391,13 @@ export default function Charts() {
     if (!chartSearchQuery.trim()) {
       return songs;
     }
-    
+
     // Si hay búsqueda, filtramos por texto
     const query = normalizeText(chartSearchQuery);
     return songs.filter((song) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const s: any = song;
-      
+
       const songName = normalizeText(s.song || "");
       const labelName = normalizeText(s.label || "");
       const artistName = normalizeText(s.artists || "");
@@ -930,28 +930,28 @@ export default function Charts() {
           {user?.role === 'ARTIST' && (
             // --- VISTA PARA ARTISTA 
             <div className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-6 mb-6 shadow-sm flex items-center justify-between">
-               <div>
-                 <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    <Crown className="w-6 h-6 text-purple-600" />
-                    Panel de Artista
-                 </h2>
-                 <p className="text-sm text-gray-500 mt-1">
-                    Métricas exclusivas para tu artista seleccionado.
-                 </p>
-               </div>
-               
-               {/* Badge con el nombre del artista  */}
-               {user.name && (
-                   <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      <span className="font-semibold text-gray-700">{user.allowedArtistName}</span>
-                   </div>
-               )}
+              <div>
+                <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                  <Crown className="w-6 h-6 text-purple-600" />
+                  Panel de Artista
+                </h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Métricas exclusivas para tu artista seleccionado.
+                </p>
+              </div>
+
+              {/* Badge con el nombre del artista  */}
+              {user.name && (
+                <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                  <span className="font-semibold text-gray-700">{user.allowedArtistName}</span>
+                </div>
+              )}
             </div>
           )}
 
-          
-            
+
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
             {/* Filtro por País/Región */}
             <div className="space-y-2">
@@ -1113,8 +1113,8 @@ export default function Charts() {
             </div>*/}
           </div>
         </div>
-          
-        
+
+
 
         {/* Lista de Charts */}
         <div className="mb-8 flex flex-col gap-0 border-b border-white/20 pb-2 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
@@ -1627,6 +1627,18 @@ export default function Charts() {
       <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
+      {showScoreTooltip && (
+        <div
+          className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
+          style={{
+            left: tooltipPosition.x,
+            top: tooltipPosition.y - 20,
+          }}
+        >
+          El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
+          <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
+        </div>
+      )}
     </div>
   );
 }

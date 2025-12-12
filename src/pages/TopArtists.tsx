@@ -1165,7 +1165,7 @@ export default function TopArtists() {
                     <div className="mt-2 text-xs text-slate-600 flex justify-between items-center px-1">
                       <span className="font-medium">
                         {filteredSongs.length} de {trendingArtists.length}{" "}
-                        canciones encontradas
+                        artistas encontrados
                       </span>
                       {filteredSongs.length === 0 && (
                         <span className="text-orange-600 font-medium">
@@ -1202,7 +1202,7 @@ export default function TopArtists() {
                   onClick={() => setChartSearchQuery("")}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
-                  Ver todas los artistas
+                  Ver todos los artistas
                 </button>
               </div>
             ) : (
@@ -1211,75 +1211,104 @@ export default function TopArtists() {
                   key={`${row.rk}-${index}`}
                   className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
                 >
-                  <div className="grid grid-cols-11 items-center gap-4 px-6 py-4">
-                    {/* Rank */}
-                    <div className="col-span-1 flex items-center gap-1">
+                  {/* GRID ORIGINAL DE 11 COLUMNAS - AJUSTES MÍNIMOS SOLO PARA MÓVIL */}
+                  <div className="grid grid-cols-11 items-center gap-2 sm:gap-4 pl-2 sm:pl-6 pr-2 sm:pr-6 py-3 sm:py-4">
+
+                    {/* Rank - Compacto en móvil */}
+                    <div className="col-span-1 flex items-center justify-center">
                       <div className="relative group/rank">
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-11 h-11 flex items-center justify-center shadow-sm group-hover/rank:shadow-md transition-all">
-                          <span className="text-lg font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
+                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded w-7 h-7 sm:w-11 sm:h-11 flex items-center justify-center shadow-xs sm:shadow-sm group-hover/rank:shadow-md transition-all">
+                          <span className="text-xs sm:text-lg font-bold text-slate-700 sm:bg-gradient-to-br sm:from-slate-700 sm:to-gray-800 sm:bg-clip-text sm:text-transparent">
                             {row.rk}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Track Info */}
-                    <div className="col-span-3 flex items-center gap-3">
-                      <div className="relative group-hover:scale-105 transition-transform">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
-                        <div className="relative">
-                          <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
-                            <AvatarImage
-                              src={row.img}
-                              alt={row.img}
-                              className="rounded-lg object-cover"
-                            />
-                            <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
-                              {row.artist
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .slice(0, 2)
-                                .toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          {/* Play Button Overlay */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
-                            <button>
-                              <Play className="w-3 h-3 ml-0.5" />
-                            </button>
-                          </div>
-                        </div>
+                    {/* Track Info - Compacto en móvil */}
+                    <div className="col-span-3 flex items-center gap-2 sm:gap-3">
+                      <div className="relative">
+                        <Avatar className="relative h-8 w-8 sm:h-14 sm:w-14 rounded shadow-xs sm:shadow-sm group-hover:shadow-md transition-shadow">
+                          <AvatarImage
+                            src={row.img}
+                            alt={row.img}
+                            className="rounded object-cover"
+                          />
+                          <AvatarFallback className="rounded bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-xs">
+                            {row.artist
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 1)
+                              .toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <h3 className="font-bold text-xs sm:text-base text-gray-900 truncate leading-tight">
                           {row.artist}
                         </h3>
-                        <p className="text-sm font-medium text-gray-600 truncate">
+                        <p className="text-xs text-gray-600 truncate sm:text-sm">
                           • Followers: {formatNumber(row.followers_total)}
                         </p>
                       </div>
                     </div>
 
-                    {/* Artist Stats */}
-                    <div className="col-span-6 place-items-end">
-                      <div className="flex gap-0 overflow-x-auto pb-1">
-                        {/* Monthly Listeners */}
+                    {/* ESPACIO VACÍO PARA EMPUJAR STATS A LA DERECHA EN DESKTOP */}
+                    <div className="hidden sm:block col-span-2"></div>
+
+                    {/* Artist Stats - COMPACTO EN MÓVIL, ORIGINAL EN DESKTOP */}
+                    <div className="col-span-6 sm:col-span-4">
+                      {/* Versión móvil compacta */}
+                      <div className="sm:hidden flex items-center gap-2 w-full">
+                        {/* Oyentes Mensuales compacto */}
+                        <div className="flex-1 flex flex-col items-center bg-white/80 backdrop-blur-sm border border-white/60 rounded-lg p-1.5 shadow-xs">
+                          <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5 truncate w-full text-center">
+                            Oyentes
+                          </span>
+                          <div className="text-xs font-bold text-slate-700">
+                            {row.monthly_listeners >= 1000000
+                              ? (row.monthly_listeners / 1000000).toFixed(1).replace('.0', '') + 'M'
+                              : row.monthly_listeners >= 1000
+                                ? (row.monthly_listeners / 1000).toFixed(1).replace('.0', '') + 'K'
+                                : row.monthly_listeners}
+                          </div>
+                        </div>
+
+                        {/* Playlists compacto */}
+                        <div className="flex-1 flex flex-col items-center bg-white/80 backdrop-blur-sm border border-white/60 rounded-lg p-1.5 shadow-xs">
+                          <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5 truncate w-full text-center">
+                            Playlists
+                          </span>
+                          <div className="text-xs font-bold text-slate-700">
+                            {row.playlists >= 1000
+                              ? (row.playlists / 1000).toFixed(1).replace('.0', '') + 'K'
+                              : row.playlists}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Versión desktop ORIGINAL */}
+                      <div className="hidden sm:flex items-center justify-end gap-2">
                         <ButtonBigNumber
                           name="Oyentes Mensuales"
                           quantity={row.monthly_listeners}
+                          compact={false}
+                          className="bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90"
                         />
-                        {/* Playlist */}
                         <ButtonBigNumber
                           name="Playlist"
                           quantity={row.playlists}
+                          compact={false}
+                          className="bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90"
                         />
                       </div>
                     </div>
-                    {/* Expand Button */}
-                    <div className="col-span-1 text-right">
+
+                    {/* Expand Button - Compacto en móvil */}
+                    <div className="col-span-1 sm:col-span-1 flex justify-center sm:justify-end">
                       <ButtonInfoArtist
                         index={index}
                         isExpanded={isExpanded(index)}
@@ -1293,12 +1322,15 @@ export default function TopArtists() {
                           monthly_listeners: row.monthly_listeners,
                         }}
                         selectedCountry={selectedCountry}
+                        compact={true}
+                        className="text-xs px-2 py-1 h-7 sm:text-sm sm:px-3 sm:py-2 bg-white/80 backdrop-blur-sm border border-white/60 rounded-lg sm:rounded-xl shadow-xs sm:shadow-sm hover:shadow-md"
                       />
                     </div>
                   </div>
+
                   {/* Expanded Row Content fuera del Grid */}
                   {isExpanded(index) && (
-                    <div className="px-6 pb-4">
+                    <div className="px-2 sm:px-6 pb-4">
                       <ExpandRow
                         artist={{
                           spotifyid: row.spotifyid,

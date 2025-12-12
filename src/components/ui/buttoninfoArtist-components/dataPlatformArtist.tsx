@@ -164,11 +164,11 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
             </Box>
 
             {/* Contenido por plataforma */}
-            <Box sx={{ mb: 3 }}>
+            <Box sx={{ mb: 3, width: '100%', flexGrow: 1 }}>
                 {activeTab === 'tiktok' && (
-                    <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+                    <Grid container spacing={2} sx={{ flexGrow: 1, width: '100%' }}>
                         {/* Primera fila - 3 métricas */}
-                        <Grid item xs={12} sm={6} md={4} size={3}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <Paper sx={tiktokPaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Users style={{ width: 20, height: 20 }} /> Seguidores
@@ -179,7 +179,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4} size={3}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <Paper sx={tiktokPaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Heart style={{ width: 20, height: 20 }} /> Likes Totales
@@ -190,7 +190,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4} size={3}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <Paper sx={tiktokPaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <MessageSquare style={{ width: 20, height: 20 }} /> Comentarios
@@ -201,7 +201,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4} size={3}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <Paper sx={tiktokPaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Share2 style={{ width: 20, height: 20 }} /> Compartidos
@@ -212,7 +212,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                             </Paper>
                         </Grid>
                         {/* Segunda fila - 3 métricas */}
-                        <Grid item xs={12} sm={6} md={4} size={4}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <Paper sx={tiktokPaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Eye style={{ width: 20, height: 20 }} /> Vistas Totales
@@ -223,7 +223,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4} size={4}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <Paper sx={tiktokPaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Film style={{ width: 20, height: 20 }} /> Videos Totales
@@ -234,13 +234,12 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4} size={4}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <Paper sx={tiktokPaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <TrendingUp style={{ width: 20, height: 20 }} /> Tasa de Alcance TikTok
                                 </Typography>
                                 <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333", textAlign: 'center', fontSize: '1.1rem' }}>
-                                    {/* CORRECCIÓN: Multiplicar por 10 en lugar de 100 */}
                                     {artistData.engagement_rate_tiktok !== null && artistData.engagement_rate_tiktok !== undefined ?
                                         (artistData.engagement_rate_tiktok * 10).toFixed(1) + '%' : 'N/A'}
                                 </Typography>
@@ -250,9 +249,9 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                 )}
 
                 {activeTab === 'youtube' && (
-                    <Grid container spacing={2}>
+                    <Grid container spacing={2} sx={{ flexGrow: 1, width: '100%' }}>
                         {/* Primera fila - 3 métricas */}
-                        <Grid item xs={12} sm={6} md={4} size={4}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <Paper sx={youtubePaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Users style={{ width: 20, height: 20 }} /> Suscriptores
@@ -263,7 +262,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4} size={4}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <Paper sx={youtubePaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Video style={{ width: 20, height: 20 }} /> Videos Totales
@@ -274,7 +273,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4} size={4}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <Paper sx={youtubePaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <TrendingUp style={{ width: 20, height: 20 }} /> Tasa de Alcance YouTube
@@ -286,7 +285,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                         </Grid>
 
                         {/* Segunda fila - 3 métricas */}
-                        <Grid item xs={12} sm={6} md={4} size={3}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <Paper sx={youtubePaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Eye style={{ width: 20, height: 20 }} /> Vistas Totales
@@ -297,7 +296,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4} size={3}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <Paper sx={youtubePaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Heart style={{ width: 20, height: 20 }} /> Likes Totales
@@ -308,7 +307,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                             </Paper>
                         </Grid>
 
-                        <Grid item xs={12} sm={6} md={4} size={3}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <Paper sx={youtubePaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Film style={{ width: 20, height: 20 }} /> Shorts Totales
@@ -320,7 +319,7 @@ export function DataPlatformArtist({ spotifyId, artistName }: DataPlatformArtist
                         </Grid>
 
                         {/* Tercera fila - Última métrica */}
-                        <Grid item xs={12} sm={6} md={4} size={3}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <Paper sx={youtubePaperStyles}>
                                 <Typography variant="body2" sx={{ color: "#666", fontWeight: 500, mb: 1, fontSize: '0.8rem', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
                                     <Eye style={{ width: 20, height: 20 }} /> Vistas en Shorts

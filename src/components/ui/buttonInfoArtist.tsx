@@ -100,11 +100,14 @@ export function ExpandRow({ artist, selectedCountry, isExpanded }: ExpandRowProp
                 spotifyId={artist.spotifyid || ""}
                 selectedCountryId={selectedCountry}
             />
-            <ExpandRowArtist
-                artist={artist}
-                selectedCountry={selectedCountry}
-                isExpanded={isExpanded}
-            />
+            <div className="overflow-y-auto grid grid-cols-1 md:grid-cols-1 gap-4">
+
+                <ExpandRowArtist
+                    artist={artist}
+                    selectedCountry={selectedCountry}
+                    isExpanded={isExpanded}
+                />
+            </div>
 
         </div>
     );
