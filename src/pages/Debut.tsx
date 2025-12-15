@@ -27,6 +27,7 @@ import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 import { ButtonInfoSong, ExpandRow, useExpandableRows } from "@/components/ui/buttonInfoSong";
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
+import ChartArtistDetails from "@/components/ui/ChartArtistDetails";
 
 
 // Agregar más entradas para llegar a 40
@@ -407,6 +408,50 @@ export default function Charts() {
 
   const [showScoreTooltip, setShowScoreTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+
+  //State para manejo de detalles de artista
+  const [artistDetailsModal, setArtistDetailsModal] = useState<{
+    isOpen: boolean;
+    artist: Song | null;
+  }>({
+    isOpen: false,
+    artist: null
+  });
+
+  // Función para abrir detalles del artista
+  const handleArtistDetailsClick = (row: Song) => {
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
+
+    if (user?.role === 'ARTIST') {
+      const normalize = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      const myArtistName = normalize(user.allowedArtistName || "");
+      const songArtistName = normalize(row.artists || "");
+
+      if (!songArtistName.includes(myArtistName)) {
+        toast({
+          title: "🔒 Acceso Restringido",
+          description: "Este artista no pertenece a tu catálogo.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    setArtistDetailsModal({
+      isOpen: true,
+      artist: row
+    });
+  };
+
+  const handleCloseArtistDetails = () => {
+    setArtistDetailsModal({
+      isOpen: false,
+      artist: null
+    });
+  };
 
   const handleScoreInfoHover = (event: React.MouseEvent) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -1201,10 +1246,13 @@ export default function Charts() {
                         <h3 className="font-bold text-xs sm:text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
                           {row.song}
                         </h3>
-                        <p className="text-xs sm:text-sm font-medium text-gray-600 truncate mb-0.5">
+                        <p
+                          className="text-xs sm:text-sm font-medium text-gray-600 truncate cursor-pointer hover:text-purple-600 transition-colors"
+                          onClick={() => handleArtistDetailsClick(row)}
+                          title={`Ver detalles de ${row.artists}`}
+                        >
                           {row.artists}
                         </p>
-                        {/* Label solo visible en desktop */}
                         <p className="text-xs sm:text-sm font-medium text-gray-400 truncate hidden sm:block">
                           {row.label}
                         </p>
@@ -1425,6 +1473,24 @@ export default function Charts() {
           El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
           <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
         </div>
+      )}
+      {/* Modal de detalles del artista */}
+      {artistDetailsModal.isOpen && artistDetailsModal.artist && (
+        <ChartArtistDetails
+          artist={{
+            artist: artistDetailsModal.artist.artists,
+            spotifyid: artistDetailsModal.artist.spotifyartistid || "",
+            img: artistDetailsModal.artist.avatar || "",
+            rk: artistDetailsModal.artist.rk || 0,
+            score: artistDetailsModal.artist.score || 0,
+            followers_total: 0,
+            monthly_listeners: 0,
+          }}
+          selectedCountry={selectedCountry}
+          countries={countries}
+          isOpen={artistDetailsModal.isOpen}
+          onClose={handleCloseArtistDetails}
+        />
       )}
     </div >
   );

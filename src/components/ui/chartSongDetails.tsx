@@ -229,159 +229,161 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                     </button>
 
                     {/* Header fijo */}
-                    <div className="flex-shrink-0 bg-gradient-to-r from-purple-600 to-pink-600 p-6 text-white relative">
-                        <div className="grid grid-cols-12 items-center gap-4">
-                            {/* Rank */}
-                            <div className="col-span-1 flex items-center justify-center">
-                                <div className="relative">
-                                    <div className="absolute inset-0 bg-white/20 rounded-xl blur-sm"></div>
-                                    <div className="relative bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl w-16 h-16 flex items-center justify-center shadow-lg">
-                                        <span className="text-2xl font-bold text-white">
-                                            {loadingInfo ? '...' : `#${infoSong?.rk || song.rk || 0}`}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Track Info */}
-                            <div className="col-span-7 flex items-center gap-4">
-                                <div className="relative">
-                                    <Avatar className="relative h-20 w-20 rounded-xl shadow-lg border-2 border-white/30">
-                                        <AvatarImage
-                                            src={song.avatar}
-                                            alt={song.song}
-                                            className="rounded-xl object-cover"
-                                        />
-                                        <AvatarFallback className="rounded-xl bg-white/20 text-white font-bold text-lg">
-                                            {song.artists && typeof song.artists === 'string'
-                                                ? song.artists
-                                                    .split(" ")
-                                                    .map((n) => n[0])
-                                                    .join("")
-                                                    .slice(0, 2)
-                                                    .toUpperCase()
-                                                : '??'
-                                            }
-                                        </AvatarFallback>
-                                    </Avatar>
-
-                                    {/* Play Button Overlay */}
-                                    <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handlePlayPreview(
-                                                    song.rk || 0,
-                                                    `https://audios.monitorlatino.com/Iam/${song.entid || 0}.mp3`
-                                                );
-                                            }}
-                                            className="w-12 h-12 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-all duration-300 shadow-2xl transform hover:scale-110"
-                                            aria-label={`Reproducir preview de ${song.song}`}
-                                        >
-                                            {currentlyPlaying === song.rk ? (
-                                                <Pause className="w-5 h-5" />
-                                            ) : (
-                                                <Play className="w-5 h-5 ml-0.5" />
-                                            )}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className="flex-1 min-w-0">
-                                    <h1 className="text-2xl font-bold text-white leading-tight mb-2">
-                                        {song.song || 'Canción no disponible'}
-                                    </h1>
-                                    <p className="text-lg font-semibold text-white/90 mb-1">
-                                        {song.artists || 'Artista no disponible'}
-                                    </p>
-                                    <p className="text-base text-white/80 mb-3">
-                                        {song.label || 'Label no disponible'}
-                                    </p>
-
-                                    {/* Dropdown de países */}
+                    <div className="flex-shrink-0 bg-gradient-to-r from-purple-600 to-pink-600 p-4 md:p-6 text-white relative">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-4">
+                            <div className="col-span-1 md:col-span-8 flex items-center gap-4">
+                                {/* Rank */}
+                                <div className="flex-shrink-0">
                                     <div className="relative">
-                                        <button
-                                            type="button"
-                                            onClick={() => setOpenDropdown(!openDropdown)}
-                                            className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2 text-sm font-medium text-white hover:bg-white/30 transition-all duration-200 flex items-center gap-2 min-w-[200px] text-left"
-                                            disabled={loadingCountries}
-                                        >
-                                            <span className="flex-1 truncate">
-                                                {loadingCountries ? "Cargando países..." : getSelectedCountryName()}
+                                        <div className="absolute inset-0 bg-white/20 rounded-xl blur-sm"></div>
+                                        <div className="relative bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shadow-lg">
+                                            <span className="text-xl md:text-2xl font-bold text-white">
+                                                {loadingInfo ? '...' : `#${infoSong?.rk || song.rk || 0}`}
                                             </span>
-                                            <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown ? 'rotate-180' : ''}`} />
-                                        </button>
-                                        {openDropdown && (
-                                            <div className="absolute z-[9999] top-full left-0 mt-1 min-w-[250px]">
-                                                <div className="bg-white/95 backdrop-blur-sm border border-white/30 rounded-xl shadow-2xl max-h-60 overflow-hidden">
-                                                    <div className="p-2 border-b border-white/20">
-                                                        <div className="relative">
-                                                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Buscar país..."
-                                                                className="w-full pl-10 pr-4 py-2 bg-white/80 border border-gray-200 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                                                                value={dropdownSearch}
-                                                                onChange={(e) => setDropdownSearch(e.target.value)}
-                                                                autoFocus
-                                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Track Info */}
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-3 md:gap-4">
+                                        <div className="relative flex-shrink-0">
+                                            <Avatar className="relative h-16 w-16 md:h-20 md:w-20 rounded-xl shadow-lg border-2 border-white/30">
+                                                <AvatarImage
+                                                    src={song.avatar}
+                                                    alt={song.song}
+                                                    className="rounded-xl object-cover"
+                                                />
+                                                <AvatarFallback className="rounded-xl bg-white/20 text-white font-bold text-base md:text-lg">
+                                                    {song.artists && typeof song.artists === 'string'
+                                                        ? song.artists
+                                                            .split(" ")
+                                                            .map((n) => n[0])
+                                                            .join("")
+                                                            .slice(0, 2)
+                                                            .toUpperCase()
+                                                        : '??'
+                                                    }
+                                                </AvatarFallback>
+                                            </Avatar>
+
+                                            {/* Play Button Overlay */}
+                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handlePlayPreview(
+                                                            song.rk || 0,
+                                                            `https://audios.monitorlatino.com/Iam/${song.entid || 0}.mp3`
+                                                        );
+                                                    }}
+                                                    className="w-10 h-10 md:w-12 md:h-12 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-all duration-300 shadow-2xl transform hover:scale-110"
+                                                    aria-label={`Reproducir preview de ${song.song}`}
+                                                >
+                                                    {currentlyPlaying === song.rk ? (
+                                                        <Pause className="w-4 h-4 md:w-5 md:h-5" />
+                                                    ) : (
+                                                        <Play className="w-4 h-4 md:w-5 md:h-5 ml-0.5" />
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex-1 min-w-0">
+                                            <h1 className="text-lg md:text-2xl font-bold text-white leading-tight mb-1 md:mb-2 line-clamp-1">
+                                                {song.song || 'Canción no disponible'}
+                                            </h1>
+                                            <p className="text-sm md:text-lg font-semibold text-white/90 mb-0.5 md:mb-1 line-clamp-1">
+                                                {song.artists || 'Artista no disponible'}
+                                            </p>
+                                            <p className="text-xs md:text-base text-white/80 mb-2 md:mb-3 line-clamp-1">
+                                                {song.label || 'Label no disponible'}
+                                            </p>
+
+                                            {/* Dropdown de países */}
+                                            <div className="relative">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setOpenDropdown(!openDropdown)}
+                                                    className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white hover:bg-white/30 transition-all duration-200 flex items-center gap-1 md:gap-2 w-full md:min-w-[200px] max-w-[400px] text-left"
+                                                    disabled={loadingCountries}
+                                                >
+                                                    <span className="flex-1 truncate">
+                                                        {loadingCountries ? "Cargando países..." : getSelectedCountryName()}
+                                                    </span>
+                                                    <ChevronDown className={`w-3 h-3 md:w-4 md:h-4 transition-transform ${openDropdown ? 'rotate-180' : ''}`} />
+                                                </button>
+                                                {openDropdown && (
+                                                    <div className="absolute z-[9999] top-full left-0 mt-1 w-full md:min-w-[250px] max-w-[400px]">
+                                                        <div className="bg-white/95 backdrop-blur-sm border border-white/30 rounded-xl shadow-2xl max-h-60 overflow-hidden">
+                                                            <div className="p-2 border-b border-white/20">
+                                                                <div className="relative">
+                                                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-3 h-3 md:w-4 md:h-4 text-gray-400" />
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="Buscar país..."
+                                                                        className="w-full pl-8 md:pl-10 pr-4 py-2 bg-white/80 border border-gray-200 rounded-lg text-xs md:text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                                                        value={dropdownSearch}
+                                                                        onChange={(e) => setDropdownSearch(e.target.value)}
+                                                                        autoFocus
+                                                                    />
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="max-h-48 overflow-y-auto">
+                                                                {/* Opción "Todos los países" */}
+                                                                <button
+                                                                    onClick={() => handleCountrySelect("0")}
+                                                                    className={`w-full px-4 py-2 md:py-3 text-left text-xs md:text-sm hover:bg-purple-50 transition-colors ${selectedCountry === "0"
+                                                                        ? "bg-purple-100 text-purple-700 font-semibold"
+                                                                        : "text-gray-700"
+                                                                        }`}
+                                                                >
+                                                                    🌎 Todos los países
+                                                                </button>
+
+                                                                {filteredCountries.map((country) => (
+                                                                    <button
+                                                                        key={country.id}
+                                                                        onClick={() => handleCountrySelect(country.id.toString())}
+                                                                        className={`w-full px-4 py-2 md:py-3 text-left text-xs md:text-sm hover:bg-purple-50 transition-colors ${selectedCountry === country.id.toString()
+                                                                            ? "bg-purple-100 text-purple-700 font-semibold"
+                                                                            : "text-gray-700"
+                                                                            }`}
+                                                                    >
+                                                                        {country.country_name} ({country.country})
+                                                                    </button>
+                                                                ))}
+
+                                                                {filteredCountries.length === 0 && (
+                                                                    <div className="px-4 py-2 md:py-3 text-xs md:text-sm text-gray-500 text-center">
+                                                                        No se encontraron países
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </div>
-
-                                                    <div className="max-h-48 overflow-y-auto">
-                                                        {/* Opción "Todos los países" */}
-                                                        <button
-                                                            onClick={() => handleCountrySelect("0")}
-                                                            className={`w-full px-4 py-3 text-left text-sm hover:bg-purple-50 transition-colors ${selectedCountry === "0"
-                                                                ? "bg-purple-100 text-purple-700 font-semibold"
-                                                                : "text-gray-700"
-                                                                }`}
-                                                        >
-                                                            🌎 Todos los países
-                                                        </button>
-
-                                                        {filteredCountries.map((country) => (
-                                                            <button
-                                                                key={country.id}
-                                                                onClick={() => handleCountrySelect(country.id.toString())}
-                                                                className={`w-full px-4 py-3 text-left text-sm hover:bg-purple-50 transition-colors ${selectedCountry === country.id.toString()
-                                                                    ? "bg-purple-100 text-purple-700 font-semibold"
-                                                                    : "text-gray-700"
-                                                                    }`}
-                                                            >
-                                                                {country.country_name} ({country.country})
-                                                            </button>
-                                                        ))}
-
-                                                        {filteredCountries.length === 0 && (
-                                                            <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                                                                No se encontraron países
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
+                                                )}
                                             </div>
-                                        )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Digital Score */}
-                            <div className="col-span-4 text-right">
-                                <div className="relative bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-4 shadow-lg">
-                                    <div className="flex items-center justify-between mb-2">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                            <div className="col-span-1 md:col-span-4 text-left md:text-right mt-4 md:mt-0">
+                                <div className="relative bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-3 md:p-4 shadow-lg">
+                                    <div className="flex items-center justify-between mb-1 md:mb-2">
+                                        <div className="flex items-center gap-1 md:gap-2">
+                                            <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-white rounded-full animate-pulse"></div>
                                             <span className="text-xs font-bold text-white uppercase tracking-wide">
                                                 Digital Score
                                             </span>
                                         </div>
-                                        <Star className="w-4 h-4 text-yellow-300 fill-current" />
+                                        <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-300 fill-current" />
                                     </div>
-                                    <div className="text-3xl font-black text-white">
+                                    <div className="text-2xl md:text-3xl font-black text-white">
                                         {loadingInfo ? '...' : (infoSong?.score || song.score || 0)}
                                     </div>
-                                    <div className="text-xs text-white/80 mt-1">
+                                    <div className="text-xs text-white/80 mt-0.5 md:mt-1 line-clamp-1">
                                         {getSelectedCountryName()}
                                     </div>
                                 </div>
@@ -391,7 +393,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
 
                     {/* Contenido scrollable */}
                     <div className="flex-1 overflow-y-auto bg-gray-50">
-                        <div className="p-6 space-y-6">
+                        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
                             {/* Campaña de promoción */}
                             <BoxCampaign
                                 spotifyId={song.spotifyid}

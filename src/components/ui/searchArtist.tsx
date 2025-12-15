@@ -55,10 +55,6 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
             // Paso 1: Obtener el csSong usando el spotifyId
             const csSongResponse = await digitalLatinoApi.getSongBySpotifyId(track.spotify_id);
 
-            console.log('📊 URL completa de getSongBySpotifyId:', `report/getcssong?spotifyid=${track.spotify_id}`);
-            console.log('📦 Respuesta de getSongBySpotifyId:', csSongResponse);
-            console.log('🎵 csSong recibido:', csSongResponse.data);
-
             if (csSongResponse.data && csSongResponse.data.cs_song) {
                 const csSong = csSongResponse.data.cs_song;
                 console.log('✅ cs_song encontrado:', csSong);
@@ -137,13 +133,14 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                         </div>
                     </div>
                     <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-slate-800 mb-1 text-sm sm:text-base truncate">
+                        <h3 className="font-semibold text-slate-800 mb-1 text-sm sm:text-base truncate sm:self-center">
                             {track.song_name}
                         </h3>
-                        <p className="text-xs sm:text-sm text-slate-600 mb-2 truncate">
+                        <p className="text-xs sm:text-sm text-slate-600 mb-2 truncate sm:self-center">
                             {track.artist_name}
                         </p>
                     </div>
+                    {/* Botones Songs */}
                     <div className="flex flex-row sm:flex-col gap-2 justify-end">
                         {user ? (
                             <Button
@@ -281,6 +278,7 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                             </p>
                         )}
                     </div>
+                    {/* Botones Songs */}
                     <div className="flex flex-row sm:flex-col gap-2 justify-end">
                         {/* Botón de detalles */}
                         {user ? (
@@ -309,16 +307,29 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                         )}
 
                         {/* Botón para mostrar canciones */}
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none hover:from-purple-700 hover:to-pink-700 flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2"
-                            onClick={() => onShowTracks(artist.id, artist.name)}
-                        >
-                            <Play className="w-2 h-2 sm:w-3 sm:h-3" />
-                            <span className="hidden sm:inline">Mostrar Canciones</span>
-                            <span className="sm:hidden">Canciones</span>
-                        </Button>
+                        {user ? (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none hover:from-purple-700 hover:to-pink-700 flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2"
+                                onClick={() => onShowTracks(artist.id, artist.name)}
+                            >
+                                <Play className="w-2 h-2 sm:w-3 sm:h-3" />
+                                <span className="hidden sm:inline">Ver Canciones</span>
+                                <span className="sm:hidden">Canciones</span>
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white border-none hover:from-purple-700 hover:to-pink-700 flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1.5 sm:py-2"
+                                onClick={() => setShowLoginDialog(true)}
+                            >
+                                <Lock className="w-2 h-2 sm:w-3 sm:h-3" />
+                                <span className="hidden sm:inline">Ver Canciones</span>
+                                <span className="sm:hidden">Canciones</span>
+                            </Button>
+                        )}
                     </div>
                 </div>
             </Card>
@@ -499,7 +510,7 @@ export function SearchArtist() {
                 </div>
 
                 <div className="relative flex flex-col items-center">
-                    <div className="flex flex-row gap-3 items-center w-full max-w-7xl mx-auto" >
+                    <div className="flex flex-row gap-3 items-center w-full lg:w-[500px] xl:w-[500px] 2xl:w-[800px] mx-auto">
                         <div className="flex-1 relative">
                             <Input
                                 placeholder="Buscar artista o canción en Spotify..."
@@ -545,7 +556,6 @@ export function SearchArtist() {
                                         className="text-slate-600 hover:text-slate-800 transition-colors text-sm lg:text-base flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2"
                                     >
                                         <X className="w-4 h-4 lg:w-4 lg:h-4" />
-                                        <span className="hidden sm:inline font-medium">Cerrar</span>
                                     </button>
                                 </div>
 
@@ -559,7 +569,8 @@ export function SearchArtist() {
                                                 }`}
                                             onClick={() => setActiveTab('tracks')}
                                         >
-                                            <span className="truncate">Canciones ({searchResults.tracks.length})</span>
+                                            <span className="truncate hidden sm:inline">Canciones ({searchResults.tracks.length})</span>
+                                            <span className="sm:hidden">Can. ({searchResults.tracks.length})</span>
                                         </button>
                                         <button
                                             className={`flex-1 py-3 lg:py-4 text-sm lg:text-base font-medium ${activeTab === 'artists'
@@ -568,7 +579,9 @@ export function SearchArtist() {
                                                 }`}
                                             onClick={() => setActiveTab('artists')}
                                         >
-                                            <span className="truncate">Artistas ({searchResults.artists.length})</span>
+                                            <span className="truncate hidden sm:inline">Artistas ({searchResults.artists.length})</span>
+                                            <span className="sm:hidden">Art. ({searchResults.artists.length})</span>
+
                                         </button>
                                     </div>
                                 )}
@@ -577,7 +590,7 @@ export function SearchArtist() {
                             <div className="max-h-64 lg:max-h-80 overflow-y-auto bg-white">
                                 {activeTab === 'tracks' && hasTracks ? (
                                     searchResults.tracks.map((track) => (
-                                        <div key={track.spotify_id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
+                                        <div key={track.spotify_id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors ">
                                             <SearchResult
                                                 track={track}
                                                 onSelect={handleSearchResultSelect}
@@ -606,11 +619,6 @@ export function SearchArtist() {
                     )}
 
                 </div>
-                {!showSearchResults && searchQuery && (
-                    <div className="text-sm lg:text-sm text-slate-600 text-center mt-2">
-                        Escribe para buscar en tiempo real en Spotify...
-                    </div>
-                )}
             </div>
             {/* Modal de canciones del artista */}
             <ArtistSongs

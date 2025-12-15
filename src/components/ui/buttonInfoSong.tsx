@@ -63,7 +63,7 @@ export function ExpandRow({
     return (
         <div className="relative border-t border-white/30 bg-background/50 rounded-lg animate-fade-in">
             {/* Contenedor principal con scroll */}
-            <div className="max-h-96 overflow-y-auto p-4 pb-20">
+            <div className="max-h-96 overflow-y-auto p-4 pb-2">
                 {/* Top de ciudades */}
                 <BoxElementsDisplay
                     label={"Top Ciudades Digital"}

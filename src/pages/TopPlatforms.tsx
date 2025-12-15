@@ -9,7 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LatinAmericaMap } from "@/components/LatinAmericaMap";
 import { SpotifyTrack } from "@/types/spotify";
 import { useAuth } from "@/hooks/useAuth";
-import { digitalLatinoApi, Country, Format, City, Song, TopTrendingPlatforms } from "@/lib/api";
+import { digitalLatinoApi, Country, Format, City, Song, TopTrendingPlatforms, TrendingSong } from "@/lib/api";
 // Import album covers
 import { Backdrop, CircularProgress, Fab } from '@mui/material';
 import teddySwimsCover from "@/assets/covers/teddy-swims-lose-control.jpg";
@@ -34,13 +34,14 @@ import spotifyIcon from '/src/assets/covers/icons/spotify-icon.png';
 import tiktokIcon from '/src/assets/covers/icons/tiktok-icon.png';
 import youtubeIcon from '/src/assets/covers/icons/youtube-icon.svg';
 import shazamIcon from '/src/assets/covers/icons/shazam-icon.svg';
+import ChartArtistDetails from "@/components/ui/ChartArtistDetails";
 
 // Función para convertir TopTrendingPlatforms a un formato compatible con Song, función temporal
 const adaptPlatformToSong = (platformSong: TopTrendingPlatforms): Song => {
   return {
     cs_song: platformSong.cs_song,
     song: platformSong.song,
-    artists: platformSong.artist,
+    artists: platformSong.artists,
     label: platformSong.label || '',
     score: platformSong.data_res, // Usar data_res como score para esta prueba
     rk: parseInt(platformSong.rk),
@@ -447,8 +448,8 @@ export default function TopPlatforms() {
   const { loading, callApi } = useApiWithLoading();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
   const { expandedRows, toggleRow, isExpanded } = useExpandableRows();
+  const { user, setShowLoginDialog } = useAuth();
 
   // Spotify search state
   const [searchQuery, setSearchQuery] = useState('');     //Aislar
@@ -479,6 +480,49 @@ export default function TopPlatforms() {
   const [chartSearchQuery, setChartSearchQuery] = useState('');
   const [showSearchBar, setShowSearchBar] = useState(false)
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  //States para detalles del artista
+  const [artistDetailsModal, setArtistDetailsModal] = useState<{
+    isOpen: boolean;
+    artist: Song | null;
+  }>({
+    isOpen: false,
+    artist: null
+  });
+
+  // Función para abrir detalles del artista
+  const handleArtistDetailsClick = (row: TopTrendingPlatforms) => {
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
+
+    if (user?.role === 'ARTIST') {
+      const normalize = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      const myArtistName = normalize(user.allowedArtistName || "");
+      const songArtistName = normalize(row.artists || "");
+
+      if (!songArtistName.includes(myArtistName)) {
+        toast({
+          title: "🔒 Acceso Restringido",
+          description: "Este artista no pertenece a tu catálogo.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    setArtistDetailsModal({
+      isOpen: true,
+      artist: row
+    });
+  };
+  const handleCloseArtistDetails = () => {
+    setArtistDetailsModal({
+      isOpen: false,
+      artist: null
+    });
+  };
 
   // Dropdown state keyboard navigation
   const [openDropdown, setOpenDropdown] = useState<'country' | 'format' | 'platform' | 'city' | null>(null);
@@ -1177,7 +1221,11 @@ export default function TopPlatforms() {
                         <h3 className="font-bold text-xs sm:text-base text-gray-900 truncate leading-tight">
                           {row.song}
                         </h3>
-                        <p className="text-xs text-gray-600 truncate" >
+                        <p
+                          className="text-xs sm:text-sm font-medium text-gray-600 truncate cursor-pointer hover:text-purple-600 transition-colors"
+                          onClick={() => handleArtistDetailsClick(row)}
+                          title={`Ver detalles de ${row.artists}`}
+                        >
                           {row.artists}
                         </p>
                         <p className="text-xs sm:text-sm font-medium text-gray-400 truncate ">
@@ -1233,7 +1281,7 @@ export default function TopPlatforms() {
                       {/* Usar el ExpandRow con datos adaptados */}
                       <ExpandRow
                         row={adaptPlatformToSong(row)}
-                        onPromote={() => handlePromote(row.artist, row.song, row.img)}
+                        onPromote={() => handlePromote(row.artists, row.song, row.img)}
                         selectedCountry={selectedCountry}
                         selectedFormat={selectedFormat}
                         countries={countries}
@@ -1368,6 +1416,24 @@ export default function TopPlatforms() {
       <Backdrop open={loading} sx={{ color: '#fff', zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
+      {/* Modal de detalles del artista */}
+      {artistDetailsModal.isOpen && artistDetailsModal.artist && (
+        <ChartArtistDetails
+          artist={{
+            artist: artistDetailsModal.artist.artists,
+            spotifyid: artistDetailsModal.artist.spotifyartistid || "",
+            img: artistDetailsModal.artist.img || "",
+            rk: artistDetailsModal.artist.rk || 0,
+            score: artistDetailsModal.artist.score || 0,
+            followers_total: 0,
+            monthly_listeners: 0,
+          }}
+          selectedCountry={selectedCountry}
+          countries={countries}
+          isOpen={artistDetailsModal.isOpen}
+          onClose={handleCloseArtistDetails}
+        />
+      )}
     </div >
   );
 }

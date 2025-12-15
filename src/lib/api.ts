@@ -77,6 +77,7 @@ export interface Song {
   avatar: string;
   url: string;
   spotifyid: string;
+  spotifyartistid?: string;
 }
 //Interface para Ids de canciones
 export interface idSongs {
@@ -100,7 +101,7 @@ export interface ApiError {
 export interface TopTrendingPlatforms {
   rk: string;
   song: string;
-  artist: string;
+  artists?: string;
   label: string;
   data_res: number;
   cs_song: number;
