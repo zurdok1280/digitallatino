@@ -381,6 +381,17 @@ export interface DataArtistCountry {
   city_lng: number;
   city_lat: number;
 }
+//interface para post de tablas de cancniones y artistas que no tienen datos:
+export interface SetLogSongRequest {
+  userid: number;
+  spotifyid: string;
+  isartist: boolean;
+}
+// Interface para la respuesta de setLogSong
+export interface SetLogSongResponse {
+  success: boolean;
+  message?: string;
+}
 
 // Clase principal para manejar las conexiones API
 export class ApiClient {
@@ -682,6 +693,11 @@ export const digitalLatinoApi = {
     api.get<DataArtistCountry>(
       `report/getDataArtistCountry/${countryId}/${spotifyId}`
     ),
+  // Registrar log de canción o artista
+  setLogSong: (
+    data: SetLogSongRequest
+  ): Promise<ApiResponse<SetLogSongResponse>> =>
+    api.post<SetLogSongResponse>("report/setLogSong", data),
 };
 
 // Ejemplo de uso:

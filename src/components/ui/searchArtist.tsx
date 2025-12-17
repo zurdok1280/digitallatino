@@ -102,6 +102,20 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                 });
             }
         } catch (error) {
+            //Si no hay datos de la cancion:
+            try {
+                const logResponse = await digitalLatinoApi.setLogSong({
+                    userid: user.id,
+                    spotifyid: track.spotify_id,
+                    isartist: false
+                })
+                if (logResponse.success) {
+                    console.log("Log registrado exitosamente:", logResponse.data);
+                }
+            } catch (error) {
+                console.error("Error al registrar el log de la cancion:", error);
+            }
+
             console.error('❌ Error obteniendo detalles de la canción:', error);
             toast({
                 title: "Error",
@@ -238,6 +252,13 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
             setIsDetailsOpen(true);
 
         } catch (error) {
+            //Si no hay datos del artista:
+            const logResponse = await digitalLatinoApi.setLogSong({
+                userid: user.id,
+                spotifyid: artist.id,
+                isartist: true
+            });
+
             console.error('❌ Error obteniendo detalles del artista:', error);
             toast({
                 title: "Error",
