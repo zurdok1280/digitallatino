@@ -29,7 +29,6 @@ import { ButtonInfoSong, ExpandRow, useExpandableRows } from "@/components/ui/bu
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
 //imports icons
-import pandoraIcon from '/src/assets/covers/icons/pandora-icon.png';
 import spotifyIcon from '/src/assets/covers/icons/spotify-icon.png';
 import tiktokIcon from '/src/assets/covers/icons/tiktok-icon.png';
 import youtubeIcon from '/src/assets/covers/icons/youtube-icon.svg';
@@ -75,7 +74,6 @@ const getPlatformLabel = (platform: string) => {
     tiktok: "TikTok",
     youtube: "YouTube",
     shazam: "Shazam",
-    pandora: "Pandora",
   };
 
   return labels[platform] || platform;
@@ -93,8 +91,7 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
       spotify: spotifyIcon,
       tiktok: tiktokIcon,
       youtube: youtubeIcon,
-      shazam: shazamIcon,
-      pandora: pandoraIcon
+      shazam: shazamIcon
     };
 
     return icons[platform] || "🎵";
@@ -105,7 +102,6 @@ function PlatformIcon({ platform, size = 16 }: PlatformIconProps) {
       tiktok: "TikTok",
       youtube: "YouTube",
       shazam: "Shazam",
-      pandora: "Pandora"
     };
 
     return labels[platform] || platform;
@@ -175,7 +171,6 @@ function PlatformChip({ label, rank }: PlatformChipProps) {
       TikTok: "⚫",
       YouTube: "🔴",
       Shazam: "🔵",
-      Pandora: "🟦",
       SoundCloud: "🟠"
     };
     return logos[platform as keyof typeof logos] || "🎵";
@@ -533,8 +528,7 @@ export default function TopPlatforms() {
       spotify: spotifyIcon,
       tiktok: tiktokIcon,
       youtube: youtubeIcon,
-      shazam: shazamIcon,
-      pandora: pandoraIcon
+      shazam: shazamIcon
     };
 
     return icons[platform] || "🎵";
@@ -547,7 +541,6 @@ export default function TopPlatforms() {
       tiktok: "TikTok",
       youtube: "YouTube",
       shazam: "Shazam",
-      pandora: "Pandora"
     };
 
     return labels[platform] || platform;
@@ -1054,8 +1047,7 @@ export default function TopPlatforms() {
                       { value: 'spotify', label: 'Spotify' },
                       { value: 'tiktok', label: 'TikTok' },
                       { value: 'youtube', label: 'YouTube' },
-                      { value: 'shazam', label: 'Shazam' },
-                      { value: 'pandora', label: 'Pandora' }
+                      { value: 'shazam', label: 'Shazam' }
                     ].map((platform) => (
                       <button
                         key={platform.value}

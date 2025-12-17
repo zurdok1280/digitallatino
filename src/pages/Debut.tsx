@@ -934,7 +934,7 @@ export default function Charts() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto px-3 sm:px-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto px-3 sm:px-0">
             {/* Filtro por País/Región */}
             <div className="space-y-1 sm:space-y-2">
               <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
@@ -991,6 +991,7 @@ export default function Charts() {
             </div>
 
             {/* Filtro por Ciudad */}
+            {/*
             <div className="space-y-1 sm:space-y-2 relative">
               <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
                 <span className="text-sm sm:text-base">🏙️</span>
@@ -1033,7 +1034,6 @@ export default function Charts() {
                     </div>
 
                     <div className="max-h-36 sm:max-h-48 overflow-y-auto">
-                      {/* Opción "Todas las ciudades" */}
                       <button
                         onClick={() => handleOptionSelect('0', 'city')}
                         className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === '0'
@@ -1066,10 +1066,10 @@ export default function Charts() {
                   </div>
                 )}
               </div>
-            </div>
+            </div>*/}
 
             {/* Filtro por Periodo Musical */}
-            <div className="space-y-1 sm:space-y-2">
+            {/*<div className="space-y-1 sm:space-y-2">
               <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
                 <span className="text-sm sm:text-base">⏰</span>
                 <span className="truncate">Periodo Musical</span>
@@ -1086,16 +1086,16 @@ export default function Charts() {
                   <option value="G">🟠 <span className="truncate">Gold - Más de 3 años</span></option>
                 </select>
               </div>
-            </div>
-          </div>
-        </div>
+            </div>*/}
+          </div >
+        </div >
 
 
 
         {/* Lista de Charts */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
+        < div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative" >
           {/* Fab button de MUI para buscar */}
-          <div className="absolute -top-4 -right-4 z-20">
+          < div className="absolute -top-4 -right-4 z-20" >
             <Fab
               size="medium"
               color="primary"
@@ -1117,7 +1117,7 @@ export default function Charts() {
                 <Search className="w-6 h-6 text-white" />
               )}
             </Fab>
-          </div>
+          </div >
 
           <div className="space-y-0.5">
             {/* Buscador dentro de charts funcional */}
@@ -1341,50 +1341,52 @@ export default function Charts() {
               ))
             )}
           </div>
-        </div>
+        </div >
         {/* Sección para mostrar más del Top 20 - Solo si NO está autenticado */}
-        {!user && (
-          <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
-            <div className="text-center space-y-6">
-              <div className="flex justify-center items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-2xl">🚀</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">
-                    ¿Quieres ver más allá del Top 20?
-                  </h3>
-                </div>
-              </div>
-              {/* Boton de redireccion a iniciar sesión para acceder a más del Top 20 */}
-              <div className="text-center">
-                <LoginButton />
-              </div>
-
-              {/* Canciones borrosas simulando contenido bloqueado */}
-              <div className="grid gap-2 opacity-50 pointer-events-none">
-                {[
-                  { rank: 21, artist: "Rauw Alejandro", track: "Touching The Sky", streams: "2.1M" },
-                  { rank: 22, artist: "Anuel AA", track: "Mcgregor", streams: "1.9M" },
-                  { rank: 23, artist: "J Balvin", track: "Doblexxó", streams: "1.8M" }
-                ].map((song) => (
-                  <div key={song.rank} className="flex items-center gap-3 p-3 bg-white/30 rounded-xl">
-                    <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center">
-                      <span className="text-sm font-bold text-gray-600">{song.rank}</span>
-                    </div>
-                    <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-700">{song.track}</div>
-                      <div className="text-sm text-gray-500">{song.artist}</div>
-                    </div>
-                    <div className="text-sm font-medium text-gray-600">{song.streams}</div>
+        {
+          !user && (
+            <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
+              <div className="text-center space-y-6">
+                <div className="flex justify-center items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <span className="text-2xl">🚀</span>
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      ¿Quieres ver más allá del Top 20?
+                    </h3>
+                  </div>
+                </div>
+                {/* Boton de redireccion a iniciar sesión para acceder a más del Top 20 */}
+                <div className="text-center">
+                  <LoginButton />
+                </div>
+
+                {/* Canciones borrosas simulando contenido bloqueado */}
+                <div className="grid gap-2 opacity-50 pointer-events-none">
+                  {[
+                    { rank: 21, artist: "Rauw Alejandro", track: "Touching The Sky", streams: "2.1M" },
+                    { rank: 22, artist: "Anuel AA", track: "Mcgregor", streams: "1.9M" },
+                    { rank: 23, artist: "J Balvin", track: "Doblexxó", streams: "1.8M" }
+                  ].map((song) => (
+                    <div key={song.rank} className="flex items-center gap-3 p-3 bg-white/30 rounded-xl">
+                      <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center">
+                        <span className="text-sm font-bold text-gray-600">{song.rank}</span>
+                      </div>
+                      <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-700">{song.track}</div>
+                        <div className="text-sm text-gray-500">{song.artist}</div>
+                      </div>
+                      <div className="text-sm font-medium text-gray-600">{song.streams}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )
+        }
+      </div >
 
       {
         !user && (showGenreOverlay || showCrgOverlay) && (
@@ -1462,36 +1464,40 @@ export default function Charts() {
       <Backdrop open={loading} sx={{ color: '#fff', zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      {showScoreTooltip && (
-        <div
-          className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
-          style={{
-            left: tooltipPosition.x,
-            top: tooltipPosition.y - 20,
-          }}
-        >
-          El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
-          <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
-        </div>
-      )}
+      {
+        showScoreTooltip && (
+          <div
+            className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
+            style={{
+              left: tooltipPosition.x,
+              top: tooltipPosition.y - 20,
+            }}
+          >
+            El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
+            <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
+          </div>
+        )
+      }
       {/* Modal de detalles del artista */}
-      {artistDetailsModal.isOpen && artistDetailsModal.artist && (
-        <ChartArtistDetails
-          artist={{
-            artist: artistDetailsModal.artist.artists,
-            spotifyid: artistDetailsModal.artist.spotifyartistid || "",
-            img: artistDetailsModal.artist.avatar || "",
-            rk: artistDetailsModal.artist.rk || 0,
-            score: artistDetailsModal.artist.score || 0,
-            followers_total: 0,
-            monthly_listeners: 0,
-          }}
-          selectedCountry={selectedCountry}
-          countries={countries}
-          isOpen={artistDetailsModal.isOpen}
-          onClose={handleCloseArtistDetails}
-        />
-      )}
+      {
+        artistDetailsModal.isOpen && artistDetailsModal.artist && (
+          <ChartArtistDetails
+            artist={{
+              artist: artistDetailsModal.artist.artists,
+              spotifyid: artistDetailsModal.artist.spotifyartistid || "",
+              img: artistDetailsModal.artist.avatar || "",
+              rk: artistDetailsModal.artist.rk || 0,
+              score: artistDetailsModal.artist.score || 0,
+              followers_total: 0,
+              monthly_listeners: 0,
+            }}
+            selectedCountry={selectedCountry}
+            countries={countries}
+            isOpen={artistDetailsModal.isOpen}
+            onClose={handleCloseArtistDetails}
+          />
+        )
+      }
     </div >
   );
 }

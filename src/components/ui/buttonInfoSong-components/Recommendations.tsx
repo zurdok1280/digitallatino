@@ -141,7 +141,7 @@ const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
             iconImage: spotifyIcon,
             platform: "Playlists",
             benefit: "Crecimiento orgánico",
-            metric: "40–60% streams",
+            metric: "streams",
             platformColor: "text-green-600",
             iconBg: "bg-green-50",
         },

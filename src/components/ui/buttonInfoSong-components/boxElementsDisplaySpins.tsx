@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, CircularProgress, Paper, Tooltip, Stack } from "@mui/material";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { digitalLatinoApi, Country } from "@/lib/api";
 
 export interface SpinData {
@@ -44,6 +45,11 @@ const getCountryFlag = (countryName: string): string => {
 
     return flagEmojis[countryName] || '📍';
 };
+//Función para mandar a link de aplicación web de radio
+const handleVerMas = () => {
+    const verMasUrl = 'https://smart.monitorlatino.com/';
+    window.open(verMasUrl, '_blank');
+};
 
 // Función para formatear números de spins
 const formatSpins = (spins: number): string => {
@@ -70,7 +76,7 @@ const SpinItem = ({ item, rank }: { item: SpinData, rank: number }) => {
 
     return (
         <Tooltip
-            title={`${displayName} - ${item.spins} spins`}
+            title={displayName}
             arrow
             placement="top"
             componentsProps={{
@@ -151,18 +157,21 @@ const SpinItem = ({ item, rank }: { item: SpinData, rank: number }) => {
                             {isCountry ? getCountryFlag(displayName) : '🏙️'} {truncatedName}
                         </Typography>
                     </Box>
-
-                    <Typography
-                        variant="caption"
-                        sx={{
-                            color: '#666',
-                            fontWeight: 600,
-                            display: 'block',
-                            fontSize: '0.75rem',
-                        }}
-                    >
-                        {formatSpins(item.spins)} tocadas
-                    </Typography>
+                    <Box className="flex items-start gap-1">
+                        <OpenInNewIcon fontSize="small" sx={{ color: '#666' }} />
+                        <Typography
+                            variant="caption"
+                            onClick={handleVerMas}
+                            sx={{
+                                color: '#666',
+                                fontWeight: 600,
+                                display: 'block',
+                                fontSize: '0.75rem',
+                            }}
+                        >
+                            Ver más
+                        </Typography>
+                    </Box>
                 </Box>
             </Paper>
         </Tooltip>
