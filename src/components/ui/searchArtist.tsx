@@ -9,6 +9,7 @@ import ChartSongDetails from "./ChartSongDetails";
 import ChartArtistDetails from "./ChartArtistDetails";
 import { useAuth } from "@/hooks/useAuth";
 import { ArtistSongs } from "./artistSongs";
+import { log } from "console";
 
 interface SearchResultProps {
     track: SpotifyTrackResult;
@@ -94,6 +95,18 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                 setIsDetailsOpen(true);
 
             } else {
+                try {
+                    const logResponse = await digitalLatinoApi.setLogSong({
+                        userid: user.id,
+                        spotifyid: track.spotify_id,
+                        isartist: false
+                    })
+                    if (logResponse.success) {
+                        console.log("Log registrado exitosamente:", logResponse.data);
+                    }
+                } catch (error) {
+                    console.error("Error al registrar el log de la cancion:", error);
+                }
                 console.log('❌ No se encontró cs_song en la respuesta');
                 toast({
                     title: "Información no disponible",

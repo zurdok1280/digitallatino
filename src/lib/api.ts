@@ -389,8 +389,12 @@ export interface SetLogSongRequest {
 }
 // Interface para la respuesta de setLogSong
 export interface SetLogSongResponse {
-  success: boolean;
+  success?: boolean;
   message?: string;
+  logId?: number;
+  timestamp?: string;
+  text?: string;
+  [key: string]: any;
 }
 
 // Clase principal para manejar las conexiones API
@@ -415,17 +419,33 @@ export class ApiClient {
 
   // Método privado para manejar respuestas
   private async handleResponse<T>(response: Response): Promise<ApiResponse<T>> {
-    const isJson = response.headers
-      .get("content-type")
-      ?.includes("application/json");
-    const data = isJson ? await response.json() : await response.text();
+    const responseText = await response.text();
+
+    let data: any;
+    let isJson = false;
+
+    const contentType = response.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      try {
+        data = JSON.parse(responseText);
+        isJson = true;
+      } catch (e) {
+        data = { message: responseText };
+      }
+    } else {
+      data = { message: responseText };
+    }
 
     if (!response.ok) {
+      const errorMessage = isJson
+        ? data.message || `Error ${response.status}: ${response.statusText}`
+        : responseText || `Error ${response.status}: ${response.statusText}`;
+
       throw {
-        message:
-          data.message || `Error ${response.status}: ${response.statusText}`,
+        message: errorMessage,
         status: response.status,
         code: data.code,
+        response: data,
       } as ApiError;
     }
 
@@ -433,7 +453,7 @@ export class ApiClient {
       data,
       status: response.status,
       success: true,
-      message: data.message,
+      message: data.message || (isJson ? undefined : responseText),
     };
   }
 
