@@ -102,6 +102,7 @@ const BoxCampaign: React.FC<BoxCampaignProps> = ({ spotifyId, csSong, songName, 
             {csSong && isRecommendationsOpen && createPortal(
                 <RecommendationsModal
                     csSong={csSong}
+                    songName={songName}
                     spotifyId={spotifyId}
                     isOpen={isRecommendationsOpen}
                     onClose={() => setIsRecommendationsOpen(false)}

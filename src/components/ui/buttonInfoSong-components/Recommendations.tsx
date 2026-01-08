@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { X, Music2, Instagram, Facebook, MessageCircle } from 'lucide-react';
-import { TopTrendingArtist, digitalLatinoApi, idSongs } from '@/lib/api';
+import { DataArtist, TopTrendingArtist, digitalLatinoApi, idSongs } from '@/lib/api';
 import spotifyIcon from '/src/assets/covers/icons/spotify-icon.png';
 import tiktokIcon from '/src/assets/covers/icons/tiktok-icon.png';
 
 interface RecommendationsModalProps {
     csSong: number;
+    songName?: string;
     isOpen: boolean;
     onClose: () => void;
     spotifyId?: string; // Este puede venir vacío o ser el de la DB
@@ -50,11 +51,13 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
 
 const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
     csSong,
+    songName,
     isOpen,
     onClose,
     spotifyId // Este es opcional y puede ser el de la DB
 }) => {
     const [recommendations, setRecommendations] = useState<TopTrendingArtist | null>(null);
+    const [dataSong, setDataSong] = useState<DataArtist | null>(null);
     const [realSpotifyId, setRealSpotifyId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -81,7 +84,6 @@ const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
             if (recommendationsResponse.data && recommendationsResponse.data.length > 0) {
                 setRecommendations(recommendationsResponse.data[0]);
             }
-
             // Obtener el spotifyId real usando el nuevo endpoin
             const spotifyIdResponse = await digitalLatinoApi.getIdSongByCsSong(csSong.toString());
             setRealSpotifyId(spotifyIdResponse.data.spotify_id);
@@ -114,7 +116,7 @@ const RecommendationsModal: React.FC<RecommendationsModalProps> = ({
     };
 
     const handleContactExpert = () => {
-        const whatsappUrl = 'https://wa.me/13104699872?text=Estoy%20interesado%20en%20hacer%20una%20campaña%20personalizada';
+        const whatsappUrl = `https://wa.me/13104699872?text=Estoy%20interesado%20en%20hacer%20una%20campaña%20personalizada%20para%20${songName ? encodeURIComponent(`la canción "${songName}"`) : 'mi música'}.`;
         window.open(whatsappUrl, '_blank');
     };
 

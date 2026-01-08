@@ -51,8 +51,6 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
 
         setLoadingDetails(true);
         try {
-            console.log('🔍 Llamando a getSongBySpotifyId con spotify_id:', track.spotify_id);
-
             // Paso 1: Obtener el csSong usando el spotifyId
             const csSongResponse = await digitalLatinoApi.getSongBySpotifyId(track.spotify_id);
 
@@ -82,7 +80,7 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                     length_sec: 0,
                     song: track.song_name || 'Canción no disponible',
                     artists: track.artist_name || 'Artista no disponible',
-                    label: 'Label no disponible',
+                    label: 'Información no disponible',
                     crg: '',
                     avatar: track.image_url || '',
                     url: track.url || '',
@@ -442,12 +440,13 @@ export function SearchArtist() {
         try {
             const response = await digitalLatinoApi.getSearchSpotify(query);
             console.log('✅ Respuesta de Spotify:', response.data);
+            console.log('✅ Respuesta de Spotify obtenida con:', query)
 
             const tracks = response.data.tracks || [];
             const allArtists = response.data.artists || [];
 
             // Mapear los artistas
-            const artists = allArtists.slice(0, 5).map(artist => ({
+            const artists = allArtists.map(artist => ({
                 id: artist.spotify_id,
                 name: artist.artist_name,
                 image_url: artist.image_url,
