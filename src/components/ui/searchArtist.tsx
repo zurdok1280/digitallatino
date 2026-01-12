@@ -439,8 +439,6 @@ export function SearchArtist() {
         setLoadingSearch(true);
         try {
             const response = await digitalLatinoApi.getSearchSpotify(query);
-            console.log('✅ Respuesta de Spotify:', response.data);
-            console.log('✅ Respuesta de Spotify obtenida con:', query)
 
             const tracks = response.data.tracks || [];
             const allArtists = response.data.artists || [];
@@ -573,25 +571,6 @@ export function SearchArtist() {
                     {showSearchResults && (
                         <div className="absolute z-50 mt-2 sm:mt-3 w-full max-w-7xl bg-gray-50 border border-gray-300 rounded-xl lg:rounded-2xl shadow-2xl max-h-80 lg:max-h-96 overflow-hidden top-full">
                             <div className="p-4 lg:p-5 border-b border-gray-300 bg-white">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h3 className="text-sm lg:text-base font-semibold text-slate-800 truncate">
-                                        {hasTracks || hasArtists
-                                            ? `${hasTracks ? searchResults.tracks.length + ' canciones' : ''}${hasTracks && hasArtists ? ' • ' : ''}${hasArtists ? searchResults.artists.length + ' artistas' : ''}`
-                                            : 'Buscando...'
-                                        }
-                                    </h3>
-                                    <button
-                                        onClick={() => {
-                                            setShowSearchResults(false);
-                                            setSearchQuery('');
-                                            setSearchResults({ tracks: [], artists: [] });
-                                        }}
-                                        className="text-slate-600 hover:text-slate-800 transition-colors text-sm lg:text-base flex items-center gap-2 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-2"
-                                    >
-                                        <X className="w-4 h-4 lg:w-4 lg:h-4" />
-                                    </button>
-                                </div>
-
                                 {/* Tabs para cambiar entre canciones y artistas */}
                                 {(hasTracks && hasArtists) && (
                                     <div className="flex border-b border-gray-200">
@@ -602,8 +581,8 @@ export function SearchArtist() {
                                                 }`}
                                             onClick={() => setActiveTab('tracks')}
                                         >
-                                            <span className="truncate hidden sm:inline">Canciones ({searchResults.tracks.length})</span>
-                                            <span className="sm:hidden">Can. ({searchResults.tracks.length})</span>
+                                            <span className="truncate hidden sm:inline">Canciones </span>
+                                            <span className="sm:hidden">Can. </span>
                                         </button>
                                         <button
                                             className={`flex-1 py-3 lg:py-4 text-sm lg:text-base font-medium ${activeTab === 'artists'
@@ -612,9 +591,19 @@ export function SearchArtist() {
                                                 }`}
                                             onClick={() => setActiveTab('artists')}
                                         >
-                                            <span className="truncate hidden sm:inline">Artistas ({searchResults.artists.length})</span>
-                                            <span className="sm:hidden">Art. ({searchResults.artists.length})</span>
+                                            <span className="truncate hidden sm:inline">Artistas</span>
+                                            <span className="sm:hidden">Art. </span>
 
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setShowSearchResults(false);
+                                                setSearchQuery('');
+                                                setSearchResults({ tracks: [], artists: [] });
+                                            }}
+                                            className="text-slate-600 hover:text-slate-800 transition-colors text-sm lg:text-base flex items-center gap-2 hover:bg-gray-200 rounded-lg px-3 py-2"
+                                        >
+                                            <X className="w-4 h-4 lg:w-4 lg:h-4" />
                                         </button>
                                     </div>
                                 )}
