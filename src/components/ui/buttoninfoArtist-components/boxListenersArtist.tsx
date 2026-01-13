@@ -44,8 +44,8 @@ const ListenerCityChip = ({ city, rank }: { city: ListenerItem; rank: number }) 
                 <Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: "bold", mb: 0.5 }}>{city.cityName}</Typography>
                     <Typography variant="body2">Ranking: <strong>#{city.rank}</strong></Typography>
-                    <Typography variant="body2">Audiencia actual: <strong>{city.currentListeners.toLocaleString()}</strong></Typography>
-                    <Typography variant="body2">Pico de audiencia: <strong>{city.peakListeners.toLocaleString()}</strong></Typography>
+                    {/*<Typography variant="body2">Audiencia actual: <strong>{city.currentListeners.toLocaleString()}</strong></Typography>
+                    <Typography variant="body2">Pico de audiencia: <strong>{city.peakListeners.toLocaleString()}</strong></Typography>*/}
                 </Box>
             }
             arrow
@@ -92,7 +92,7 @@ const ListenerCityChip = ({ city, rank }: { city: ListenerItem; rank: number }) 
                     </Typography>
                 </Box>
 
-                <Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", mt: 1 }}>
+                {/*<Box sx={{ display: "flex", justifyContent: "space-between", width: "100%", mt: 1 }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                         <PeopleIcon sx={{ fontSize: 14, color: "#4CAF50" }} />
                         <Typography variant="caption" sx={{ color: "#4CAF50", fontWeight: "bold" }}>
@@ -109,7 +109,7 @@ const ListenerCityChip = ({ city, rank }: { city: ListenerItem; rank: number }) 
 
                 <Box sx={{ width: "100%", height: 4, backgroundColor: "#E0E0E0", borderRadius: 2, mt: 1, overflow: "hidden" }}>
                     <Box sx={{ width: `${city.part * 100}%`, height: "100%", backgroundColor: getRankColor(rank), borderRadius: 2 }} />
-                </Box>
+                </Box>*/}
             </Paper>
         </Tooltip>
     );
@@ -249,13 +249,13 @@ export default function BoxListenersArtist({
                     ))}
                 </Stack>
 
-                {listeners.length === 0 && (
+                {/*{listeners.length === 0 && (
                     <Typography variant="body2" sx={{ textAlign: "center", color: "#666", py: 2 }}>
                         No hay datos de audiencia disponibles para este artista
                     </Typography>
-                )}
+                )}*/}
 
-                {/* Leyenda */}
+                {/* Leyenda 
                 {listeners.length > 0 && (
                     <Box sx={{ display: "flex", justifyContent: "center", gap: 3, mt: 3, pt: 2, borderTop: "1px solid #f0f0f0" }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -267,7 +267,7 @@ export default function BoxListenersArtist({
                             <Typography variant="caption" sx={{ color: "#666" }}>Pico de audiencia</Typography>
                         </Box>
                     </Box>
-                )}
+                )}*/}
             </Box>
         </Box>
     );

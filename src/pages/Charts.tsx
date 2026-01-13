@@ -141,7 +141,6 @@ function PlatformChip({ label, rank }: PlatformChipProps) {
       TikTok: "⚫",
       YouTube: "🔴",
       Shazam: "🔵",
-      Pandora: "🟦",
       SoundCloud: "🟠",
     };
     return logos[platform as keyof typeof logos] || "🎵";
