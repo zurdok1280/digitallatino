@@ -947,9 +947,9 @@ export default function TopPlatforms() {
       )}*/}
 
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-4 flex flex-col gap-3 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-3 md:p-4 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -959,7 +959,7 @@ export default function TopPlatforms() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto px-3 sm:px-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 relative z-30 w-full max-w-6xl mx-auto px-2 sm:px-0">
             {/* Filtro por País/Región */}
             <div className="space-y-1 sm:space-y-2">
               <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
@@ -967,7 +967,7 @@ export default function TopPlatforms() {
                 <span className="truncate">País/Región</span>
               </label>
               <select
-                className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-1 sm:focus:ring-offset-2"
+                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
                 value={selectedCountry}
                 onChange={handleCountryChange}
                 disabled={loadingCountries}
@@ -994,7 +994,7 @@ export default function TopPlatforms() {
                 <span className="truncate">Género</span>
               </label>
               <select
-                className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 sm:focus:ring-offset-2"
+                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
                 value={selectedFormat}
                 onChange={(e) => setSelectedFormat(e.target.value)}
                 disabled={loadingFormats || !selectedCountry}
@@ -1016,8 +1016,8 @@ export default function TopPlatforms() {
             </div>
 
             {/* Filtro por Plataforma */}
-            <div className="space-y-1 sm:space-y-2 platform-filter">
-              <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
                 <span className="text-sm sm:text-base">🌐</span>
                 <span className="truncate">Plataforma</span>
               </label>
@@ -1027,13 +1027,13 @@ export default function TopPlatforms() {
                 <button
                   type="button"
                   onClick={() => setOpenDropdown(openDropdown === 'platform' ? null : 'platform')}
-                  className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-1 sm:focus:ring-offset-2 cursor-pointer flex items-center gap-2 sm:gap-3 justify-between"
+                  className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-purple-400 cursor-pointer flex items-center gap-2 justify-between"
                 >
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     <img
                       src={getPlatformIcon(selectedPlatform)}
                       alt={selectedPlatform}
-                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain flex-shrink-0"
+                      className="w-3 h-3 sm:w-4 sm:h-4 object-contain flex-shrink-0"
                     />
                     <span className="truncate">{getPlatformLabel(selectedPlatform)}</span>
                   </div>
@@ -1042,7 +1042,7 @@ export default function TopPlatforms() {
 
                 {/* Dropdown Menu */}
                 {openDropdown === 'platform' && (
-                  <div className="absolute z-50 mt-1 sm:mt-2 w-full rounded-xl sm:rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg sm:shadow-xl py-1 sm:py-2 max-h-48 sm:max-h-60 overflow-y-auto">
+                  <div className="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg py-1 max-h-48 overflow-y-auto">
                     {[
                       { value: 'spotify', label: 'Spotify' },
                       { value: 'tiktok', label: 'TikTok' },
@@ -1056,13 +1056,13 @@ export default function TopPlatforms() {
                           setSelectedPlatform(platform.value);
                           setOpenDropdown(null);
                         }}
-                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left flex items-center gap-2 sm:gap-3 hover:bg-purple-50 transition-colors ${selectedPlatform === platform.value ? 'bg-purple-100 text-purple-700' : 'text-gray-800'
+                        className={`w-full px-2 py-1.5 text-left flex items-center gap-2 hover:bg-purple-50 transition-colors text-xs ${selectedPlatform === platform.value ? 'bg-purple-100 text-purple-700' : 'text-gray-800'
                           }`}
                       >
                         <img
                           src={getPlatformIcon(platform.value)}
                           alt={platform.value}
-                          className="w-4 h-4 sm:w-5 sm:h-5 object-contain flex-shrink-0"
+                          className="w-3 h-3 sm:w-4 sm:h-4 object-contain flex-shrink-0"
                         />
                         <span className="font-medium truncate">{platform.label}</span>
                         {selectedPlatform === platform.value && (
@@ -1078,7 +1078,7 @@ export default function TopPlatforms() {
         </div>
 
         {/* Lista de Charts */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
+        <div className="mb-4 flex flex-col gap-3 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-2 md:p-3 shadow-lg relative">
           {/* Fab button de MUI para buscar */}
           <div className="absolute -top-4 -right-4 z-20">
             <Fab
@@ -1104,11 +1104,11 @@ export default function TopPlatforms() {
             </Fab>
           </div>
 
-          <div className="space-y-0.5">
+          <div className="space-y-0">
             {/* Buscador dentro de charts funcional */}
             {showSearchBar && (
-              <div className="mb-6 animate-in fade-in duration-300">
-                <div className="bg-white/60 backdrop-blur-sm border border-blue-200 rounded-2xl p-4 shadow-lg">
+              <div className="mb-3 animate-in fade-in duration-300">
+                <div className="bg-white/60 backdrop-blur-sm border border-blue-200 rounded-xl p-3 shadow-lg">
                   <div className="flex items-center gap-3">
                     <Search className="w-5 h-5 text-blue-500" />
                     <input
@@ -1177,16 +1177,16 @@ export default function TopPlatforms() {
               filteredSongs.map((row, index) => (
                 <div
                   key={`${row.rk}-${index}`}
-                  className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
+                  className="group bg-white/50 backdrop-blur-lg rounded-xl shadow-sm border border-white/30 overflow-hidden hover:shadow-md hover:bg-white/60 transition-all duration-200 hover:scale-[1.002]"
                 >
-                  <div className="grid grid-cols-9 items-center gap-1 sm:gap-3 pl-1 sm:pl-6 pr-1 sm:pr-6 py-2 sm:py-2">
+                  <div className="grid grid-cols-9 items-center gap-1 sm:gap-2 pl-1 sm:pl-3 pr-1 sm:pr-3 py-1 sm:py-1.5">
 
                     {/* Rank  */}
                     <div className="col-span-1 flex items-center justify-center">
                       <div className="relative group/rank">
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded w-7 h-7 sm:w-11 sm:h-11 flex items-center justify-center shadow-xs sm:shadow-sm group-hover/rank:shadow-md transition-all">
-                          <span className="text-xs sm:text-lg font-bold text-slate-700 sm:bg-gradient-to-br sm:from-slate-700 sm:to-gray-800 sm:bg-clip-text sm:text-transparent">
+                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded w-6 h-6 sm:w-9 sm:h-9 flex items-center justify-center shadow-xs transition-all">
+                          <span className="text-[10px] sm:text-base font-bold text-slate-700">
                             {row.rk}
                           </span>
                         </div>
@@ -1196,7 +1196,7 @@ export default function TopPlatforms() {
                     {/* Track Info */}
                     <div className="col-span-5 sm:col-span-6 flex items-center gap-1 sm:gap-3">
                       <div className="relative">
-                        <Avatar className="relative h-9 w-9 sm:h-14 sm:w-14 rounded shadow-xs sm:shadow-sm group-hover:shadow-md transition-shadow">
+                        <Avatar className="relative h-8 w-8 sm:h-10 sm:w-10 rounded shadow-xs transition-shadow">
                           <AvatarImage
                             src={row.img}
                             alt={row.img}
@@ -1210,17 +1210,17 @@ export default function TopPlatforms() {
 
                       {/* Info principal */}
                       <div className="flex-1 min-w-0 overflow-hidden px-1">
-                        <h3 className="font-bold text-xs sm:text-base text-gray-900 truncate leading-tight">
+                        <h3 className="font-bold text-[10px] sm:text-sm text-gray-900 truncate leading-tight">
                           {row.song}
                         </h3>
                         <p
-                          className="text-xs sm:text-sm font-medium text-gray-600 truncate cursor-pointer hover:text-purple-600 transition-colors"
+                          className="text-[9px] sm:text-xs font-medium text-gray-600 truncate cursor-pointer hover:text-purple-600 transition-colors"
                           onClick={() => handleArtistDetailsClick(row)}
                           title={`Ver detalles de ${row.artists}`}
                         >
                           {row.artists}
                         </p>
-                        <p className="text-xs sm:text-sm font-medium text-gray-400 truncate ">
+                        <p className="text-[9px] sm:text-xs font-medium text-gray-400 truncate hidden sm:block">
                           {row.label}
                         </p>
                       </div>
@@ -1228,16 +1228,16 @@ export default function TopPlatforms() {
 
                     {/* Digital Score */}
                     <div className="col-span-3 sm:col-span-2">
-                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded p-1.5 sm:p-2.5 shadow-xs sm:shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all min-h-[50px] sm:min-h-0">
+                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded p-1 sm:p-1.5 shadow-xs group-hover:shadow-md group-hover:bg-white/90 transition-all min-h-[45px] sm:min-h-0">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2 h-full">
 
                           <div className="flex flex-col items-center sm:hidden">
-                            <span className="text-[9px] font-semibold text-slate-500 tracking-wide mb-0.5">
+                            <span className="text-xs font-bold text-slate-700">
                               Reproducciones
                             </span>
 
                             {/* Número formateado */}
-                            <div className="text-xs font-bold text-slate-700">
+                            <div className="text-[10px] font-bold text-slate-700">
                               {row.data_res >= 1000000
                                 ? (row.data_res / 1000000).toFixed(1).replace('.0', '') + 'M'
                                 : row.data_res >= 1000
@@ -1290,7 +1290,7 @@ export default function TopPlatforms() {
         </div>
         {/* Sección para mostrar más del Top 20 - Solo si NO está autenticado */}
         {!user && (
-          <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
+          <div className="mt-4 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-2xl p-4 shadow-lg">
             <div className="text-center space-y-6">
               <div className="flex justify-center items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -1314,7 +1314,7 @@ export default function TopPlatforms() {
                   { rank: 22, artist: "Anuel AA", track: "Mcgregor", streams: "1.9M" },
                   { rank: 23, artist: "J Balvin", track: "Doblexxó", streams: "1.8M" }
                 ].map((song) => (
-                  <div key={song.rank} className="flex items-center lg:gap-3 lg:p-3 bg-white/30 rounded-xl">
+                  <div key={song.rank} className="flex items-center gap-2 p-2 bg-white/30 rounded-lg">
                     <div className="lg:w-8 lg:h-8 sm:w-4 sm:h-4 bg-gray-300 rounded-lg flex items-center justify-center">
                       <span className="text-sm font-bold text-gray-600">{song.rank}</span>
                     </div>

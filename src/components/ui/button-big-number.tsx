@@ -71,7 +71,7 @@ export function ButtonBigNumber(btnBigNumberProps: BtnBigNumberProps) {
                             arrow
                             placement="top-start"
                         >
-                            <div className="text-lg text-right font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent cursor-help hover:opacity-80 transition-opacity">
+                            <div className="text-sm text-right font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent cursor-help hover:opacity-80 transition-opacity">
                                 {formatNumber(btnBigNumberProps.quantity)}
                             </div>
                         </CustomTooltip>

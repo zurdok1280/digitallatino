@@ -962,7 +962,7 @@ export default function Charts() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-0 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-4 flex flex-col gap-0 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-3 md:p-4 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -974,9 +974,9 @@ export default function Charts() {
           {/* Filtros Profesionales */}
           {user?.role === 'ARTIST' && (
             // --- VISTA PARA ARTISTA 
-            <div className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-2xl p-6 mb-6 shadow-sm flex items-center justify-between">
+            <div className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-xl p-3 mb-3 shadow-sm flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
                   <Crown className="w-6 h-6 text-purple-600" />
                   Panel de Artista
                 </h2>
@@ -997,7 +997,7 @@ export default function Charts() {
 
 
           {/* Filtros */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto px-3 sm:px-0">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 relative z-30 w-full max-w-6xl mx-auto px-2 sm:px-0">
             {/* Filtro por País/Región */}
             <div className="space-y-1 sm:space-y-2">
               <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
@@ -1005,7 +1005,7 @@ export default function Charts() {
                 <span className="truncate">País/Región</span>
               </label>
               <select
-                className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-1 sm:focus:ring-offset-2"
+                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
                 value={selectedCountry}
                 onChange={handleCountryChange}
                 disabled={loadingCountries}
@@ -1032,7 +1032,7 @@ export default function Charts() {
                 <span className="truncate">Género</span>
               </label>
               <select
-                className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-slate-400 focus:ring-offset-1 sm:focus:ring-offset-2"
+                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
                 value={selectedFormat}
                 onChange={(e) => setSelectedFormat(e.target.value)}
                 disabled={loadingFormats || !selectedCountry}
@@ -1066,7 +1066,7 @@ export default function Charts() {
                     setOpenDropdown(openDropdown === "city" ? null : "city");
                     setDropdownSearch("");
                   }}
-                  className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-orange-400 focus:ring-offset-1 sm:focus:ring-offset-2 text-left flex justify-between items-center"
+                  className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between"
                   disabled={loadingCities || !selectedCountry}
                 >
                   <span className="truncate pr-2">
@@ -1080,7 +1080,7 @@ export default function Charts() {
                           : "Todas las ciudades"}
                   </span>
                   <ChevronDown
-                    className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
+                    className={`w-3 h-3 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
                       }`}
                   />
                 </button>
@@ -1168,7 +1168,7 @@ export default function Charts() {
 
 
         {/* Lista de Charts */}
-        <div className="mb-8 flex flex-col gap-0 border-b border-white/20 pb-2 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
+        <div className="mb-4 flex flex-col gap-0 border-b border-white/20 pb-2 bg-white/60 backdrop-blur-lg rounded-2xl p-2 md:p-3 shadow-lg relative">
           {/* Fab button de MUI para buscar */}
           <div className="absolute -top-4 -right-4 z-20">
             <Fab
@@ -1194,7 +1194,7 @@ export default function Charts() {
             </Fab>
           </div>
 
-          <div className="space-y-0.5">
+          <div className="space-y-0">
             {/* Buscador dentro de charts funcional */}
             {showSearchBar && (
               <div className="mb-6 animate-in fade-in duration-300">
@@ -1269,16 +1269,16 @@ export default function Charts() {
               songsToDisplay.map((row, index) => (
                 <div
                   key={`${row.cs_song}-${index}`}
-                  className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
+                  className="group bg-white/50 backdrop-blur-lg rounded-xl shadow-sm border border-white/30 overflow-hidden hover:shadow-md hover:bg-white/60 transition-all duration-200 hover:scale-[1.002]"
                 >
-                  <div className="grid grid-cols-9 items-center gap-2 sm:gap-3 pl-2 sm:pl-6 pr-2 sm:pr-6 py-2">
+                  <div className="grid grid-cols-9 items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-3 py-1.5">
 
                     {/* Rank */}
                     <div className="col-span-1 flex items-center justify-center">
                       <div className="relative group/rank">
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-8 h-8 sm:w-11 sm:h-11 flex items-center justify-center shadow-sm group-hover/rank:shadow-md transition-all">
-                          <span className="text-sm sm:text-lg font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
+                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center shadow-sm transition-all">
+                          <span className="text-xs sm:text-base font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
                             {row.rk}
                           </span>
                         </div>
@@ -1290,7 +1290,7 @@ export default function Charts() {
                       <div className="relative group-hover:scale-105 transition-transform">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
                         <div className="relative">
-                          <Avatar className="relative h-10 w-10 sm:h-14 sm:w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
+                          <Avatar className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-lg shadow-sm transition-shadow">
                             <AvatarImage
                               src={row.spotifyid}
                               alt={row.spotifyid}
@@ -1329,11 +1329,11 @@ export default function Charts() {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-sm sm:text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
+                        <h3 className="font-bold text-xs sm:text-sm text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
                           {row.song}
                         </h3>
                         <p
-                          className="text-xs sm:text-sm font-medium text-gray-600 truncate cursor-pointer hover:text-purple-600 transition-colors"
+                          className="text-[10px] sm:text-xs font-medium text-gray-600 truncate cursor-pointer hover:text-purple-600 transition-colors"
                           onClick={() => handleArtistDetailsClick(row)}
                           title={`Ver detalles de ${row.artists}`}
                         >
@@ -1347,7 +1347,7 @@ export default function Charts() {
 
                     {/* Digital Score */}
                     <div className="col-span-2">
-                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-1.5 sm:p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
+                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-lg p-1 sm:p-1.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
                         <div className="flex flex-col sm:block">
                           <div className="flex items-center justify-between mb-0.5 sm:mb-1">
                             <div className="flex items-center gap-0.5 sm:gap-1">
@@ -1370,7 +1370,7 @@ export default function Charts() {
                             <Star className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-yellow-500 fill-current" />
                           </div>
                           <div className="flex items-center justify-between">
-                            <div className="text-base sm:text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
+                            <div className="text-sm sm:text-lg font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
                               {row.score}
                             </div>
                             {/* ButtonInfoSong */}

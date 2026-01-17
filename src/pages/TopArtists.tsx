@@ -898,38 +898,9 @@ export default function TopArtists() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-gray-300/10 to-blue-300/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Header para usuarios loggeados habilitar despues del login */}
-      {/*
-      {user && (
-        <div className="relative z-10 bg-gradient-to-r from-green-50 to-blue-50 border-b border-green-200 px-6 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">✓</span>
-              </div>
-              <div>
-                <h2 className="font-bold text-green-800">
-                  {user.email === 'garciafix4@gmail.com' ? '🎯 Demo Exclusivo Activo' : '🎵 Acceso Premium Desbloqueado'}
-                </h2>
-                <p className="text-sm text-green-600">
-                  {user.email === 'garciafix4@gmail.com'
-                    ? 'Tienes acceso completo + estadísticas de campaña en tiempo real'
-                    : `Top 40 completo desbloqueado • ${user.email}`
-                  }
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm font-semibold text-green-700">Top 40 Completo</div>
-              <div className="text-xs text-green-600">Todos los géneros</div>
-            </div>
-          </div>
-        </div>
-      )}*/}
-
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-4 flex flex-col gap-3 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-3 md:p-4 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -939,14 +910,15 @@ export default function TopArtists() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 relative z-30 w-full max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 relative z-30 w-full max-w-6xl mx-auto px-2 sm:px-0">
             {/* Filtro por País/Región */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🌎</span> País/Región
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">🌎</span>
+                <span className="truncate">País/Región</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
                 value={selectedCountry}
                 onChange={handleCountryChange}
                 disabled={loadingCountries}
@@ -958,8 +930,7 @@ export default function TopArtists() {
                     <option value="">Selecciona un país</option>
                     {countries.map((country) => (
                       <option key={country.id} value={country.id.toString()}>
-                        {country.country || country.description} (
-                        {country.country_name})
+                        {country.country || country.description} ({country.country_name})
                       </option>
                     ))}
                   </>
@@ -968,12 +939,13 @@ export default function TopArtists() {
             </div>
 
             {/* Filtro por Género */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-2">
-                <span>📊</span> Género
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">📊</span>
+                <span className="truncate">Género</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
                 value={selectedFormat}
                 onChange={(e) => setSelectedFormat(e.target.value)}
                 disabled={loadingFormats || !selectedCountry}
@@ -995,9 +967,10 @@ export default function TopArtists() {
             </div>
 
             {/* Filtro por Ciudad */}
-            <div className="space-y-2 relative">
-              <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🏙️</span> Ciudad Target
+            <div className="space-y-1 sm:space-y-2 relative z-50">
+              <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">🏙️</span>
+                <span className="truncate">Ciudad Target</span>
               </label>
               <div className="relative">
                 <button
@@ -1006,10 +979,10 @@ export default function TopArtists() {
                     setOpenDropdown(openDropdown === "city" ? null : "city");
                     setDropdownSearch("");
                   }}
-                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 text-left flex justify-between items-center"
+                  className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between"
                   disabled={loadingCities || !selectedCountry}
                 >
-                  <span className="truncate">
+                  <span className="truncate pr-2">
                     {loadingCities
                       ? "Cargando..."
                       : !selectedCountry
@@ -1020,20 +993,20 @@ export default function TopArtists() {
                           : "Todas las ciudades"}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${openDropdown === "city" ? "rotate-180" : ""
+                    className={`w-3 h-3 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
                       }`}
                   />
                 </button>
 
                 {openDropdown === "city" && cities.length > 0 && (
-                  <div className="absolute z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-2xl max-h-60 overflow-hidden transform translate-z-0 will-change-transform">
+                  <div className="absolute z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl max-h-48 sm:max-h-60 overflow-hidden transform translate-z-0 will-change-transform">
                     <div className="p-2 border-b border-gray-100">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                         <input
                           type="text"
                           placeholder="Buscar ciudad..."
-                          className="w-full pl-10 pr-4 py-2 bg-white/80 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                          className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg sm:rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                           value={dropdownSearch}
                           onChange={(e) => setDropdownSearch(e.target.value)}
                           autoFocus
@@ -1041,11 +1014,11 @@ export default function TopArtists() {
                       </div>
                     </div>
 
-                    <div className="max-h-48 overflow-y-auto">
+                    <div className="max-h-36 sm:max-h-48 overflow-y-auto">
                       {/* Opción "Todas las ciudades" */}
                       <button
                         onClick={() => handleOptionSelect("0", "city")}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
                           ? "bg-orange-100 text-orange-700 font-semibold"
                           : "text-gray-700"
                           }`}
@@ -1060,19 +1033,19 @@ export default function TopArtists() {
                             onClick={() =>
                               handleOptionSelect(city.id.toString(), "city")
                             }
-                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                            className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
                               ? "bg-orange-100 text-orange-700 font-semibold"
                               : "text-gray-700"
                               }`}
                           >
-                            🎯 {city.city_name}
+                            🎯 <span className="truncate">{city.city_name}</span>
                           </button>
                         )
                       )}
 
                       {getFilteredOptions(cities, dropdownSearch, "city")
                         .length === 0 && (
-                          <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                          <div className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-500 text-center">
                             No se encontraron ciudades
                           </div>
                         )}
@@ -1106,7 +1079,7 @@ export default function TopArtists() {
         </div>
 
         {/* Lista de Charts */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
+        <div className="mb-4 flex flex-col gap-0 border-b border-white/20 pb-2 bg-white/60 backdrop-blur-lg rounded-2xl p-2 md:p-3 shadow-lg relative">
           {/* Fab button de MUI para buscar */}
           <div className="absolute -top-4 -right-4 z-20">
             <Fab
@@ -1133,11 +1106,11 @@ export default function TopArtists() {
             </Fab>
           </div>
 
-          <div className="space-y-0.5">
+          <div className="space-y-0">
             {/* Buscador dentro de charts funcional */}
             {showSearchBar && (
-              <div className="mb-6 animate-in fade-in duration-300">
-                <div className="bg-white/60 backdrop-blur-sm border border-blue-200 rounded-2xl p-4 shadow-lg">
+              <div className="mb-3 animate-in fade-in duration-300">
+                <div className="bg-white/60 backdrop-blur-sm border border-blue-200 rounded-xl p-3 shadow-lg">
                   <div className="flex items-center gap-3">
                     <Search className="w-5 h-5 text-blue-500" />
                     <input
@@ -1208,17 +1181,17 @@ export default function TopArtists() {
               filteredSongs.map((row, index) => (
                 <div
                   key={`${row.rk}-${index}`}
-                  className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
+                  className="group bg-white/50 backdrop-blur-lg rounded-xl shadow-sm border border-white/30 overflow-hidden hover:shadow-md hover:bg-white/60 transition-all duration-200 hover:scale-[1.002]"
                 >
                   {/* GRID ORIGINAL DE 11 COLUMNAS - AJUSTES MÍNIMOS SOLO PARA MÓVIL */}
-                  <div className="grid grid-cols-11 items-center gap-2 sm:gap-4 pl-2 sm:pl-6 pr-2 sm:pr-6 py-3 sm:py-4">
+                  <div className="grid grid-cols-11 items-center gap-1 sm:gap-3 pl-1 sm:pl-4 pr-1 sm:pr-4 py-1.5 sm:py-2.5">
 
                     {/* Rank - Compacto en móvil */}
                     <div className="col-span-1 flex items-center justify-center">
                       <div className="relative group/rank">
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded w-7 h-7 sm:w-11 sm:h-11 flex items-center justify-center shadow-xs sm:shadow-sm group-hover/rank:shadow-md transition-all">
-                          <span className="text-xs sm:text-lg font-bold text-slate-700 sm:bg-gradient-to-br sm:from-slate-700 sm:to-gray-800 sm:bg-clip-text sm:text-transparent">
+                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded w-6 h-6 sm:w-9 sm:h-9 flex items-center justify-center shadow-xs transition-all">
+                          <span className="text-[10px] sm:text-base font-bold text-slate-700">
                             {row.rk}
                           </span>
                         </div>
@@ -1228,7 +1201,7 @@ export default function TopArtists() {
                     {/* Track Info - Compacto en móvil */}
                     <div className="col-span-3 flex items-center gap-2 sm:gap-3">
                       <div className="relative">
-                        <Avatar className="relative h-8 w-8 sm:h-14 sm:w-14 rounded shadow-xs sm:shadow-sm group-hover:shadow-md transition-shadow">
+                        <Avatar className="relative h-7 w-7 sm:h-11 sm:w-11 rounded shadow-xs transition-shadow">
                           <AvatarImage
                             src={row.img}
                             alt={row.img}
@@ -1246,10 +1219,10 @@ export default function TopArtists() {
                       </div>
 
                       <div className="flex-1 min-w-0 overflow-hidden">
-                        <h3 className="font-bold text-xs sm:text-base text-gray-900 truncate leading-tight">
+                        <h3 className="font-bold text-[10px] sm:text-sm text-gray-900 truncate leading-tight">
                           {row.artist}
                         </h3>
-                        <p className="text-xs text-gray-600 truncate sm:text-sm">
+                        <p className="text-[9px] text-gray-600 truncate sm:text-xs">
                           • Followers: {formatNumber(row.followers_total)}
                         </p>
                       </div>
@@ -1261,13 +1234,13 @@ export default function TopArtists() {
                     {/* Artist Stats - COMPACTO EN MÓVIL, ORIGINAL EN DESKTOP */}
                     <div className="col-span-6 sm:col-span-4">
                       {/* Versión móvil compacta */}
-                      <div className="sm:hidden flex items-center gap-2 w-full">
+                      <div className="sm:hidden flex items-center gap-1 w-full">
                         {/* Oyentes Mensuales compacto */}
-                        <div className="flex-1 flex flex-col items-center bg-white/80 backdrop-blur-sm border border-white/60 rounded-lg p-1.5 shadow-xs">
-                          <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5 truncate w-full text-center">
+                        <div className="flex-1 flex flex-col items-center bg-white/80 backdrop-blur-sm border border-white/60 rounded-lg p-1 shadow-xs">
+                          <span className="text-[8px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5 truncate w-full text-center">
                             Oyentes
                           </span>
-                          <div className="text-xs font-bold text-slate-700">
+                          <div className="text-[10px] font-bold text-slate-700">
                             {row.monthly_listeners >= 1000000
                               ? (row.monthly_listeners / 1000000).toFixed(1).replace('.0', '') + 'M'
                               : row.monthly_listeners >= 1000
@@ -1295,13 +1268,13 @@ export default function TopArtists() {
                           name="Oyentes Mensuales"
                           quantity={row.monthly_listeners}
                           compact={false}
-                          className="bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90"
+                          className="bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-1.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90"
                         />
                         <ButtonBigNumber
                           name="Playlist"
                           quantity={row.playlists}
                           compact={false}
-                          className="bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90"
+                          className="bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-1.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90"
                         />
                       </div>
                     </div>
@@ -1367,7 +1340,7 @@ export default function TopArtists() {
               </div>
 
               {/* Canciones borrosas simulando contenido bloqueado */}
-              <div className="grid gap-2 opacity-50 pointer-events-none">
+              <div className="grid gap-1 opacity-50 pointer-events-none">
                 {[
                   {
                     rank: 21,
@@ -1390,14 +1363,14 @@ export default function TopArtists() {
                 ].map((song) => (
                   <div
                     key={song.rank}
-                    className="flex items-center gap-3 p-3 bg-white/30 rounded-xl"
+                    className="flex items-center gap-2 p-2 bg-white/30 rounded-lg"
                   >
-                    <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center">
-                      <span className="text-sm font-bold text-gray-600">
+                    <div className="w-7 h-7 bg-gray-300 rounded-lg flex items-center justify-center">
+                      <span className="text-xs font-bold text-gray-600">
                         {song.rank}
                       </span>
                     </div>
-                    <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
                     <div className="flex-1">
                       <div className="font-semibold text-gray-700">
                         {song.track}
