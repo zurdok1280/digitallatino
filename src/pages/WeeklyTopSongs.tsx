@@ -1367,7 +1367,6 @@ export default function Charts() {
                                 </button>
                               </div>
                             </div>
-                            <Star className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-yellow-500 fill-current" />
                           </div>
                           <div className="flex items-center justify-between">
                             <div className="text-sm sm:text-lg font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
