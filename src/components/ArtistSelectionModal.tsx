@@ -106,8 +106,9 @@ export function ArtistSelectionModal({
       await onArtistSelected(selectedArtist.id, selectedArtist.name);
       toast({
         title: "Artista seleccionado",
-        description: `Has seleccionado a ${selectedArtist.name} como tu artista.`,
+        description: `Estamos recopilando la información de  ${selectedArtist.name} y de todas sus canciones. `,
         className: "bg-green-50 border-green-200",
+        duration: 5000, 
       });
       setShowConfirm(false);
     } catch (error) {
