@@ -115,20 +115,20 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         setLoadingInfo(true);
 
         try {
-            console.log('🔍 Cargando información adicional de la canción:', song.cs_song);
+            console.log(' Cargando información adicional de la canción:', song.cs_song);
 
             // Usar el countryId seleccionado
             const countryId = parseInt(selectedCountry);
 
             const response = await digitalLatinoApi.getRankSongByIdCountry(song.cs_song, countryId);
-            console.log('📊 Respuesta de getRankSongByIdCountry:', response);
+            console.log(' Respuesta de getRankSongByIdCountry:', response);
 
             if (response.data) {
                 setInfoSong(response.data);
-                console.log('✅ Información adicional cargada:', response.data);
+                console.log(' Información adicional cargada:', response.data);
             }
         } catch (error) {
-            console.error('❌ Error cargando información adicional:', error);
+            console.error(' Error cargando información adicional:', error);
         } finally {
             setLoadingInfo(false);
         }
@@ -268,7 +268,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                             </Avatar>
 
                                             {/* Play Button Overlay */}
-                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                            {/*<div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -286,7 +286,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                                         <Play className="w-4 h-4 md:w-5 md:h-5 ml-0.5" />
                                                     )}
                                                 </button>
-                                            </div>
+                                            </div>*/}
                                         </div>
 
                                         <div className="flex-1 min-w-0">
@@ -297,7 +297,7 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                                 {song.artists || 'Artista no disponible'}
                                             </p>
                                             <p className="text-xs md:text-base text-white/80 mb-2 md:mb-3 line-clamp-1">
-                                                {song.label || 'Label no disponible'}
+                                                {song.label || ' '}
                                             </p>
 
                                             {/* Dropdown de países */}

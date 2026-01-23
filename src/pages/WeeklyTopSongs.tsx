@@ -577,37 +577,48 @@ export default function Charts() {
       setLoadingCountries(false);
     }
   };
-  //ESTE FETCH PARA ASIGNAR EL PERIOD
-  const fetchSongs = async () => {
-    const data = await callApi(async () => {
-      if (!selectedCountry) {
+  //Fetch para obtener canciones del chart con useCallback 
+  const fetchSongs = useCallback(async () => {
+    try {
+      setLoadingSongs(true);
+
+      // Validar que selectedCountry tenga un valor válido
+      if (!selectedCountry || selectedCountry === "") {
         setSongs([]);
         return;
       }
 
-      try {
-        setLoadingSongs(true);
-        if (Number.isNaN(selectedCity)) setSelectedCity("0");
-        const response = await digitalLatinoApi.getChartDigital(
-          parseInt(selectedFormat),
-          parseInt(selectedCountry),
-          selectedPeriod,
-          parseInt(selectedCity)
-        );
-        setSongs(response.data);
-      } catch (error) {
-        console.error("Error fetching songs:", error);
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar las canciones. Intenta de nuevo.",
-          variant: "destructive",
-        });
-        setSongs([]);
-      } finally {
-        setLoadingSongs(false);
+      // Validar y parsear valores
+      const formatId = selectedFormat ? parseInt(selectedFormat) : 0;
+      const countryId = selectedCountry ? parseInt(selectedCountry) : 2; // valor por defecto
+      const cityId = selectedCity ? parseInt(selectedCity) : 0;
+
+      if (isNaN(countryId)) {
+        console.error("Invalid country ID:", selectedCountry);
+        return;
       }
-    });
-  };
+
+      const response = await digitalLatinoApi.getChartDigital(
+        formatId,
+        countryId,
+        selectedPeriod,
+        cityId
+      );
+      setSongs(response.data);
+    } catch (error) {
+      console.error("Error fetching songs:", error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar las canciones. Intenta de nuevo.",
+        variant: "destructive",
+      });
+      setSongs([]);
+    } finally {
+      setLoadingSongs(false);
+    }
+  }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
+
+
 
   //Fetch para obtener datos de ciudades para una canción específica
   const fetchCityData = async (csSong: string, countryId: string) => {
@@ -759,7 +770,13 @@ export default function Charts() {
 
   // Fetch Songs when country changes
   useEffect(() => {
-    fetchSongs();
+    if (selectedCountry && selectedCountry !== "") {
+      const timer = setTimeout(() => {
+        fetchSongs();
+      }, 300); // Delay para comprobar cambio de pais
+
+      return () => clearTimeout(timer);
+    }
   }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
 
   // Handle Spotify OAuth callback

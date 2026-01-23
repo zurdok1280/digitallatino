@@ -86,6 +86,13 @@ export function ExpandRow({
                     <BoxTikTokInfluencers csSong={row.cs_song} />
                 </div>
 
+                {/* Estadísticas de Radio */}
+                <BoxElementsDisplayAudience
+                    csSong={row.cs_song}
+                    title="Top Países en Radio"
+                    label="países"
+                    type="countries"
+                />
 
                 {/* Top Mercados en Radio */}
                 <BoxElementsDisplaySpins
@@ -96,13 +103,6 @@ export function ExpandRow({
                     type="markets"
                 />
 
-                {/* Estadísticas de Radio */}
-                <BoxElementsDisplayAudience
-                    csSong={row.cs_song}
-                    title="Top Países en Radio"
-                    label="países"
-                    type="countries"
-                />
             </div>
 
             {/* BoxCampaign sticky en la parte inferior */}

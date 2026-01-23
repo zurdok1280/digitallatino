@@ -116,14 +116,9 @@ const ChartArtistDetails: React.FC<ChartArtistDetailsProps> = ({
         try {
             console.log('🔍 Cargando información adicional del artista:', artist.spotifyid);
 
-            // Aquí puedes agregar llamadas a APIs específicas para artistas
-            // Por ahora usamos la información básica del artista
             setArtistInfo(artist);
             console.log('✅ Información del artista cargada:', artist);
 
-            // Ejemplo: Si tuvieras una API para obtener más detalles del artista
-            // const response = await digitalLatinoApi.getArtistDetails(artist.spotifyid);
-            // setArtistInfo(response.data);
             const response = await digitalLatinoApi.getDataArtist(artist.spotifyid);
             setArtistInfo(response.data);
 
@@ -362,42 +357,57 @@ const ChartArtistDetails: React.FC<ChartArtistDetailsProps> = ({
                     </div>
 
                     {/* Contenido scrollable */}
-                    <div className="flex-1 overflow-y-auto bg-gray-50">
-                        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-                            {/* Mapa de distribución por ciudades */}
-                            {artist.spotifyid && (
-                                <WorldMapArtist
-                                    countryId={parseInt(selectedCountry)}
-                                    spotifyId={artist.spotifyid}
-                                    title="📍 Distribución por Ciudades del Artista"
-                                    height={400}
+                    {artistInfo?.monthly_listeners && artistInfo?.monthly_listeners > 0 ? (
+                        <div className="flex-1 overflow-y-auto bg-gray-50">
+                            <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+                                {/* Mapa de distribución por ciudades */}
+                                {artist.spotifyid && (
+                                    <WorldMapArtist
+                                        countryId={parseInt(selectedCountry)}
+                                        spotifyId={artist.spotifyid}
+                                        title="📍 Distribución por Ciudades del Artista"
+                                        height={400}
+                                    />
+                                )}
+
+                                {/* Datos de plataformas del artista */}
+                                <DataPlatformArtist
+                                    spotifyId={artist.spotifyid || ""}
+                                    artistName={artist.artist}
                                 />
-                            )}
 
-                            {/* Datos de plataformas del artista */}
-                            <DataPlatformArtist
-                                spotifyId={artist.spotifyid || ""}
-                                artistName={artist.artist}
-                            />
+                                {/* Audiencia por ciudad */}
+                                <BoxListenersArtist
+                                    label="Audiencia por Ciudad"
+                                    spotifyId={artist.spotifyid || ""}
+                                    selectedCountryId={selectedCountry}
+                                />
 
-                            {/* Audiencia por ciudad */}
-                            <BoxListenersArtist
-                                label="Audiencia por Ciudad"
-                                spotifyId={artist.spotifyid || ""}
-                                selectedCountryId={selectedCountry}
-                            />
-
-                            {/* Información expandida del artista */}
-                            <ExpandRowArtist
-                                artist={artist}
-                                selectedCountry={selectedCountry}
-                                isExpanded={true}
-                            />
+                                {/* Información expandida del artista */}
+                                <ExpandRowArtist
+                                    artist={artist}
+                                    selectedCountry={selectedCountry}
+                                    isExpanded={true}
+                                />
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        < div className="flex-1 flex flex-col items-center justify-center p-6 pb-52 pt-52 bg-gray-50">
+                            <p className="text-gray-500 text-lg md:text-xl items-center text-center ">
+                                Información no disponible en este momento.<br /> La estamos recopilando;
+                                por favor regresa en aproximadamente
+                            </p>
+                            <p className="text-blue-500 text-lg md:text-xl">
+                                2 horas.
+                            </p>
+                        </div>
+                    )
+
+                    }
+
                 </div>
             </div>
-        </Portal>
+        </Portal >
     );
 };
 

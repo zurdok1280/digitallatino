@@ -574,37 +574,58 @@ export default function TopArtists() {
     }
   };
   //ESTA FUNCION CARGA LAS CANCIONES CON LOS FILTROS SELECCIONADOS (COUNTRY Y FORMAT)
-  const fetchSongs = async () => {
-    const data = await callApi(async () => {
-      if (!selectedCountry) {
+  const fetchSongs = useCallback(async () => {
+    try {
+      setLoadingArtists(true);
+
+      // Validar que selectedCountry tenga un valor válido
+      if (!selectedCountry || selectedCountry === "") {
         setTrendingArtists([]);
         return;
       }
 
-      try {
-        setLoadingArtists(true);
-        if (Number.isNaN(selectedCity)) setSelectedCity("0");
-        console.log("Songs loaded:", selectedFormat, selectedCountry);
-        const response = await digitalLatinoApi.getTrendingTopArtists(
-          selectedFormat,
-          selectedCountry,
-          parseInt(selectedCity)
-        );
-        console.log("Fetched trendingArtists:", response.data);
-        setTrendingArtists(response.data);
-      } catch (error) {
-        console.error("Error fetching trendingArtists:", error);
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar las canciones. Intenta de nuevo.",
-          variant: "destructive",
-        });
+      // Validar y parsear valores
+      const formatValue = selectedFormat || "0";
+      const countryId = parseInt(selectedCountry);
+      const cityId = selectedCity ? parseInt(selectedCity) : 0;
+
+      // Validar que countryId sea un número válido
+      if (isNaN(countryId)) {
+        console.error("Invalid country ID:", selectedCountry);
         setTrendingArtists([]);
-      } finally {
-        setLoadingArtists(false);
+        return;
       }
-    });
-  };
+
+      // Si cityId es NaN, usar 0 (todas las ciudades)
+      const finalCityId = isNaN(cityId) ? 0 : cityId;
+
+      console.log("Fetching artists with:", {
+        format: formatValue,
+        country: countryId,
+        city: finalCityId
+      });
+
+      const response = await digitalLatinoApi.getTrendingTopArtists(
+        formatValue,
+        countryId,
+        finalCityId
+      );
+
+      console.log("Artists fetched:", response.data.length);
+      setTrendingArtists(response.data);
+
+    } catch (error: any) {
+      console.error("Error fetching artists:", error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "No se pudieron cargar los artistas. Intenta de nuevo.",
+        variant: "destructive",
+      });
+      setTrendingArtists([]);
+    } finally {
+      setLoadingArtists(false);
+    }
+  }, [selectedCountry, selectedFormat, selectedCity, toast]);
 
   // Fetch countries from API
   useEffect(() => {
@@ -685,7 +706,13 @@ export default function TopArtists() {
 
   // Fetch Songs when country changes
   useEffect(() => {
-    fetchSongs();
+    if (selectedCountry && selectedCountry !== "") {
+      const timer = setTimeout(() => {
+        fetchSongs();
+      }, 300); // Delay para comprobar cambio de pais
+
+      return () => clearTimeout(timer);
+    }
   }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
 
   // Handle Spotify OAuth callback

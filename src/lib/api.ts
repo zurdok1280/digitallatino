@@ -247,6 +247,7 @@ export interface SpinData {
   spins: number;
   rank: number;
   audience: number;
+  sts: number;
 }
 //Interface para manejar info de TopPlaylists
 export interface TopPlaylists {
@@ -409,7 +410,7 @@ export class ApiClient {
 
   // Método privado para construir headers
   private buildHeaders(
-    customHeaders?: Record<string, string>
+    customHeaders?: Record<string, string>,
   ): Record<string, string> {
     return {
       ...this.defaultHeaders,
@@ -461,7 +462,7 @@ export class ApiClient {
   async get<T = any>(
     endpoint: string,
     params?: Record<string, any>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
     const url = new URL(endpoint, this.baseURL);
 
@@ -485,7 +486,7 @@ export class ApiClient {
   async post<T = any>(
     endpoint: string,
     data?: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
     const url = new URL(endpoint, this.baseURL);
 
@@ -502,7 +503,7 @@ export class ApiClient {
   async put<T = any>(
     endpoint: string,
     data?: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
     const url = new URL(endpoint, this.baseURL);
 
@@ -518,7 +519,7 @@ export class ApiClient {
   // Método DELETE
   async delete<T = any>(
     endpoint: string,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ): Promise<ApiResponse<T>> {
     const url = new URL(endpoint, this.baseURL);
 
@@ -554,19 +555,19 @@ export const api = {
   get: <T = any>(
     endpoint: string,
     params?: Record<string, any>,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ) => apiClient.get<T>(endpoint, params, headers),
 
   post: <T = any>(
     endpoint: string,
     data?: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ) => apiClient.post<T>(endpoint, data, headers),
 
   put: <T = any>(
     endpoint: string,
     data?: any,
-    headers?: Record<string, string>
+    headers?: Record<string, string>,
   ) => apiClient.put<T>(endpoint, data, headers),
 
   delete: <T = any>(endpoint: string, headers?: Record<string, string>) =>
@@ -591,10 +592,10 @@ export const digitalLatinoApi = {
     formatId: number,
     countryId: number,
     CRG: string,
-    city: number
+    city: number,
   ): Promise<ApiResponse<Song[]>> =>
     api.get<Song[]>(
-      `report/getChartDigital/${formatId}/${countryId}/${CRG}/${city}`
+      `report/getChartDigital/${formatId}/${countryId}/${CRG}/${city}`,
     ),
 
   // Obtener Trending Top Songs
@@ -603,7 +604,7 @@ export const digitalLatinoApi = {
     artist: string,
     monthly_listeners: number,
     format: string,
-    country: string
+    country: string,
   ): Promise<ApiResponse<TrendingSong[]>> =>
     api.get<TrendingSong[]>(`report/getTrendingSongs/${format}/${country}`),
 
@@ -611,20 +612,20 @@ export const digitalLatinoApi = {
   getTrendingTopPlatforms: (
     platform: string,
     format: number,
-    country: string
+    country: string,
   ): Promise<ApiResponse<TopTrendingPlatforms[]>> =>
     api.get<TopTrendingPlatforms[]>(
-      `report/getTopPlatform/${platform}/${format}/${country}`
+      `report/getTopPlatform/${platform}/${format}/${country}`,
     ),
 
   // Obtener Trending Top Artists
   getTrendingTopArtists: (
     format: string,
     country: string,
-    cityId: number
+    cityId: number,
   ): Promise<ApiResponse<TrendingSong[]>> =>
     api.get<TrendingSong[]>(
-      `report/getTopArtist/${format}/${country}/${cityId}`
+      `report/getTopArtist/${format}/${country}/${cityId}`,
     ),
 
   // Obtener Trending Debut Songs  debutSongs
@@ -632,21 +633,21 @@ export const digitalLatinoApi = {
     format: number,
     country: number,
     CRG: string,
-    city: number
+    city: number,
   ): Promise<ApiResponse<DebutSongs[]>> =>
     api.get<DebutSongs[]>(
-      `report/getTrendingDebut/${format}/${country}/${CRG}/${city}`
+      `report/getTrendingDebut/${format}/${country}/${CRG}/${city}`,
     ),
   //Contry para buttonSongInfo/boxElementsDisplay
   getCityData: (
     csSong: number,
-    countryId: number
+    countryId: number,
   ): Promise<ApiResponse<CityDataForSong[]>> =>
     api.get<CityDataForSong[]>(`report/getCityData/${csSong}/${countryId}`),
   // Obtener información de la canción por plataforma
   getSongPlatformData: (
     csSong: number,
-    formatId: number
+    formatId: number,
   ): Promise<ApiResponse<SongInfoPlatform[]>> =>
     api.get<SongInfoPlatform[]>(`report/getSongDigital/${csSong}/${formatId}`),
   // Obtener información básica de la canción por cs_song
@@ -655,7 +656,7 @@ export const digitalLatinoApi = {
   // Obtener información básica de la canción por cs_song y countryId
   getRankSongByIdCountry: (
     csSong: number,
-    countryId: number
+    countryId: number,
   ): Promise<ApiResponse<SongBasicInfo>> =>
     api.get<SongBasicInfo>(`report/getSongbyId/${csSong}/${countryId}`),
   // Obtener top países de radio por canción
@@ -664,13 +665,13 @@ export const digitalLatinoApi = {
   // Obtener top mercados de radio por cs_song y país
   getTopMarketRadio: (
     csSong: number,
-    countryId: number
+    countryId: number,
   ): Promise<ApiResponse<SpinData[]>> =>
     api.get<SpinData[]>(`report/getTopMarketRadio/${csSong}/${countryId}`),
   //Obtener playlists por cs_song y tipo de playlist
   getTopPlaylists: (
     csSong: number,
-    typePlaylist: number
+    typePlaylist: number,
   ): Promise<ApiResponse<TopPlaylists[]>> =>
     api.get<TopPlaylists[]>(`report/getTopPlaylists/${csSong}/${typePlaylist}`),
   //Obtener usos en Tiktok por cs_song
@@ -678,7 +679,7 @@ export const digitalLatinoApi = {
     api.get<TikTokUse[]>(`report/getTopTiktok/${csSong}`),
   // Obtener recomendaciones de artistas por cs_song
   getArtistRecommendations: (
-    csSong: number
+    csSong: number,
   ): Promise<ApiResponse<Recommendation[]>> =>
     api.get<Recommendation[]>(`report/getRecommendations/${csSong}`),
   //Obtener csSong a partir de spotifyId
@@ -689,18 +690,18 @@ export const digitalLatinoApi = {
     api.get<idSongs>(`report/getSpotifyId?cs_song=${csSong}`),
   // Buscar en Spotify API
   getSearchSpotify: (
-    query: string
+    query: string,
   ): Promise<ApiResponse<SpotifySearchResult>> =>
     api.get<SpotifySearchResult>(
-      `report/getSearchSpotify?query=${encodeURIComponent(query)}`
+      `report/getSearchSpotify?query=${encodeURIComponent(query)}`,
     ),
   //Obtener lista top canciones por medio del SpotifyId del artista y countryId
   getSongsArtistBySpotifyId: (
     spotifyId: string,
-    countryId: number
+    countryId: number,
   ): Promise<ApiResponse<SongsArtistBySpotifyId[]>> =>
     api.get<SongsArtistBySpotifyId[]>(
-      `report/getSongsArtist/${spotifyId}/${countryId}`
+      `report/getSongsArtist/${spotifyId}/${countryId}`,
     ),
   // Obtener datos digitales de un artista por medio del SpotifyId
   getDataArtist: (spotifyId: string): Promise<ApiResponse<DataArtist>> =>
@@ -708,14 +709,14 @@ export const digitalLatinoApi = {
   // Obtener datos digitales de un artista por medio del SpotifyId
   getDataArtistCountry: (
     countryId: number,
-    spotifyId: string
+    spotifyId: string,
   ): Promise<ApiResponse<DataArtistCountry>> =>
     api.get<DataArtistCountry>(
-      `report/getDataArtistCountry/${countryId}/${spotifyId}`
+      `report/getDataArtistCountry/${countryId}/${spotifyId}`,
     ),
   // Registrar log de canción o artista
   setLogSong: (
-    data: SetLogSongRequest
+    data: SetLogSongRequest,
   ): Promise<ApiResponse<SetLogSongResponse>> =>
     api.post<SetLogSongResponse>("report/setLogSong", data),
 };

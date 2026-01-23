@@ -10,6 +10,7 @@ export interface SpinData {
     spins: number;
     rank: number;
     audience: number;
+    sts: number;
 }
 
 export interface BoxElementsDisplaySpinsProps {
@@ -167,7 +168,20 @@ const SpinItem = ({ item, rank }: { item: SpinData, rank: number }) => {
                             {isCountry ? getCountryFlag(displayName) : '🏙️'} {truncatedName}
                         </Typography>
                     </Box>
-
+                    <Box className="flex items-start gap-1">
+                        <Typography
+                            variant="caption"
+                            onClick={handleVerMas}
+                            sx={{
+                                color: '#666',
+                                fontWeight: 600,
+                                display: 'block',
+                                fontSize: '0.75rem',
+                            }}
+                        >
+                            {`${item.sts} Estaciones`}
+                        </Typography>
+                    </Box>
                     <Box className="flex items-start gap-1">
                         <OpenInNewIcon fontSize="small" sx={{ color: '#666' }} />
                         <Typography

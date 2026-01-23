@@ -684,34 +684,59 @@ export default function TopPlatforms() {
     }
   };
 
-  //ESTE FETCH PARA ASIGNAR EL PERIOD
-  const fetchSongs = async () => {
-    const data = await callApi(async () => {
-      if (!selectedCountry) {
+  const fetchSongs = useCallback(async () => {
+    try {
+      setLoadingSongs(true);
+
+      // Validar que selectedCountry tenga un valor válido
+      if (!selectedCountry || selectedCountry === "") {
+        console.warn("No country selected, skipping fetch");
         setTrendingPlatforms([]);
         return;
       }
 
-      try {
-        setLoadingSongs(true);
-        //console.log('Fetch songs with format ' + selectedFormat + ' country ' + selectedCountry + ' platform ' + selectedPlatform);
-        const response = await digitalLatinoApi.getTrendingTopPlatforms((selectedPlatform), parseInt(selectedFormat), (selectedCountry));
-        console.log('Link fetched:', response);
-        setTrendingPlatforms(response.data);
+      // Validar y parsear valores
+      const formatId = selectedFormat ? parseInt(selectedFormat) : 0;
+      const countryId = selectedCountry ? parseInt(selectedCountry) : 0;
+      const platformValue = selectedPlatform || "";
 
-      } catch (error) {
-        console.error('Error fetching trendingPlatforms:', error);
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar las canciones. Intenta de nuevo.",
-          variant: "destructive"
+      // Validar que los IDs sean números válidos
+      if (isNaN(countryId) || isNaN(formatId)) {
+        console.error("Invalid IDs:", {
+          country: selectedCountry,
+          format: selectedFormat
         });
         setTrendingPlatforms([]);
-      } finally {
-        setLoadingSongs(false);
+        return;
       }
-    });
-  };
+
+      console.log('Fetch songs with:', {
+        platform: platformValue,
+        format: formatId,
+        country: countryId
+      });
+
+      const response = await digitalLatinoApi.getTrendingTopPlatforms(
+        platformValue,
+        formatId,
+        countryId
+      );
+
+      console.log('Response received:', response);
+      setTrendingPlatforms(response.data);
+
+    } catch (error) {
+      console.error('Error fetching trendingPlatforms:', error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar las canciones. Intenta de nuevo.",
+        variant: "destructive"
+      });
+      setTrendingPlatforms([]);
+    } finally {
+      setLoadingSongs(false);
+    }
+  }, [selectedCountry, selectedFormat, selectedPlatform, toast]);
 
   // Fetch countries from API
   useEffect(() => {

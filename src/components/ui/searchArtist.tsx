@@ -80,14 +80,13 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                     length_sec: 0,
                     song: track.song_name || 'Canción no disponible',
                     artists: track.artist_name || 'Artista no disponible',
-                    label: 'Información no disponible',
+                    label: ' ',
                     crg: '',
                     avatar: track.image_url || '',
                     url: track.url || '',
                     spotifyid: track.spotify_id || ''
                 };
 
-                console.log('🎵 Datos por defecto creados:', defaultSongData);
 
                 setSongDetails(defaultSongData);
                 setIsDetailsOpen(true);
@@ -105,9 +104,9 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                 } catch (error) {
                     console.error("Error al registrar el log de la cancion:", error);
                 }
-                console.log('❌ No se encontró cs_song en la respuesta');
+                console.log(' No se encontró cs_song en la respuesta');
                 toast({
-                    title: "Información no disponible",
+                    title: "",
                     description: "No se encontró el ID de la canción",
                     variant: "destructive"
                 });
@@ -127,7 +126,7 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                 console.error("Error al registrar el log de la cancion:", error);
             }
 
-            console.error('❌ Error obteniendo detalles de la canción:', error);
+            console.error(' Error obteniendo detalles de la canción:', error);
             toast({
                 title: "Error",
                 description: "No se pudo cargar la información detallada de la canción",

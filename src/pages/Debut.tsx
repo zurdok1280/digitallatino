@@ -601,35 +601,56 @@ export default function Charts() {
 
   };
   //ESTE FETCH PARA ASIGNAR EL PERIOD
-  const fetchSongs = async () => {
-    const data = await callApi(async () => {
+  const fetchSongs = useCallback(async () => {
+    try {
+      setLoadingSongs(true);
+
       if (!selectedCountry) {
         setSongsDebut([]);
         return;
       }
 
-      try {
-        setLoadingSongs(true);
-        if (Number.isNaN(selectedCity)) setSelectedCity('0');
-        const response = await digitalLatinoApi.getDebutSongs(parseInt(selectedFormat), parseInt(selectedCountry), (selectedPeriod), parseInt(selectedCity));
-        console.log('params', selectedFormat, selectedCountry, selectedPeriod, selectedCity);
-        console.log('Songs Debut fetched:', response.data);
-        setSongsDebut(response.data);
+      // Parsear valores con valores por defecto seguros
+      const formatId = parseInt(selectedFormat) || 0;
+      const countryId = parseInt(selectedCountry);
+      const periodValue = selectedPeriod || "C";
+      const cityId = parseInt(selectedCity) || 0;
 
-
-      } catch (error) {
-        console.error('Error fetching songsDebut:', error);
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar las canciones. Intenta de nuevo.",
-          variant: "destructive"
-        });
+      // Validar countryId
+      if (isNaN(countryId)) {
         setSongsDebut([]);
-      } finally {
-        setLoadingSongs(false);
+        return;
       }
-    });
-  };
+
+      console.log('Fetching debut songs:', {
+        formatId,
+        countryId,
+        periodValue,
+        cityId
+      });
+
+      const response = await digitalLatinoApi.getDebutSongs(
+        formatId,
+        countryId,
+        periodValue,
+        cityId
+      );
+
+      console.log('Songs Debut fetched:', response.data);
+      setSongsDebut(response.data);
+
+    } catch (error: any) {
+      console.error('Error fetching songsDebut:', error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "No se pudieron cargar las canciones. Intenta de nuevo.",
+        variant: "destructive"
+      });
+      setSongsDebut([]);
+    } finally {
+      setLoadingSongs(false);
+    }
+  }, [selectedCountry, selectedFormat, selectedPeriod, selectedCity, toast]);
 
   // Fetch countries from API
   useEffect(() => {
@@ -705,9 +726,13 @@ export default function Charts() {
 
   // Fetch Songs when country changes
   useEffect(() => {
+    if (selectedCountry && selectedCountry !== "") {
+      const timer = setTimeout(() => {
+        fetchSongs();
+      }, 300); // Delay para comprobar cambio de pais
 
-
-    fetchSongs();
+      return () => clearTimeout(timer);
+    }
   }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
 
   // Handle Spotify OAuth callback
