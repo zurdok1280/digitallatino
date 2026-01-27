@@ -85,24 +85,24 @@ const App = () => (
               }
             />
             {/* --- Only premium  with thw component RequireSubscription --- */}
-              <Route element={<RequireSubscription />}>
-              <Route path="/" element={withLazy(Charts)} />
-            <Route path="/studio" element={withLazy(Index)} />
-            <Route path="/dashboard" element={withLazy(Dashboard)} />
-            <Route path="/campaign" element={withLazy(Campaign)} />
-            <Route path="/my-artist" element={withLazy(MyArtist)} />
-            <Route
-              path="/campaign-details"
-              element={withLazy(CampaignDetails)}
-            />
-            <Route
-              path="/weekly-top-songs"
-              element={withLazy(WeeklyTopSongs)}
-            />
-            <Route path="/top-platforms" element={withLazy(TopPlatforms)} />
-            <Route path="/top-artists" element={withLazy(TopArtists)} />
-            <Route path="/debut" element={withLazy(Debut)} />
-            <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
+            <Route element={<RequireSubscription />}>
+              <Route path="/" element={withLazy(WeeklyTopSongs)} />
+              <Route path="/studio" element={withLazy(Index)} />
+              <Route path="/dashboard" element={withLazy(Dashboard)} />
+              <Route path="/campaign" element={withLazy(Campaign)} />
+              <Route path="/my-artist" element={withLazy(MyArtist)} />
+              <Route
+                path="/campaign-details"
+                element={withLazy(CampaignDetails)}
+              />
+              <Route
+                path="/weekly-top-songs"
+                element={withLazy(WeeklyTopSongs)}
+              />
+              <Route path="/top-platforms" element={withLazy(TopPlatforms)} />
+              <Route path="/top-artists" element={withLazy(TopArtists)} />
+              <Route path="/debut" element={withLazy(Debut)} />
+              <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route

@@ -15,7 +15,6 @@ interface SongWithDetails extends SongsArtistBySpotifyId {
 export default function MyArtist() {
     const { user, setShowLoginDialog } = useAuth();
     const { toast } = useToast();
-    
     // main states
     const [songs, setSongs] = useState<SongWithDetails[]>([]);
     const [loading, setLoading] = useState(true);
@@ -26,18 +25,18 @@ export default function MyArtist() {
     const [selectedSong, setSelectedSong] = useState<Song | null>(null);
     const [isDetailsOpen, setIsDetailsOpen] = useState(false);
     const [loadingSongDetails, setLoadingSongDetails] = useState(false);
-   
+
     // load songs on mount
     useEffect(() => {
         if (user?.allowedArtistId) {
             fetchArtistSongs();
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]);
 
     const fetchArtistSongs = async () => {
         if (!user?.allowedArtistId) return;
-        
+
         setLoading(true);
         try {
             console.log("📥 Obteniendo canciones para ID:", user.allowedArtistId);
@@ -51,12 +50,12 @@ export default function MyArtist() {
             setSongs(songsData);
 
             if (songsData.length > 0) {
-               const sortedByDate = [...songsData].sort((a, b) => {
-                const dateA = new Date(a.release_date || 0).getTime();
-                const dateB = new Date(b.release_date || 0).getTime();
-                return dateB - dateA;
-               });
-               const latestRelease = sortedByDate[0];
+                const sortedByDate = [...songsData].sort((a, b) => {
+                    const dateA = new Date(a.release_date || 0).getTime();
+                    const dateB = new Date(b.release_date || 0).getTime();
+                    return dateB - dateA;
+                });
+                const latestRelease = sortedByDate[0];
                 const imageFound = latestRelease.image_url;
                 if (imageFound) setArtistImage(imageFound);
                 // load details for each song
@@ -127,12 +126,12 @@ export default function MyArtist() {
 
     const handleDetailsClick = async (song: SongWithDetails) => {
         if (!song.spotifyid) return;
-        
+
         setLoadingSongDetails(true);
         try {
             // component artistsong
             const csSongResponse = await digitalLatinoApi.getSongBySpotifyId(song.spotifyid);
-            
+
             if (csSongResponse.data?.cs_song) {
                 const csSong = csSongResponse.data.cs_song;
                 const defaultSongData: Song = {
@@ -162,7 +161,7 @@ export default function MyArtist() {
                     url: song.spotifyid ? `https://open.spotify.com/track/$${song.spotifyid}` : '',
                     spotifyid: song.spotifyid
                 };
-                
+
                 setSelectedSong(defaultSongData);
                 setIsDetailsOpen(true);
             }
@@ -190,11 +189,11 @@ export default function MyArtist() {
 
     return (
         <div className="min-h-screen bg-slate-50/50 p-4 md:p-8 space-y-8 animate-in fade-in duration-500">
-            
-           {/* --- HEADER  --- */}
+
+            {/* --- HEADER  --- */}
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-purple-100/50 to-pink-100/50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-                
+
                 <div className="relative z-10 flex items-center gap-5">
                     {/* AVATAR */}
                     <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-slate-200 shadow-lg ring-4 ring-white overflow-hidden relative flex-shrink-0">
@@ -203,16 +202,16 @@ export default function MyArtist() {
                                 src={artistImage}
                                 alt={user.allowedArtistName}
                                 className="w-full h-full object-cover"
-                                />
+                            />
                         ) : (
                             <div className="w-full h-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-2xl md:text-3xl font-bold text-white">
                                 {user.allowedArtistName?.charAt(0) || "A"}
                             </div>
                         )}
                     </div>
-                    
+
                     <div>
-                       
+
                         <h1 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">
                             {user.allowedArtistName}
                         </h1>
@@ -254,9 +253,9 @@ export default function MyArtist() {
 
                                     {/* Cover Image */}
                                     <div className="relative w-16 h-16 flex-shrink-0">
-                                        <img 
-                                            src={song.songDetails?.avatar || song.image_url || "/placeholder-music.png"} 
-                                            alt="Cover" 
+                                        <img
+                                            src={song.songDetails?.avatar || song.image_url || "/placeholder-music.png"}
+                                            alt="Cover"
                                             className="w-full h-full object-cover rounded-lg shadow-sm"
                                             onError={(e) => {
                                                 (e.target as HTMLImageElement).src = 'https://placehold.co/64x64?text=Music';
@@ -283,16 +282,16 @@ export default function MyArtist() {
 
                                     {/* Actions */}
                                     <div className="flex flex-col gap-2">
-                                        <Button 
-                                            size="sm" 
+                                        <Button
+                                            size="sm"
                                             variant="outline"
                                             onClick={() => handleSongSelect(song)}
                                             className="text-xs h-8 px-3 hover:bg-purple-50 hover:text-purple-600 border-slate-200"
                                         >
                                             <TrendingUp className="w-3 h-3 mr-1" /> Campaña
                                         </Button>
-                                        <Button 
-                                            size="sm" 
+                                        <Button
+                                            size="sm"
                                             variant="ghost"
                                             onClick={() => handleDetailsClick(song)}
                                             disabled={loadingSongDetails || !song.spotifyid}

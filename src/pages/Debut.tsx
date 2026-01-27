@@ -27,6 +27,7 @@ import { useApiWithLoading } from '@/hooks/useApiWithLoading';
 import { ButtonInfoSong, ExpandRow, useExpandableRows } from "@/components/ui/buttonInfoSong";
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
+import ChartArtistDetails from "@/components/ui/ChartArtistDetails";
 
 
 // Agregar más entradas para llegar a 40
@@ -81,7 +82,6 @@ function PlatformChip({ label, rank }: PlatformChipProps) {
       TikTok: "⚫",
       YouTube: "🔴",
       Shazam: "🔵",
-      Pandora: "🟦",
       SoundCloud: "🟠"
     };
     return logos[platform as keyof typeof logos] || "🎵";
@@ -408,6 +408,50 @@ export default function Charts() {
   const [showScoreTooltip, setShowScoreTooltip] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
 
+  //State para manejo de detalles de artista
+  const [artistDetailsModal, setArtistDetailsModal] = useState<{
+    isOpen: boolean;
+    artist: Song | null;
+  }>({
+    isOpen: false,
+    artist: null
+  });
+
+  // Función para abrir detalles del artista
+  const handleArtistDetailsClick = (row: Song) => {
+    if (!user) {
+      setShowLoginDialog(true);
+      return;
+    }
+
+    if (user?.role === 'ARTIST') {
+      const normalize = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+      const myArtistName = normalize(user.allowedArtistName || "");
+      const songArtistName = normalize(row.artists || "");
+
+      if (!songArtistName.includes(myArtistName)) {
+        toast({
+          title: "🔒 Acceso Restringido",
+          description: "Este artista no pertenece a tu catálogo.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    setArtistDetailsModal({
+      isOpen: true,
+      artist: row
+    });
+  };
+
+  const handleCloseArtistDetails = () => {
+    setArtistDetailsModal({
+      isOpen: false,
+      artist: null
+    });
+  };
+
   const handleScoreInfoHover = (event: React.MouseEvent) => {
     const rect = event.currentTarget.getBoundingClientRect();
     setTooltipPosition({
@@ -437,11 +481,11 @@ export default function Charts() {
     return songsDebut.filter((item) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const s: any = item;
-      
+
       const songName = normalizeText(s.song || "");
       // En este archivo la propiedad suele ser 'artist' (singular)
       const artistName = normalizeText(s.artist || s.artists || "");
-      
+
       return songName.includes(query) || artistName.includes(query);
     });
   }, [songsDebut, chartSearchQuery]);
@@ -557,32 +601,56 @@ export default function Charts() {
 
   };
   //ESTE FETCH PARA ASIGNAR EL PERIOD
-  const fetchSongs = async () => {
-    const data = await callApi(async () => {
+  const fetchSongs = useCallback(async () => {
+    try {
+      setLoadingSongs(true);
+
       if (!selectedCountry) {
         setSongsDebut([]);
         return;
       }
 
-      try {
-        setLoadingSongs(true);
-        if (Number.isNaN(selectedCity)) setSelectedCity('0');
-        const response = await digitalLatinoApi.getDebutSongs(parseInt(selectedFormat), parseInt(selectedCountry), (selectedPeriod), parseInt(selectedCity));
-        setSongsDebut(response.data);
+      // Parsear valores con valores por defecto seguros
+      const formatId = parseInt(selectedFormat) || 0;
+      const countryId = parseInt(selectedCountry);
+      const periodValue = selectedPeriod || "C";
+      const cityId = parseInt(selectedCity) || 0;
 
-      } catch (error) {
-        console.error('Error fetching songsDebut:', error);
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar las canciones. Intenta de nuevo.",
-          variant: "destructive"
-        });
+      // Validar countryId
+      if (isNaN(countryId)) {
         setSongsDebut([]);
-      } finally {
-        setLoadingSongs(false);
+        return;
       }
-    });
-  };
+
+      console.log('Fetching debut songs:', {
+        formatId,
+        countryId,
+        periodValue,
+        cityId
+      });
+
+      const response = await digitalLatinoApi.getDebutSongs(
+        formatId,
+        countryId,
+        periodValue,
+        cityId
+      );
+
+      console.log('Songs Debut fetched:', response.data);
+      setSongsDebut(response.data);
+
+    } catch (error: any) {
+      console.error('Error fetching songsDebut:', error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "No se pudieron cargar las canciones. Intenta de nuevo.",
+        variant: "destructive"
+      });
+      setSongsDebut([]);
+    } finally {
+      setLoadingSongs(false);
+    }
+  }, [selectedCountry, selectedFormat, selectedPeriod, selectedCity, toast]);
 
   // Fetch countries from API
   useEffect(() => {
@@ -658,9 +726,13 @@ export default function Charts() {
 
   // Fetch Songs when country changes
   useEffect(() => {
+    if (selectedCountry && selectedCountry !== "") {
+      const timer = setTimeout(() => {
+        fetchSongs();
+      }, 300); // Delay para comprobar cambio de pais
 
-
-    fetchSongs();
+      return () => clearTimeout(timer);
+    }
   }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
 
   // Handle Spotify OAuth callback
@@ -844,39 +916,12 @@ export default function Charts() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-gray-300/10 to-blue-300/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Header para usuarios loggeados habilitar despues del login */}
-      {/*
-      {user && (
-        <div className="relative z-10 bg-gradient-to-r from-green-50 to-blue-50 border-b border-green-200 px-6 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">✓</span>
-              </div>
-              <div>
-                <h2 className="font-bold text-green-800">
-                  {user.email === 'garciafix4@gmail.com' ? '🎯 Demo Exclusivo Activo' : '🎵 Acceso Premium Desbloqueado'}
-                </h2>
-                <p className="text-sm text-green-600">
-                  {user.email === 'garciafix4@gmail.com'
-                    ? 'Tienes acceso completo + estadísticas de campaña en tiempo real'
-                    : `Top 40 completo desbloqueado • ${user.email}`
-                  }
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm font-semibold text-green-700">Top 40 Completo</div>
-              <div className="text-xs text-green-600">Todos los géneros</div>
-            </div>
-          </div>
-        </div>
-      )}*/}
 
 
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
+
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-4 flex flex-col gap-3 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-3 md:p-4 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -886,14 +931,15 @@ export default function Charts() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 relative z-30">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 relative z-30 w-full max-w-6xl mx-auto px-2 sm:px-0">
             {/* Filtro por País/Región */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🌎</span> País/Región
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">🌎</span>
+                <span className="truncate">País/Región</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
                 value={selectedCountry}
                 onChange={handleCountryChange}
                 disabled={loadingCountries}
@@ -914,12 +960,13 @@ export default function Charts() {
             </div>
 
             {/* Filtro por Género */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-2">
-                <span>📊</span> Género
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">📊</span>
+                <span className="truncate">Género</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
                 value={selectedFormat}
                 onChange={(e) => setSelectedFormat(e.target.value)}
                 disabled={loadingFormats || !selectedCountry}
@@ -941,110 +988,15 @@ export default function Charts() {
             </div>
 
 
-            {/* Filtro por Ciudad */}
-            <div className="space-y-2 relative">
-              <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🏙️</span> Ciudad Target
-              </label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpenDropdown(openDropdown === 'city' ? null : 'city');
-                    setDropdownSearch('');
-                  }}
-                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 text-left flex justify-between items-center"
-                  disabled={loadingCities || !selectedCountry}
-                >
-                  <span className="truncate">
-                    {loadingCities ? 'Cargando...' :
-                      !selectedCountry ? 'Selecciona país primero' :
-                        selectedCity !== '0' && cities.length > 0
-                          ? cities.find(c => c.id.toString() === selectedCity)?.city_name || 'Todas las ciudades'
-                          : 'Todas las ciudades'}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${openDropdown === 'city' ? 'rotate-180' : ''}`} />
-                </button>
-
-                {openDropdown === 'city' && cities.length > 0 && (
-                  <div className="absolute z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-2xl max-h-60 overflow-hidden transform translate-z-0 will-change-transform">
-                    <div className="p-2 border-b border-gray-100">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input
-                          type="text"
-                          placeholder="Buscar ciudad..."
-                          className="w-full pl-10 pr-4 py-2 bg-white/80 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-                          value={dropdownSearch}
-                          onChange={(e) => setDropdownSearch(e.target.value)}
-                          autoFocus
-                        />
-                      </div>
-                    </div>
-
-                    <div className="max-h-48 overflow-y-auto">
-                      {/* Opción "Todas las ciudades" */}
-                      <button
-                        onClick={() => handleOptionSelect('0', 'city')}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === '0'
-                          ? 'bg-orange-100 text-orange-700 font-semibold'
-                          : 'text-gray-700'
-                          }`}
-                      >
-                        🎯 Todas las ciudades
-                      </button>
-
-                      {getFilteredOptions(cities, dropdownSearch, 'city').map((city) => (
-                        <button
-                          key={city.id}
-                          onClick={() => handleOptionSelect(city.id.toString(), 'city')}
-                          className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
-                            ? 'bg-orange-100 text-orange-700 font-semibold'
-                            : 'text-gray-700'
-                            }`}
-                        >
-                          🎯 {city.city_name}
-                        </button>
-                      ))}
-
-                      {getFilteredOptions(cities, dropdownSearch, 'city').length === 0 && (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                          No se encontraron ciudades
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Filtro por Periodo Musical */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-2">
-                <span>⏰</span> Periodo Musical
-              </label>
-              <div className="relative">
-                <select
-                  value={selectedPeriod}
-                  onChange={(e) => setSelectedPeriod(e.target.value)}
-                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-2 cursor-pointer"
-                >
-                  <option value="N">🎵 Todos los periodos</option>
-                  <option value="C">🟢 Current - Novedades</option>
-                  <option value="R">🟡 Recurrent - 1-3 años</option>
-                  <option value="G">🟠 Gold - Más de 3 años</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </div>
+          </div >
+        </div >
 
 
 
         {/* Lista de Charts */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
+        < div className="mb-4 flex flex-col gap-3 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-2 md:p-3 shadow-lg relative">
           {/* Fab button de MUI para buscar */}
-          <div className="absolute -top-4 -right-4 z-20">
+          < div className="absolute -top-4 -right-4 z-20" >
             <Fab
               size="medium"
               color="primary"
@@ -1058,7 +1010,6 @@ export default function Charts() {
                 },
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 20px rgba(102, 126, 234, 0.3)',
-
               }}
             >
               {showSearchBar ? (
@@ -1067,13 +1018,13 @@ export default function Charts() {
                 <Search className="w-6 h-6 text-white" />
               )}
             </Fab>
-          </div>
+          </div >
 
-          <div className="space-y-0.5">
+          <div className="space-y-0">
             {/* Buscador dentro de charts funcional */}
             {showSearchBar && (
-              <div className="mb-6 animate-in fade-in duration-300">
-                <div className="bg-white/60 backdrop-blur-sm border border-blue-200 rounded-2xl p-4 shadow-lg">
+              <div className="mb-3 animate-in fade-in duration-300">
+                <div className="bg-white/60 backdrop-blur-sm border border-blue-200 rounded-xl p-3 shadow-lg">
                   <div className="flex items-center gap-3">
                     <Search className="w-5 h-5 text-blue-500" />
                     <input
@@ -1112,7 +1063,7 @@ export default function Charts() {
               </div>
             )}
 
-            {/* Lista de caciones filtradas */}
+            {/* Lista de canciones filtradas */}
             {loadingSongs ? (
               <div className="text-center py-8">
                 <div className="inline-flex items-center gap-2 text-slate-600">
@@ -1142,15 +1093,15 @@ export default function Charts() {
               filteredSongs.map((row, index) => (
                 <div
                   key={`${row.cs_song}-${index}`}
-                  className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
+                  className="group bg-white/50 backdrop-blur-lg rounded-xl shadow-sm border border-white/30 overflow-hidden hover:shadow-md hover:bg-white/60 transition-all duration-200 hover:scale-[1.002]"
                 >
-                  <div className="grid grid-cols-9 items-center gap-3 px-6 py-2">
+                  <div className="grid grid-cols-9 items-center gap-1 sm:gap-2 pl-1 sm:pl-3 pr-1 sm:pr-3 py-1 sm:py-1.5">
                     {/* Rank */}
-                    <div className="col-span-1 flex items-center gap-2">
+                    <div className="col-span-1 flex items-center justify-center">
                       <div className="relative group/rank">
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-11 h-11 flex items-center justify-center shadow-sm group-hover/rank:shadow-md transition-all">
-                          <span className="text-lg font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
+                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded w-6 h-6 sm:w-9 sm:h-9 flex items-center justify-center shadow-xs transition-all">
+                          <span className="text-xs sm:text-lg font-bold text-slate-700 sm:bg-gradient-to-br sm:from-slate-700 sm:to-gray-800 sm:bg-clip-text sm:text-transparent">
                             {row.rk_trending}
                           </span>
                         </div>
@@ -1158,22 +1109,22 @@ export default function Charts() {
                     </div>
 
                     {/* Track Info */}
-                    <div className="col-span-6 flex items-center gap-3">
+                    <div className="col-span-5 sm:col-span-6 flex items-center gap-1 sm:gap-3">
                       <div className="relative group-hover:scale-105 transition-transform">
                         <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
                         <div className="relative">
-                          <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
+                          <Avatar className="relative h-8 w-8 sm:h-10 sm:h-10 rounded shadow-xs transition-shadow">
                             <AvatarImage
                               src={row.img}
                               alt={row.img}
-                              className="rounded-lg object-cover"
+                              className="rounded object-cover"
                             />
-                            <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
-                              {row.artists.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
+                            <AvatarFallback className="rounded bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-xs">
+                              {row.artists.split(' ').map(n => n[0]).join('').slice(0, 1).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
                           {/* Play Button Overlay */}
-                          <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
+                          <div className="absolute inset-0 sm:flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 hidden">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -1192,57 +1143,91 @@ export default function Charts() {
                         </div>
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <h3 className="font-bold text-[10px] sm:text-sm text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
                           {row.song}
                         </h3>
-                        <p className="text-sm font-medium text-gray-600 truncate">
+                        <p
+                          className="text-[9px] sm:text-xs font-medium text-gray-600 truncate cursor-pointer hover:text-purple-600 transition-colors"
+                          onClick={() => handleArtistDetailsClick(row)}
+                          title={`Ver detalles de ${row.artists}`}
+                        >
                           {row.artists}
                         </p>
-                        <p className="text-sm font-medium text-gray-400 truncate">
+                        <p className="text-[9px] sm:text-xs font-medium text-gray-400 truncate hidden sm:block">
                           {row.label}
                         </p>
                       </div>
                     </div>
 
                     {/* Digital Score */}
-                    <div className="col-span-2 text-right">
-                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-1">
-                            <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
-                            <span className="text-[9px] font-semibold text-slate-600 uppercase tracking-wide">Score</span>
-                            {/* Botón de información de score digital con tooltip a la derecha */}
-                            <div className="relative group/info">
+                    <div className="col-span-3 sm:col-span-2">
+                      <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded p-1 sm:p-1.5 shadow-xs group-hover:shadow-md group-hover:bg-white/90 transition-all min-h-[45px] sm:min-h-0">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-0.5 sm:gap-2 h-full">
+
+                          {/* Score Digital */}
+                          <div className="flex flex-col items-center sm:hidden">
+                            {/* Label Score */}
+                            <div className="flex items-center gap-0.5 mb-0.5">
+                              <span className="text-[8px] font-semibold text-slate-600 uppercase tracking-wide">Score</span>
+                              {/* Botón info pequeño */}
                               <button
-                                className="w-3 h-3 rounded-full bg-gray-200 hover:bg-purple-500 flex items-center justify-center transition-all duration-200 text-[8px] font-bold text-gray-400 hover:text-white hover:scale-110"
+                                className="w-2 h-2 rounded-full bg-gray-200 flex items-center justify-center text-[6px] font-bold text-gray-400"
                                 aria-label="Información sobre el Score Digital"
-                                onMouseEnter={handleScoreInfoHover}
-                                onMouseLeave={handleScoreInfoLeave}
                               >
                                 ?
                               </button>
                             </div>
+
+                            {/* Valor del Score */}
+                            <div className="text-sm font-bold text-slate-800">
+                              {row.tw_score}
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div className="text-xl font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
-                            {row.tw_score}
+
+                          {/* Score Digital */}
+                          <div className="hidden sm:block">
+                            <div className="flex items-center justify-between mb-0.5">
+                              <div className="flex items-center gap-0.5">
+                                <div className="w-1 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
+                                <span className="text-[8px] font-semibold text-slate-600 uppercase tracking-wide">Score</span>
+                                {/* Botón de información de score digital */}
+                                <div className="relative group/info">
+                                  <button
+                                    className="w-2.5 h-2.5 rounded-full bg-gray-200 hover:bg-purple-500 flex items-center justify-center transition-all duration-200 text-[7px] font-bold text-gray-400 hover:text-white"
+                                    aria-label="Información sobre el Score Digital"
+                                    onMouseEnter={handleScoreInfoHover}
+                                    onMouseLeave={handleScoreInfoLeave}
+                                  >
+                                    ?
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-lg font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
+                              {row.tw_score}
+                            </div>
                           </div>
-                          <ButtonInfoSong
-                            index={index}
-                            row={adaptDebutToSong(row)}
-                            isExpanded={isExpanded(index)}
-                            onToggle={() => handleRestrictedToggle(index, row)}
-                            selectedCountry={selectedCountry}
-                          />
+
+                          {/* ButtonInfoSong */}
+                          <div className="flex items-center justify-center sm:block mt-1 sm:mt-0">
+                            <ButtonInfoSong
+                              index={index}
+                              row={adaptDebutToSong(row)}
+                              isExpanded={isExpanded(index)}
+                              onToggle={() => handleRestrictedToggle(index, row)}
+                              selectedCountry={selectedCountry}
+                              compact={true}
+                              className="text-xs px-1.5 py-0.5 h-6 sm:text-sm sm:px-2 sm:py-1"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {isExpanded(index) && (
-                    <div className="px-6 pb-4">
+                    <div className="px-2 sm:px-4 pb-2">
                       <ExpandRow
                         row={adaptDebutToSong(row)}
                         onPromote={() => handlePromote(row.artists, row.song, row.img)}
@@ -1257,50 +1242,52 @@ export default function Charts() {
               ))
             )}
           </div>
-        </div>
-        {/* Sección para mostrar más del Top 10 - Solo si NO está autenticado */}
-        {!user && (
-          <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
-            <div className="text-center space-y-6">
-              <div className="flex justify-center items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-2xl">🚀</span>
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">
-                    ¿Quieres ver más allá del Top 20?
-                  </h3>
-                </div>
-              </div>
-              {/* Boton de redireccion a iniciar sesión para acceder a más del Top 20 */}
-              <div className="text-center">
-                <LoginButton />
-              </div>
-
-              {/* Canciones borrosas simulando contenido bloqueado */}
-              <div className="grid gap-2 opacity-50 pointer-events-none">
-                {[
-                  { rank: 21, artist: "Rauw Alejandro", track: "Touching The Sky", streams: "2.1M" },
-                  { rank: 22, artist: "Anuel AA", track: "Mcgregor", streams: "1.9M" },
-                  { rank: 23, artist: "J Balvin", track: "Doblexxó", streams: "1.8M" }
-                ].map((song) => (
-                  <div key={song.rank} className="flex items-center gap-3 p-3 bg-white/30 rounded-xl">
-                    <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center">
-                      <span className="text-sm font-bold text-gray-600">{song.rank}</span>
-                    </div>
-                    <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
-                    <div className="flex-1">
-                      <div className="font-semibold text-gray-700">{song.track}</div>
-                      <div className="text-sm text-gray-500">{song.artist}</div>
-                    </div>
-                    <div className="text-sm font-medium text-gray-600">{song.streams}</div>
+        </div >
+        {/* Sección para mostrar más del Top 20 - Solo si NO está autenticado */}
+        {
+          !user && (
+            <div className="mt-4 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-2xl p-4 shadow-lg">
+              <div className="text-center space-y-4">
+                <div className="flex justify-center items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                    <span className="text-2xl">🚀</span>
                   </div>
-                ))}
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      ¿Quieres ver más allá del Top 20?
+                    </h3>
+                  </div>
+                </div>
+                {/* Boton de redireccion a iniciar sesión para acceder a más del Top 20 */}
+                <div className="text-center">
+                  <LoginButton />
+                </div>
+
+                {/* Canciones borrosas simulando contenido bloqueado */}
+                <div className="grid gap-1 opacity-50 pointer-events-none">
+                  {[
+                    { rank: 21, artist: "Rauw Alejandro", track: "Touching The Sky", streams: "2.1M" },
+                    { rank: 22, artist: "Anuel AA", track: "Mcgregor", streams: "1.9M" },
+                    { rank: 23, artist: "J Balvin", track: "Doblexxó", streams: "1.8M" }
+                  ].map((song) => (
+                    <div key={song.rank} className="flex items-center gap-2 p-2 bg-white/30 rounded-lg">
+                      <div className="w-7 h-7 bg-gray-300 rounded-lg flex items-center justify-center">
+                        <span className="text-xs font-bold text-gray-600">{song.rank}</span>
+                      </div>
+                      <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-700">{song.track}</div>
+                        <div className="text-sm text-gray-500">{song.artist}</div>
+                      </div>
+                      <div className="text-sm font-medium text-gray-600">{song.streams}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )
+        }
+      </div >
 
       {
         !user && (showGenreOverlay || showCrgOverlay) && (
@@ -1378,18 +1365,40 @@ export default function Charts() {
       <Backdrop open={loading} sx={{ color: '#fff', zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      {showScoreTooltip && (
-        <div
-          className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
-          style={{
-            left: tooltipPosition.x,
-            top: tooltipPosition.y - 20,
-          }}
-        >
-          El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
-          <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
-        </div>
-      )}
+      {
+        showScoreTooltip && (
+          <div
+            className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
+            style={{
+              left: tooltipPosition.x,
+              top: tooltipPosition.y - 20,
+            }}
+          >
+            El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
+            <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
+          </div>
+        )
+      }
+      {/* Modal de detalles del artista */}
+      {
+        artistDetailsModal.isOpen && artistDetailsModal.artist && (
+          <ChartArtistDetails
+            artist={{
+              artist: artistDetailsModal.artist.artists,
+              spotifyid: artistDetailsModal.artist.spotifyartistid || "",
+              img: artistDetailsModal.artist.avatar || "",
+              rk: artistDetailsModal.artist.rk || 0,
+              score: artistDetailsModal.artist.score || 0,
+              followers_total: 0,
+              monthly_listeners: 0,
+            }}
+            selectedCountry={selectedCountry}
+            countries={countries}
+            isOpen={artistDetailsModal.isOpen}
+            onClose={handleCloseArtistDetails}
+          />
+        )
+      }
     </div >
   );
 }

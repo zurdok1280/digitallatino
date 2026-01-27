@@ -64,9 +64,8 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className={`${
-        isCollapsed ? "w-16" : "w-64"
-      } transition-all duration-300 bg-gradient-sidebar border-r border-white/10`}
+      className={`${isCollapsed ? "w-16" : "w-64"
+        } transition-all duration-300 bg-gradient-sidebar border-r border-white/10`}
       collapsible="icon"
     >
       <SidebarContent className="bg-transparent">
@@ -102,18 +101,16 @@ export function AppSidebar() {
                     asChild
                     className={`
                     group transition-all duration-200 rounded-lg mb-1
-                    ${
-                      isActive("/my-artist")
+                    ${isActive("/my-artist")
                         ? "bg-white/20 text-white shadow-glass border border-white/20"
                         : "text-white/70 hover:text-white hover:bg-white/10"
-                    }
+                      }
                 `}
                   >
                     <NavLink to="/my-artist">
                       <Mic2
-                        className={`${
-                          isCollapsed ? "mx-auto" : "mr-3"
-                        }  h-5 w-5 transition-colors`}
+                        className={`${isCollapsed ? "mx-auto" : "mr-3"
+                          }  h-5 w-5 transition-colors`}
                       />
                       {!isCollapsed && (
                         <span
@@ -140,20 +137,18 @@ export function AppSidebar() {
                         }
                         className={`
                       group transition-all duration-200 rounded-lg mb-1
-                      ${
-                        isActive(item.url) && !isLocked
-                          ? "bg-white/20 text-white shadow-glass border border-white/20"
-                          : "text-white/70 hover:text-white hover:bg-white/10"
-                      }
+                      ${isActive(item.url) && !isLocked
+                            ? "bg-white/20 text-white shadow-glass border border-white/20"
+                            : "text-white/70 hover:text-white hover:bg-white/10"
+                          }
                         ${isLocked ? "cursor-pointer" : ""}
                     `}
                       >
                         {isLocked ? (
                           <>
                             <item.icon
-                              className={`${
-                                isCollapsed ? "mx-auto" : "mr-3"
-                              } h-5 w-5 transition-colors`}
+                              className={`${isCollapsed ? "mx-auto" : "mr-3"
+                                } h-5 w-5 transition-colors`}
                             />
                             {!isCollapsed && (
                               <span className="font-medium flex-1">
@@ -167,9 +162,8 @@ export function AppSidebar() {
                         ) : (
                           <NavLink to={item.url} end={item.url === "/"}>
                             <item.icon
-                              className={`${
-                                isCollapsed ? "mx-auto" : "mr-3"
-                              } h-5 w-5 transition-colors`}
+                              className={`${isCollapsed ? "mx-auto" : "mr-3"
+                                } h-5 w-5 transition-colors`}
                             />
                             {!isCollapsed && (
                               <span className="font-medium">{item.title}</span>
@@ -187,9 +181,8 @@ export function AppSidebar() {
         {/* User Profile Section */}
         <div className="mt-auto p-4 border-t border-white/10">
           <div
-            className={`flex items-center gap-3 p-3 rounded-lg bg-white/10 ${
-              isCollapsed ? "justify-center" : ""
-            }`}
+            className={`flex items-center gap-3 p-3 rounded-lg bg-white/10 ${isCollapsed ? "justify-center" : ""
+              }`}
           >
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-white/40 to-white/20 flex items-center justify-center">
               <span className="text-white font-semibold text-sm">

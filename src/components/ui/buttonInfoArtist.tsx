@@ -2,6 +2,8 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ExpandRowArtist } from "./buttoninfoArtist-components/expandRowArtist";
 import { DataPlatformArtist } from "./buttoninfoArtist-components/dataPlatformArtist";
+import BoxListenersArtist from "./buttoninfoArtist-components/boxListenersArtist";
+import WorldMapArtist from "./buttoninfoArtist-components/worldMapArtist";
 
 interface ButtonInfoArtistProps {
     index: number;
@@ -79,16 +81,34 @@ interface ExpandRowProps {
 export function ExpandRow({ artist, selectedCountry, isExpanded }: ExpandRowProps) {
     return (
         <div className="mt-4 animate-in fade-in duration-300">
+
+            {artist.spotifyid && (
+                <WorldMapArtist
+                    countryId={parseInt(selectedCountry)}
+                    spotifyId={artist.spotifyid}
+                    title="📍 Distribución por Ciudades del Artista"
+                    height={400}
+                />
+            )}
+
             <DataPlatformArtist
                 spotifyId={artist.spotifyid || ""}
                 artistName={artist.artist}
             />
-
-            <ExpandRowArtist
-                artist={artist}
-                selectedCountry={selectedCountry}
-                isExpanded={isExpanded}
+            <BoxListenersArtist
+                label="Audiencia por Ciudad"
+                spotifyId={artist.spotifyid || ""}
+                selectedCountryId={selectedCountry}
             />
+            <div className="overflow-y-auto grid grid-cols-1 md:grid-cols-1 gap-4">
+
+                <ExpandRowArtist
+                    artist={artist}
+                    selectedCountry={selectedCountry}
+                    isExpanded={isExpanded}
+                />
+            </div>
+
         </div>
     );
 }

@@ -27,33 +27,33 @@ export function Layout({ children }: LayoutProps) {
     if (!token) return;
     try {
       const response = await fetch('https://security.digital-latino.com/api/auth/select-artist', {
-    //const response = await fetch('http://localhost:8085/api/auth/select-artist', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ artistId, artistName }),
-    });
-    if (!response.ok) {
-      throw new Error('Error al seleccionar el artista');
+        //const response = await fetch('http://localhost:8085/api/auth/select-artist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ artistId, artistName }),
+      });
+      if (!response.ok) {
+        throw new Error('Error al seleccionar el artista');
+      }
+
+      const data = await response.json();
+
+      if (data.token) {
+        // Save token to localStorage
+        localStorage.setItem('authToken', data.token);
+        window.location.reload();
+
+      }
+
+    } catch (error) {
+      console.error("❌ Error:", error);
     }
 
-    const data = await response.json();
-   
-    if (data.token) {
-      // Save token to localStorage
-      localStorage.setItem('authToken', data.token);
-      window.location.reload();
-
-  } 
-
-  } catch (error) {
-    console.error("❌ Error:", error);
-  }
-    
   };
-  
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -63,11 +63,16 @@ export function Layout({ children }: LayoutProps) {
           {/* Header with sidebar trigger and login */}
           <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md border-b border-white/20 p-4">
             <div className="flex items-center justify-between">
+              {/* Izquierda: SidebarTrigger */}
               <div className="flex items-center gap-2">
-              <SidebarTrigger />
-              {user?.role !== 'ARTIST' && <SearchArtist />}
+                <SidebarTrigger />
               </div>
-              <LoginButton />
+              <div className="absolute left-1/2 transform -translate-x-1/2">
+                {user?.role !== 'ARTIST' && <SearchArtist />}
+              </div>
+              <div className="ml-auto">
+                <LoginButton />
+              </div>
             </div>
           </div>
 
@@ -78,7 +83,7 @@ export function Layout({ children }: LayoutProps) {
           isOpen={showArtistModal}
           onArtistSelected={handleArtistSelection}
         />
-        
+
       </div>
     </SidebarProvider>
   );
