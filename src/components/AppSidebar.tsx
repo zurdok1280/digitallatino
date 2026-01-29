@@ -114,9 +114,7 @@ export function AppSidebar() {
                       />
                       {!isCollapsed && (
                         <span
-                          className="font-medium truncate max-w-[160px]"
-                          title={user?.allowedArtistName}
-                        >
+                          className="font-medium ">
                           {user?.allowedArtistName || "Artista"}
                         </span>
                       )}
