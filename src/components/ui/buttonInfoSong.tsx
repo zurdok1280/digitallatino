@@ -63,7 +63,7 @@ export function ExpandRow({
     return (
         <div className="relative border-t border-white/30 bg-background/50 rounded-lg animate-fade-in">
             {/* Contenedor principal con scroll */}
-            <div className="max-h-96 overflow-y-auto p-4 pb-20">
+            <div className="max-h-96 overflow-y-auto p-4 pb-2">
                 {/* Top de ciudades */}
                 <BoxElementsDisplay
                     label={"Top Ciudades Digital"}
@@ -78,11 +78,21 @@ export function ExpandRow({
                     formatId={selectedFormat ? parseInt(selectedFormat) : 0}
                 />
 
-                {/* Playlist Info */}
-                <BoxPlaylistsDisplay csSong={row.cs_song} />
+                <div className="overflow-y-auto grid grid-cols-1 md:grid-cols-1 gap-4">
+                    {/* Playlist Info */}
+                    <BoxPlaylistsDisplay csSong={row.cs_song} />
 
-                {/* TikTok Influencers */}
-                <BoxTikTokInfluencers csSong={row.cs_song} />
+                    {/* TikTok Influencers */}
+                    <BoxTikTokInfluencers csSong={row.cs_song} />
+                </div>
+
+                {/* Estadísticas de Radio */}
+                <BoxElementsDisplayAudience
+                    csSong={row.cs_song}
+                    title="Top Países en Radio"
+                    label="países"
+                    type="countries"
+                />
 
                 {/* Top Mercados en Radio */}
                 <BoxElementsDisplaySpins
@@ -93,13 +103,6 @@ export function ExpandRow({
                     type="markets"
                 />
 
-                {/* Estadísticas de Radio */}
-                <BoxElementsDisplayAudience
-                    csSong={row.cs_song}
-                    title="Top Países en Radio"
-                    label="países"
-                    type="countries"
-                />
             </div>
 
             {/* BoxCampaign sticky en la parte inferior */}

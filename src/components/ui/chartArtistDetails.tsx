@@ -1,46 +1,70 @@
-import BoxCampaign from './buttonInfoSong-components/boxCampaign';
 import React, { useState, useEffect } from 'react';
-import { Play, Pause, Star, X, ChevronDown, Search } from 'lucide-react';
+import { Play, Pause, Star, X, ChevronDown, Search, Users } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Song, Country, CityDataForSong, digitalLatinoApi, SongBasicInfo } from '@/lib/api';
-import BoxElementsDisplay from './buttonInfoSong-components/boxElementsDisplay';
-import BoxDisplayInfoPlatform from './buttonInfoSong-components/boxDisplayInfoPlatform';
-import BoxPlaylistsDisplay from './buttonInfoSong-components/boxPlaylistsDisplay';
-import BoxTikTokInfluencers from './buttonInfoSong-components/boxTikTokInfluencers';
+import { Country, digitalLatinoApi } from '@/lib/api';
 import Portal from './Portal';
-import BoxElementsDisplaySpins from './buttonInfoSong-components/boxElementsDisplaySpins';
-import BoxElementsDisplayAudience from './buttonInfoSong-components/boxElemensDisplayAudience';
+import WorldMapArtist from './buttoninfoArtist-components/worldMapArtist';
 
-interface ChartSongDetailsProps {
-    song: Song;
+import BoxListenersArtist from './buttoninfoArtist-components/boxListenersArtist';
+import { ExpandRowArtist } from './buttoninfoArtist-components/expandRowArtist';
+import { DataPlatformArtist } from './buttoninfoArtist-components/dataPlatformArtist';
+
+
+interface ArtistDetails {
+    spotifyid?: string;
+    artist: string;
+    img?: string;
+    rk?: number;
+    score?: number;
+    Id?: number;
+    fk_artist?: number;
+    playlist_reach?: number;
+    popularity?: number;
+    followers_total?: number;
+    streams_total?: number;
+    playlists?: number;
+    monthly_listeners?: number;
+    videos_total_tiktok?: number;
+    followers_total_tiktok?: number;
+    likes_total_tiktok?: number;
+    comments_total_tiktok?: number;
+    shares_total_tiktok?: number;
+    views_total_tiktok?: number;
+    engagement_rate_tiktok?: number;
+    subscribers_total_youtube?: number;
+    videos_total_youtube?: number;
+    video_views_total_youtube?: number;
+    video_likes_total_youtube?: number;
+    shorts_total_youtube?: number;
+    short_views_total_youtube?: number;
+    engagement_rate_youtube?: number;
+    followers_total_twitter?: number;
+    followers_total_facebook?: number;
+    followers_total_instagram?: number;
+}
+
+interface ChartArtistDetailsProps {
+    artist: ArtistDetails;
     selectedCountry?: string;
-    selectedFormat?: string;
     countries?: Country[];
-    onPlayPreview?: (rk: number, audioUrl: string) => void;
-    currentlyPlaying?: number | null;
     isOpen: boolean;
     onClose: () => void;
 }
 
-const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
-    song,
-    selectedCountry: initialSelectedCountry = "1", // Cambiado a "1" por defecto
-    selectedFormat = "0",
+const ChartArtistDetails: React.FC<ChartArtistDetailsProps> = ({
+    artist,
+    selectedCountry: initialSelectedCountry = "1",
     countries: initialCountries = [],
-    onPlayPreview,
-    currentlyPlaying,
     isOpen,
     onClose
 }) => {
-    const [cityData, setCityData] = useState<CityDataForSong[]>([]);
-    const [loadingCityData, setLoadingCityData] = useState(false);
-    const [infoSong, setInfoSong] = useState<SongBasicInfo | null>(null);
-    const [loadingInfo, setLoadingInfo] = useState(false);
     const [countries, setCountries] = useState<Country[]>(initialCountries);
-    const [selectedCountry, setSelectedCountry] = useState<string>("1"); // Cambiado a "1" por defecto
+    const [selectedCountry, setSelectedCountry] = useState<string>("1");
     const [loadingCountries, setLoadingCountries] = useState(false);
     const [openDropdown, setOpenDropdown] = useState(false);
     const [dropdownSearch, setDropdownSearch] = useState("");
+    const [artistInfo, setArtistInfo] = useState<ArtistDetails | null>(null);
+    const [loadingArtistInfo, setLoadingArtistInfo] = useState(false);
 
     // Función helper para Portal del dropdown
     const DropdownPortal: React.FC<{ children: React.ReactNode; isOpen: boolean }> = ({ children, isOpen }) => {
@@ -84,53 +108,24 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         }
     };
 
-    // Cargar datos de ciudades directamente
-    const loadCityData = async () => {
-        if (!song.cs_song) return;
+    // Cargar información adicional del artista
+    const loadArtistInfo = async () => {
+        if (!artist.spotifyid) return;
 
-        setLoadingCityData(true);
+        setLoadingArtistInfo(true);
         try {
-            console.log('🔍 Cargando datos de ciudades para cs_song:', song.cs_song);
+            console.log('🔍 Cargando información adicional del artista:', artist.spotifyid);
 
-            // Usar el countryId seleccionado
-            const countryId = parseInt(selectedCountry);
+            setArtistInfo(artist);
+            console.log('✅ Información del artista cargada:', artist);
 
-            const response = await digitalLatinoApi.getCityData(song.cs_song, countryId);
-            console.log('📊 Respuesta de getCityData:', response);
+            const response = await digitalLatinoApi.getDataArtist(artist.spotifyid);
+            setArtistInfo(response.data);
 
-            if (response.data) {
-                setCityData(response.data);
-                console.log('✅ Datos de ciudades cargados directamente:', response.data.length, 'ciudades');
-            }
         } catch (error) {
-            console.error('❌ Error cargando datos de ciudades:', error);
+            console.error('❌ Error cargando información del artista:', error);
         } finally {
-            setLoadingCityData(false);
-        }
-    };
-
-    // Cargar información adicional de la canción
-    const loadInfoSong = async () => {
-        if (!song.cs_song) return;
-        setLoadingInfo(true);
-
-        try {
-            console.log(' Cargando información adicional de la canción:', song.cs_song);
-
-            // Usar el countryId seleccionado
-            const countryId = parseInt(selectedCountry);
-
-            const response = await digitalLatinoApi.getRankSongByIdCountry(song.cs_song, countryId);
-            console.log(' Respuesta de getRankSongByIdCountry:', response);
-
-            if (response.data) {
-                setInfoSong(response.data);
-                console.log(' Información adicional cargada:', response.data);
-            }
-        } catch (error) {
-            console.error(' Error cargando información adicional:', error);
-        } finally {
-            setLoadingInfo(false);
+            setLoadingArtistInfo(false);
         }
     };
 
@@ -138,36 +133,9 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
     useEffect(() => {
         if (isOpen) {
             loadCountries();
+            loadArtistInfo();
         }
     }, [isOpen]);
-
-    // Cargar datos cuando cambia el país seleccionado o se abre el modal
-    useEffect(() => {
-        if (isOpen && song.cs_song) {
-            console.log('🎯 Cargando datos con selectedCountry:', selectedCountry);
-            loadCityData();
-            loadInfoSong();
-        }
-    }, [isOpen, song.cs_song, selectedCountry]);
-
-    const handlePlayPreview = (rk: number, audioUrl: string) => {
-        if (onPlayPreview) {
-            onPlayPreview(rk, audioUrl);
-        }
-    };
-
-    const formatNumber = (num: number): string => {
-        if (num === null || num === undefined || isNaN(num) || num === 0) {
-            return '0';
-        }
-        if (num >= 1000000) {
-            return (num / 1000000).toFixed(1) + 'M';
-        }
-        if (num >= 1000) {
-            return (num / 1000).toFixed(1) + 'K';
-        }
-        return num.toString();
-    };
 
     const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
@@ -210,6 +178,13 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
         return () => document.removeEventListener('keydown', handleEscape);
     }, [openDropdown]);
 
+    const formatNumber = (num: number | undefined): string => {
+        if (!num || num === 0) return '0';
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toString();
+    };
+
     if (!isOpen) return null;
 
     return (
@@ -222,83 +197,71 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                     {/* Botón flotante en esquina superior derecha */}
                     <button
                         onClick={onClose}
-                        className="absolute top-4 right-4 z-10 bg-red-500 hover:bg-red-600 text-white w-12 h-12 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white"
+                        className="absolute top-4 right-4 z-10 bg-red-500 hover:bg-red-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white"
                         title="Cerrar detalles"
                     >
-                        <X className="w-6 h-6" />
+                        <X className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
 
                     {/* Header fijo */}
                     <div className="flex-shrink-0 bg-gradient-to-r from-purple-600 to-pink-600 p-4 md:p-6 text-white relative">
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-4">
-                            <div className="col-span-1 md:col-span-8 flex items-center gap-4">
-                                {/* Rank */}
-                                <div className="flex-shrink-0">
-                                    <div className="relative">
-                                        <div className="absolute inset-0 bg-white/20 rounded-xl blur-sm"></div>
-                                        <div className="relative bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shadow-lg">
-                                            <span className="text-xl md:text-2xl font-bold text-white">
-                                                {loadingInfo ? '...' : `#${infoSong?.rk || song.rk || 0}`}
-                                            </span>
+                            {/* Primera fila para móvil: Rank (si existe) + Artist Info */}
+                            <div className={`col-span-1 ${artistInfo?.rk !== undefined ? 'md:col-span-7' : 'md:col-span-8'} flex items-center gap-4`}>
+                                {/* Rank - Opcional para artistas */}
+                                {artistInfo?.rk !== undefined && (
+                                    <div className="flex-shrink-0">
+                                        <div className="relative">
+                                            <div className="absolute inset-0 bg-white/20 rounded-xl blur-sm"></div>
+                                            <div className="relative bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl w-14 h-14 md:w-16 md:h-16 flex items-center justify-center shadow-lg">
+                                                <span className="text-xl md:text-2xl font-bold text-white">
+                                                    {artistInfo?.rk ? `#${artistInfo.rk}` : 'N/A'}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
 
-                                {/* Track Info */}
+                                {/* Artist Info */}
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-3 md:gap-4">
                                         <div className="relative flex-shrink-0">
                                             <Avatar className="relative h-16 w-16 md:h-20 md:w-20 rounded-xl shadow-lg border-2 border-white/30">
                                                 <AvatarImage
-                                                    src={song.avatar}
-                                                    alt={song.song}
+                                                    src={artistInfo?.img || artist.img}
+                                                    alt={artistInfo?.artist || artist.artist}
                                                     className="rounded-xl object-cover"
                                                 />
                                                 <AvatarFallback className="rounded-xl bg-white/20 text-white font-bold text-base md:text-lg">
-                                                    {song.artists && typeof song.artists === 'string'
-                                                        ? song.artists
-                                                            .split(" ")
-                                                            .map((n) => n[0])
-                                                            .join("")
-                                                            .slice(0, 2)
-                                                            .toUpperCase()
-                                                        : '??'
-                                                    }
+                                                    <Users className="w-8 h-8 md:w-10 md:h-10" />
                                                 </AvatarFallback>
                                             </Avatar>
-
-                                            {/* Play Button Overlay */}
-                                            {/*<div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-300">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handlePlayPreview(
-                                                            song.rk || 0,
-                                                            `https://audios.monitorlatino.com/Iam/${song.entid || 0}.mp3`
-                                                        );
-                                                    }}
-                                                    className="w-10 h-10 md:w-12 md:h-12 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-all duration-300 shadow-2xl transform hover:scale-110"
-                                                    aria-label={`Reproducir preview de ${song.song}`}
-                                                >
-                                                    {currentlyPlaying === song.rk ? (
-                                                        <Pause className="w-4 h-4 md:w-5 md:h-5" />
-                                                    ) : (
-                                                        <Play className="w-4 h-4 md:w-5 md:h-5 ml-0.5" />
-                                                    )}
-                                                </button>
-                                            </div>*/}
                                         </div>
 
                                         <div className="flex-1 min-w-0">
                                             <h1 className="text-lg md:text-2xl font-bold text-white leading-tight mb-1 md:mb-2 line-clamp-1">
-                                                {song.song || 'Canción no disponible'}
+                                                {artistInfo?.artist || artist.artist || 'Artista no disponible'}
                                             </h1>
-                                            <p className="text-sm md:text-lg font-semibold text-white/90 mb-0.5 md:mb-1 line-clamp-1">
-                                                {song.artists || 'Artista no disponible'}
-                                            </p>
-                                            <p className="text-xs md:text-base text-white/80 mb-2 md:mb-3 line-clamp-1">
-                                                {song.label || ' '}
-                                            </p>
+
+                                            {/* Estadísticas del artista */}
+                                            <div className="flex flex-wrap gap-2 md:gap-4 mb-2 md:mb-3">
+                                                {artistInfo?.followers_total && (
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="text-sm md:text-base text-white/90 font-semibold">
+                                                            {formatNumber(artistInfo.followers_total)}
+                                                        </span>
+                                                        <span className="text-xs md:text-sm text-white/80">seguidores</span>
+                                                    </div>
+                                                )}
+                                                {artistInfo?.monthly_listeners && (
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="text-sm md:text-base text-white/90 font-semibold">
+                                                            {formatNumber(artistInfo.playlist_reach)}
+                                                        </span>
+                                                        <span className="text-xs md:text-sm text-white/80">apariciones</span>
+                                                    </div>
+                                                )}
+                                            </div>
 
                                             {/* Dropdown de países */}
                                             <div className="relative">
@@ -369,19 +332,21 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-span-1 md:col-span-4 text-left md:text-right mt-4 md:mt-0">
+
+                            {/* Segunda fila para móvil: Artist Score */}
+                            <div className={`col-span-1 ${artistInfo?.rk !== undefined ? 'md:col-span-5' : 'md:col-span-4'} text-left md:text-right mt-4 md:mt-0`}>
                                 <div className="relative bg-white/20 backdrop-blur-sm border border-white/30 rounded-2xl p-3 md:p-4 shadow-lg">
                                     <div className="flex items-center justify-between mb-1 md:mb-2">
                                         <div className="flex items-center gap-1 md:gap-2">
                                             <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-white rounded-full animate-pulse"></div>
                                             <span className="text-xs font-bold text-white uppercase tracking-wide">
-                                                Digital Score
+                                                Oyentes Mensuales
                                             </span>
                                         </div>
                                         <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-300 fill-current" />
                                     </div>
                                     <div className="text-2xl md:text-3xl font-black text-white">
-                                        {loadingInfo ? '...' : (infoSong?.score || song.score || 0)}
+                                        {formatNumber(artistInfo?.monthly_listeners) || 'N/A'}
                                     </div>
                                     <div className="text-xs text-white/80 mt-0.5 md:mt-1 line-clamp-1">
                                         {getSelectedCountryName()}
@@ -392,59 +357,58 @@ const ChartSongDetails: React.FC<ChartSongDetailsProps> = ({
                     </div>
 
                     {/* Contenido scrollable */}
-                    <div className="flex-1 overflow-y-auto bg-gray-50">
-                        <div className="p-4 md:p-6 space-y-4 md:space-y-6">
-                            {/* Campaña de promoción */}
-                            <BoxCampaign
-                                spotifyId={song.spotifyid}
-                                csSong={song.cs_song}
-                                songName={song.song}
-                                artistName={song.artists}
-                            />
+                    {artistInfo?.monthly_listeners && artistInfo?.monthly_listeners > 0 ? (
+                        <div className="flex-1 overflow-y-auto bg-gray-50">
+                            <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+                                {/* Mapa de distribución por ciudades */}
+                                {artist.spotifyid && (
+                                    <WorldMapArtist
+                                        countryId={parseInt(selectedCountry)}
+                                        spotifyId={artist.spotifyid}
+                                        title="📍 Distribución por Ciudades del Artista"
+                                        height={400}
+                                    />
+                                )}
 
-                            {/* Top de ciudades */}
-                            <BoxElementsDisplay
-                                label={"Top Cities Digital"}
-                                csSong={song.cs_song.toString()}
-                                selectedCountryId={selectedCountry}
-                            />
-
-                            {/* Estadísticas de Plataformas */}
-                            <BoxDisplayInfoPlatform
-                                csSong={song.cs_song}
-                                formatId={selectedFormat ? parseInt(selectedFormat) : 0}
-                            />
-
-                            {/* Playlist Info */}
-                            <BoxPlaylistsDisplay csSong={song.cs_song} />
-
-                            {/* TikTok Influencers */}
-                            <BoxTikTokInfluencers csSong={song.cs_song} />
-
-                            {/* Top Mercados en Radio - solo mostrar si no es "Todos los países" */}
-                            {selectedCountry !== "0" && (
-                                <BoxElementsDisplaySpins
-                                    csSong={song.cs_song}
-                                    countryId={parseInt(selectedCountry)}
-                                    title="Top Mercados en Radio"
-                                    label="mercados"
-                                    type="markets"
+                                {/* Datos de plataformas del artista */}
+                                <DataPlatformArtist
+                                    spotifyId={artist.spotifyid || ""}
+                                    artistName={artist.artist}
                                 />
-                            )}
 
-                            {/* Estadísticas de Radio */}
-                            <BoxElementsDisplayAudience
-                                csSong={song.cs_song}
-                                title="Top Países en Radio"
-                                label="países"
-                                type="countries"
-                            />
+                                {/* Audiencia por ciudad */}
+                                <BoxListenersArtist
+                                    label="Audiencia por Ciudad"
+                                    spotifyId={artist.spotifyid || ""}
+                                    selectedCountryId={selectedCountry}
+                                />
+
+                                {/* Información expandida del artista */}
+                                <ExpandRowArtist
+                                    artist={artist}
+                                    selectedCountry={selectedCountry}
+                                    isExpanded={true}
+                                />
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        < div className="flex-1 flex flex-col items-center justify-center p-6 pb-52 pt-52 bg-gray-50">
+                            <p className="text-gray-500 text-lg md:text-xl items-center text-center ">
+                                Información no disponible en este momento.<br /> La estamos recopilando;
+                                por favor regresa en aproximadamente
+                            </p>
+                            <p className="text-blue-500 text-lg md:text-xl">
+                                2 horas.
+                            </p>
+                        </div>
+                    )
+
+                    }
+
                 </div>
             </div>
-        </Portal>
+        </Portal >
     );
 };
 
-export default ChartSongDetails;
+export default ChartArtistDetails;

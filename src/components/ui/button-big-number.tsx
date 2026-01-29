@@ -48,7 +48,7 @@ export function ButtonBigNumber(btnBigNumberProps: BtnBigNumberProps) {
     return (
         <>
             <div className="flex-shrink-0">
-                <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all duration-300 min-w-[90px]">
+                <div className=""> {/* relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-2.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all duration-300 min-w-[90px] */}
                     <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-1">
                             <div className="w-1.5 h-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full animate-pulse"></div>
@@ -71,7 +71,7 @@ export function ButtonBigNumber(btnBigNumberProps: BtnBigNumberProps) {
                             arrow
                             placement="top-start"
                         >
-                            <div className="text-lg text-right font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent cursor-help hover:opacity-80 transition-opacity">
+                            <div className="text-sm text-right font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent cursor-help hover:opacity-80 transition-opacity">
                                 {formatNumber(btnBigNumberProps.quantity)}
                             </div>
                         </CustomTooltip>

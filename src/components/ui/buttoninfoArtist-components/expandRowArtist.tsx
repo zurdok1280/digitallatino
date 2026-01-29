@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from "@/hooks/use-toast";
 import { digitalLatinoApi, SongsArtistBySpotifyId, SongBasicInfo, Song } from "@/lib/api";
-import { Backdrop, CircularProgress } from '@mui/material';
+import { Backdrop, CircularProgress, Typography, Box, useMediaQuery, useTheme } from '@mui/material';
 import { Play, Pause, Calendar, TrendingUp, Disc, User, Info, Lock, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -35,6 +35,10 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
 
     const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
     const audioRef = React.useRef<HTMLAudioElement | null>(null);
+
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
     useEffect(() => {
         if (isExpanded && artist.spotifyid && selectedCountry) {
@@ -264,12 +268,29 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
     }
 
     return (
-        <>
+        <div style={{
+            border: "1px solid #E0E0E0",
+            borderRadius: isMobile ? "8px" : "12px",
+            padding: isMobile ? "12px" : isTablet ? "16px" : "24px",
+            boxShadow: isMobile ? "0 1px 4px rgba(0,0,0,0.04)" : "0 2px 12px rgba(0,0,0,0.06)",
+            backgroundColor: "white",
+            marginBottom: isMobile ? "16px" : "24px",
+            marginLeft: isMobile ? "-8px" : "0",
+            marginRight: isMobile ? "-8px" : "0",
+            width: "100%"
+        }}>
             <div className="mt-4 border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in">
-                <h4 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
-                    <span className="text-lg">🎵</span>
+                <Typography variant="subtitle2" sx={{
+                    color: "#6C63FF",
+                    fontWeight: "bold",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
+                    fontSize: isMobile ? "0.75rem" : "0.875rem",
+                    textAlign: isMobile ? "left" : "left"
+                }}>
+                    <span className="text-lg col-span-2">🎵 </span>
                     Canciones de {artist.artist}
-                </h4>
+                </Typography>
 
                 {songs.length === 0 ? (
                     <div className="text-center py-6 text-slate-500">
@@ -304,99 +325,205 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
                         {songs.map((song, index) => (
                             <Card
                                 key={song.cs_song || index}
-                                className="p-4 cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm"
+                                className={`${isMobile ? 'p-2' : 'p-4'} cursor-pointer hover:bg-accent/50 transition-all border border-white/20 bg-white/40 backdrop-blur-sm`}
                             >
-                                <div className="flex items-center gap-4">
-                                    {/* Número de ranking */}
-                                    <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                                        <span className="text-white text-sm font-bold">
-                                            {index + 1}
-                                        </span>
-                                    </div>
-                                    {/* Imagen del álbum */}
-                                    {song.image_url ? (
-                                        <img
-                                            src={song.image_url}
-                                            alt="Album cover"
-                                            className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
-                                        />
-                                    ) : (
-                                        <div className="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
-                                            <Music className="w-8 h-8 text-gray-400" />
+                                {/* Layout horizontal */}
+                                {!isMobile ? (
+                                    <div className="flex items-center gap-4">
+                                        {/* Número de ranking */}
+                                        <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                                            <span className="text-white text-sm font-bold">
+                                                {index + 1}
+                                            </span>
                                         </div>
-                                    )}
+                                        {/* Imagen del álbum */}
+                                        {song.image_url ? (
+                                            <img
+                                                src={song.image_url}
+                                                alt="Album cover"
+                                                className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+                                            />
+                                        ) : (
+                                            <div className="w-16 h-16 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                                <Music className="w-8 h-8 text-gray-400" />
+                                            </div>
+                                        )}
 
-                                    {/* Información de la canción */}
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="font-semibold text-slate-800 mb-1">
-                                            {getSongName(song, index)}
-                                        </h3>
+                                        {/* Información de la canción */}
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-semibold text-slate-800 mb-1">
+                                                {getSongName(song, index)}
+                                            </h3>
 
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <User className="w-3 h-3 text-slate-500" />
-                                            <span className="text-sm text-slate-600">{getArtist(song)}</span>
-                                        </div>
-
-                                        <div className="flex flex-wrap gap-4 text-xs text-slate-600">
-                                            {/* Disquera/Label */}
-                                            <div className="flex items-center gap-1">
-                                                <Disc className="w-3 h-3" />
-                                                <span>{getLabel(song)}</span>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <User className="w-3 h-3 text-slate-500" />
+                                                <span className="text-sm text-slate-600">{getArtist(song)}</span>
                                             </div>
 
-                                            {/* Fecha de lanzamiento */}
-                                            {song.release_date && (
+                                            <div className="flex flex-wrap gap-4 text-xs text-slate-600">
+                                                {/* Disquera/Label */}
                                                 <div className="flex items-center gap-1">
-                                                    <Calendar className="w-3 h-3" />
-                                                    <span>Lanzamiento: {new Date(song.release_date).toLocaleDateString()}</span>
+                                                    <Disc className="w-3 h-3" />
+                                                    <span>{getLabel(song)}</span>
                                                 </div>
-                                            )}
-                                            {/* Loading indicator para detalles */}
-                                            {loadingDetails[song.cs_song] && (
-                                                <div className="flex items-center gap-1">
-                                                    <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-                                                    <span>Cargando detalles...</span>
-                                                </div>
+
+                                                {/* Fecha de lanzamiento */}
+                                                {song.release_date && (
+                                                    <div className="flex items-center gap-1">
+                                                        <Calendar className="w-3 h-3" />
+                                                        <span>Lanzamiento: {new Date(song.release_date).toLocaleDateString()}</span>
+                                                    </div>
+                                                )}
+                                                {/* Loading indicator para detalles */}
+                                                {loadingDetails[song.cs_song] && (
+                                                    <div className="flex items-center gap-1">
+                                                        <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                                                        <span>Cargando detalles...</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Botones de acción */}
+                                        <div className="flex flex-col gap-2 flex-shrink-0">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800 flex items-center gap-1"
+                                                onClick={() => handleSongSelect(song)}
+                                            >
+                                                <Play className="w-3 h-3" />
+                                                Ver Campaña
+                                            </Button>
+
+                                            {user ? (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    disabled={loadingSongDetails || !song.spotifyid}
+                                                    className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1"
+                                                    onClick={() => handleDetailsClick(song)}
+                                                >
+                                                    <Info className="w-3 h-3" />
+                                                    {loadingSongDetails ? "Cargando..." : "Detalles"}
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1 cursor-pointer"
+                                                    onClick={() => setShowLoginDialog(true)}
+                                                >
+                                                    <Lock className="w-3 h-3" />
+                                                    Detalles
+                                                </Button>
                                             )}
                                         </div>
                                     </div>
+                                ) : (
+                                    /* Layout vertical */
+                                    <div className="flex flex-col gap-3">
+                                        {/* Primera fila en móvil: Número ranking + Imagen + Info básica */}
+                                        <div className="flex items-start gap-3">
+                                            {/* Número de ranking */}
+                                            <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <span className="text-white text-xs font-bold">
+                                                    {index + 1}
+                                                </span>
+                                            </div>
 
-                                    {/* Botones de acción */}
-                                    <div className="flex flex-col gap-2 flex-shrink-0">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800 flex items-center gap-1"
-                                            onClick={() => handleSongSelect(song)}
-                                        >
-                                            <Play className="w-3 h-3" />
-                                            Ver Campaña
-                                        </Button>
+                                            {/* Imagen del álbum */}
+                                            {song.image_url ? (
+                                                <img
+                                                    src={song.image_url}
+                                                    alt="Album cover"
+                                                    className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                                                />
+                                            ) : (
+                                                <div className="w-12 h-12 rounded-lg bg-gray-200 flex items-center justify-center flex-shrink-0">
+                                                    <Music className="w-6 h-6 text-gray-400" />
+                                                </div>
+                                            )}
 
-                                        {user ? (
+                                            {/* Información de la canción */}
+                                            <div className="flex-1 min-w-0">
+                                                <h3 className="font-semibold text-slate-800 mb-1 text-sm truncate">
+                                                    {getSongName(song, index)}
+                                                </h3>
+
+                                                <div className="flex items-center gap-1 mb-1">
+                                                    <User className="w-3 h-3 text-slate-500" />
+                                                    <span className="text-xs text-slate-600 truncate">
+                                                        {getArtist(song)}
+                                                    </span>
+                                                </div>
+
+                                                {/* Información adicional */}
+                                                <div className="flex flex-col gap-1 text-slate-600">
+                                                    {/* Disquera/Label */}
+                                                    <div className="flex items-center gap-1">
+                                                        <Disc className="w-3 h-3" />
+                                                        <span className="text-xs truncate">{getLabel(song)}</span>
+                                                    </div>
+
+                                                    {/* Fecha de lanzamiento */}
+                                                    {song.release_date && (
+                                                        <div className="flex items-center gap-1">
+                                                            <Calendar className="w-3 h-3" />
+                                                            <span className="text-xs">
+                                                                {new Date(song.release_date).toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' })}
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+                                                    {/* Loading indicator para detalles */}
+                                                    {loadingDetails[song.cs_song] && (
+                                                        <div className="flex items-center gap-1">
+                                                            <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
+                                                            <span className="text-xs">Cargando...</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Botones de acción */}
+                                        <div className="flex flex-row justify-between gap-2 mt-2">
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                disabled={loadingSongDetails || !song.spotifyid}
-                                                className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1"
-                                                onClick={() => handleDetailsClick(song)}
+                                                className="flex-1 text-xs px-2 py-1 bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800 flex items-center gap-1 justify-center"
+                                                onClick={() => handleSongSelect(song)}
                                             >
-                                                <Info className="w-3 h-3" />
-                                                {loadingSongDetails ? "Cargando..." : "Detalles"}
+                                                <Play className="w-3 h-3" />
+                                                Campaña
                                             </Button>
-                                        ) : (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1 cursor-pointer"
-                                                onClick={() => setShowLoginDialog(true)}
-                                            >
-                                                <Lock className="w-3 h-3" />
-                                                Detalles
-                                            </Button>
-                                        )}
+
+                                            {user ? (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    disabled={loadingSongDetails || !song.spotifyid}
+                                                    className="flex-1 text-xs px-2 py-1 bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1 justify-center"
+                                                    onClick={() => handleDetailsClick(song)}
+                                                >
+                                                    <Info className="w-3 h-3" />
+                                                    {loadingSongDetails ? "Cargando..." : "Detalles"}
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="flex-1 text-xs px-2 py-1 bg-gradient-to-r from-green-600 to-teal-600 text-white border-none hover:from-green-700 hover:to-teal-700 flex items-center gap-1 justify-center cursor-pointer"
+                                                    onClick={() => setShowLoginDialog(true)}
+                                                >
+                                                    <Lock className="w-3 h-3" />
+                                                    Detalles
+                                                </Button>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
+                                )}
                             </Card>
                         ))}
                     </div>
@@ -404,9 +531,9 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
 
                 {songs.length > 0 && (
                     <div className="mt-4 pt-4 border-t border-white/30">
-                        <div className="flex justify-between items-center text-sm text-slate-600">
-                            <span>Total de canciones: {songs.length}</span>
-                            <span>
+                        <div className={`${isMobile ? 'flex flex-col gap-1' : 'flex justify-between items-center'} text-sm text-slate-600`}>
+                            <span className={isMobile ? 'text-xs' : ''}>Total de canciones: {songs.length}</span>
+                            <span className={isMobile ? 'text-xs' : ''}>
                                 Streams totales: {formatStreams(songs.reduce((total, song) => total + (song.spotify_streams || 0), 0))}
                             </span>
                         </div>
@@ -425,6 +552,6 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
                     onClose={handleCloseDetails}
                 />
             )}
-        </>
+        </div>
     );
 }

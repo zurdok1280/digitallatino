@@ -1,26 +1,7 @@
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  useMemo,
-} from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo, } from "react";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  ChevronUp,
-  ChevronDown,
-  Star,
-  Plus,
-  Minus,
-  Search,
-  Music,
-  Crown,
-  Play,
-  Pause,
-  Trophy,
-  Zap,
-} from "lucide-react";
+import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap, } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -28,16 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { LatinAmericaMap } from "@/components/LatinAmericaMap";
 import { SpotifyTrack } from "@/types/spotify";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  digitalLatinoApi,
-  Country,
-  Format,
-  City,
-  Song,
-  TrendingSong,
-  TopTrendingArtist,
-  SongsArtist,
-} from "@/lib/api";
+import { digitalLatinoApi, Country, Format, City, Song, TrendingSong, TopTrendingArtist, } from "@/lib/api";
 // Import album covers
 import { Backdrop, CircularProgress, Fab } from "@mui/material";
 import teddySwimsCover from "@/assets/covers/teddy-swims-lose-control.jpg";
@@ -111,7 +83,6 @@ function PlatformChip({ label, rank }: PlatformChipProps) {
       TikTok: "⚫",
       YouTube: "🔴",
       Shazam: "🔵",
-      Pandora: "🟦",
       SoundCloud: "🟠",
     };
     return logos[platform as keyof typeof logos] || "🎵";
@@ -127,14 +98,7 @@ function PlatformChip({ label, rank }: PlatformChipProps) {
     </div>
   );
 }
-interface ExpandRowArtistProps {
-  row: SongsArtist;
-  onPromote: () => void;
-  selectedCountry?: string;
-  selectedFormat?: string;
-  countries?: any[];
-  isExpanded?: boolean;
-}
+
 
 interface BlurBlockProps {
   title: string;
@@ -359,243 +323,12 @@ function MovementIndicator({
   return <div className="w-4 h-4"></div>; // Same placeholder
 }
 
-interface ExpandRowSongProps {
+interface ExpandRowProps {
   row: Song;
   onPromote: () => void;
 }
 
-function ExpandRowSong({ row, onPromote }: ExpandRowSongProps) {
-  return (
-    <div className="mt-4 border-t border-white/30 pt-4 bg-background/50 rounded-lg p-4 animate-fade-in relative overflow-visible">
-      {/* Blurred Content */}
-      <div className="blur-sm pointer-events-none">
-        {/* Compact Billboard-style Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-4">
-          {/* Debut Position */}
-          <div className="bg-black border border-green-500 rounded-xl p-3 text-center">
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">
-              Debut Position
-            </div>
-            <div className="text-3xl font-bold text-green-400 mb-1">
-              {row.rk}
-            </div>
-            <div className="text-xs text-gray-400">Debut Chart Date</div>
-            <div className="text-xs text-white">01/15/24</div>
-          </div>
 
-          {/* Peak Position */}
-          <div className="bg-black border border-green-500 rounded-xl p-3 text-center">
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">
-              Peak Position
-            </div>
-            <div className="text-3xl font-bold text-green-400 mb-1">
-              {row.rk}
-            </div>
-            <div className="text-xs text-gray-400">Peak Chart Date</div>
-            <div className="text-xs text-white">02/08/24</div>
-          </div>
-
-          {/* Performance Metrics */}
-          <div className="bg-black border border-green-500 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-              Platform Rankings
-            </div>
-            <div className="grid grid-cols-2 gap-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">🟢 Spotify:</span>
-                <span className="text-white font-bold">
-                  #{row.spotify_streams_total}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">⚫ TikTok:</span>
-                <span className="text-white font-bold">
-                  #{row.tiktok_views_total}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">🔴 YouTube:</span>
-                <span className="text-white font-bold">
-                  #{row.youtube_video_views_total}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">🔵 Shazam:</span>
-                <span className="text-white font-bold">
-                  #{row.shazams_total}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Awards & Share */}
-          <div className="bg-black border border-green-500 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-              Awards
-            </div>
-            <div className="flex items-center gap-2 mb-3">
-              <div className="bg-green-500 rounded-full p-1">
-                <span className="text-white text-xs">↗</span>
-              </div>
-              <span className="text-white text-xs">Gains In Performance</span>
-            </div>
-            <div className="text-xs text-green-400 font-bold mb-1 uppercase tracking-wide">
-              Share
-            </div>
-            <div className="flex gap-2">
-              <div className="w-6 h-6 bg-green-600 rounded border border-green-500 flex items-center justify-center">
-                <span className="text-white text-xs">f</span>
-              </div>
-              <div className="w-6 h-6 bg-green-600 rounded border border-green-500 flex items-center justify-center">
-                <span className="text-white text-xs">X</span>
-              </div>
-              <div className="w-6 h-6 bg-green-600 rounded border border-green-500 flex items-center justify-center">
-                <span className="text-white text-xs">🔗</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Top Markets - Horizontal compact display */}
-        <div className="mb-4 bg-black border border-green-500/30 rounded-xl p-3">
-          <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-            Top Markets Performance
-          </div>
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-2 text-xs">
-            {/*  {row.topCountries.slice(0, 5).map((country, index) => (
-              <div key={country} className="flex justify-between items-center bg-white/5 rounded p-2">
-                <span className="text-gray-400">{index === 0 ? '🇺🇸' : index === 1 ? '🇲🇽' : index === 2 ? '🇨🇴' : index === 3 ? '🇦🇷' : '🇨🇱'} {country.split(' ')[0]}</span>
-                <span className="text-green-400 font-bold">{34 - (index * 6)}%</span>
-              </div>
-            ))} */}
-          </div>
-        </div>
-
-        {/* Detailed Analytics Preview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
-          <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-              Revenue Analytics
-            </div>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Total Streams:</span>
-                <span className="text-white font-bold">2.4M</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Revenue:</span>
-                <span className="text-green-400 font-bold">$8,420</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">RPM:</span>
-                <span className="text-white font-bold">$3.51</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-              Growth Metrics
-            </div>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Weekly Growth:</span>
-                <span className="text-green-400 font-bold">+234%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">New Listeners:</span>
-                <span className="text-white font-bold">45.2K</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Retention:</span>
-                <span className="text-white font-bold">68%</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-black border border-green-500/30 rounded-xl p-3">
-            <div className="text-xs text-green-400 font-bold mb-2 uppercase tracking-wide">
-              Demographic Data
-            </div>
-            <div className="space-y-1 text-xs">
-              <div className="flex justify-between">
-                <span className="text-gray-400">Age 18-24:</span>
-                <span className="text-white font-bold">42%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Age 25-34:</span>
-                <span className="text-white font-bold">35%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-400">Male/Female:</span>
-                <span className="text-white font-bold">48/52</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Unlock Overlay - Digital Latino, sin oscurecer ni blur */}
-      <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="text-center p-6 bg-gradient-to-br from-background/90 to-background/85 border border-primary/20 rounded-2xl shadow-2xl max-w-md mx-4">
-          <div className="mb-5">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-2xl">🔓</span>
-            </div>
-            <h3 className="text-xl font-bold text-foreground mb-1">
-              Desbloquea Analytics Completos
-            </h3>
-            <p className="text-muted-foreground text-sm">
-              Accede a métricas detalladas, datos demográficos y herramientas
-              profesionales de promoción
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-5 text-xs">
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Dashboard Completo</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Analytics en Tiempo Real</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Datos Demográficos</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Reportes de Revenue</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Pitch con Curadores</span>
-            </div>
-            <div className="flex items-center gap-2 text-primary">
-              <span>✓</span>
-              <span>Promoción en Redes</span>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <button
-              onClick={onPromote}
-              className="w-full bg-gradient-to-r from-primary to-accent text-primary-foreground px-6 py-3 rounded-full font-bold text-base transition-all hover:shadow-lg hover:scale-105"
-            >
-              🚀 Comprar Campaña
-            </button>
-            <p className="text-xs text-muted-foreground">
-              ROI Promedio:{" "}
-              <strong className="text-primary">+{row.score}%</strong> • Cancela
-              en cualquier momento
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // Spotify API configuration
 const DEFAULT_CLIENT_ID = "5001fe1a36c8442781282c9112d599ca";
@@ -710,47 +443,6 @@ export default function TopArtists() {
         .toLowerCase()
         .trim();
     };
-    //Si es ARTIST, aplicar filtro especial
-    if (user?.role === 'ARTIST') {
-      if (!user.allowedArtistName && !user.allowedArtistId) return [];
-      const myArtistName = user.allowedArtistName;
-      const myArtistClean = normalizeText(myArtistName);
-
-      if (trendingArtists.length > 0) {
-        console.log(`🔒 Buscando: "${myArtistName}" (Normalizado: "${myArtistClean}")`);
-
-      }
-      return trendingArtists.filter((song, index) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const s: any = song;
-        const songArtistRaw = s.artists || s.artist || "";
-        const songArtistClean = normalizeText(String(songArtistRaw));
-        if (index < 3) {
-          console.log(`🔎 Comparando #${index + 1}:`);
-          console.log(`   Canción tiene: "${songArtistClean}" (Original: ${songArtistRaw})`);
-          console.log(`   Tú buscas:     "${myArtistClean}"`);
-          console.log(`   ¿Coinciden?:   ${songArtistClean.includes(myArtistClean)}`);
-        }
-        if (songArtistClean.includes(myArtistClean)) {
-          return true;
-        }
-
-        if (Array.isArray(s.artists_array)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const matchInArray = s.artists_array.some((artistObj: any) =>
-            normalizeText(String(artistObj.name || "")).includes(myArtistClean)
-          );
-          if (matchInArray) {
-            return true;
-          }
-        }
-        return false;
-
-      });
-    }
-
-    //Si no es artista, aplicar filtro normal
-    // Si no hay query de búsqueda, devolver todas las canciones
     if (!chartSearchQuery.trim()) {
       return trendingArtists;
     }
@@ -882,36 +574,58 @@ export default function TopArtists() {
     }
   };
   //ESTA FUNCION CARGA LAS CANCIONES CON LOS FILTROS SELECCIONADOS (COUNTRY Y FORMAT)
-  const fetchSongs = async () => {
-    const data = await callApi(async () => {
-      if (!selectedCountry) {
+  const fetchSongs = useCallback(async () => {
+    try {
+      setLoadingArtists(true);
+
+      // Validar que selectedCountry tenga un valor válido
+      if (!selectedCountry || selectedCountry === "") {
         setTrendingArtists([]);
         return;
       }
 
-      try {
-        setLoadingArtists(true);
-        if (Number.isNaN(selectedCity)) setSelectedCity("0");
-        console.log("Songs loaded:", selectedFormat, selectedCountry);
-        const response = await digitalLatinoApi.getTrendingTopArtists(
-          selectedFormat,
-          selectedCountry
-        );
-        console.log("Fetched trendingArtists:", response.data);
-        setTrendingArtists(response.data);
-      } catch (error) {
-        console.error("Error fetching trendingArtists:", error);
-        toast({
-          title: "Error",
-          description: "No se pudieron cargar las canciones. Intenta de nuevo.",
-          variant: "destructive",
-        });
+      // Validar y parsear valores
+      const formatValue = selectedFormat || "0";
+      const countryId = parseInt(selectedCountry);
+      const cityId = selectedCity ? parseInt(selectedCity) : 0;
+
+      // Validar que countryId sea un número válido
+      if (isNaN(countryId)) {
+        console.error("Invalid country ID:", selectedCountry);
         setTrendingArtists([]);
-      } finally {
-        setLoadingArtists(false);
+        return;
       }
-    });
-  };
+
+      // Si cityId es NaN, usar 0 (todas las ciudades)
+      const finalCityId = isNaN(cityId) ? 0 : cityId;
+
+      console.log("Fetching artists with:", {
+        format: formatValue,
+        country: countryId,
+        city: finalCityId
+      });
+
+      const response = await digitalLatinoApi.getTrendingTopArtists(
+        formatValue,
+        countryId,
+        finalCityId
+      );
+
+      console.log("Artists fetched:", response.data.length);
+      setTrendingArtists(response.data);
+
+    } catch (error: any) {
+      console.error("Error fetching artists:", error);
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "No se pudieron cargar los artistas. Intenta de nuevo.",
+        variant: "destructive",
+      });
+      setTrendingArtists([]);
+    } finally {
+      setLoadingArtists(false);
+    }
+  }, [selectedCountry, selectedFormat, selectedCity, toast]);
 
   // Fetch countries from API
   useEffect(() => {
@@ -992,7 +706,13 @@ export default function TopArtists() {
 
   // Fetch Songs when country changes
   useEffect(() => {
-    fetchSongs();
+    if (selectedCountry && selectedCountry !== "") {
+      const timer = setTimeout(() => {
+        fetchSongs();
+      }, 300); // Delay para comprobar cambio de pais
+
+      return () => clearTimeout(timer);
+    }
   }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
 
   // Handle Spotify OAuth callback
@@ -1205,38 +925,9 @@ export default function TopArtists() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-gray-300/10 to-blue-300/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Header para usuarios loggeados habilitar despues del login */}
-      {/*
-      {user && (
-        <div className="relative z-10 bg-gradient-to-r from-green-50 to-blue-50 border-b border-green-200 px-6 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">✓</span>
-              </div>
-              <div>
-                <h2 className="font-bold text-green-800">
-                  {user.email === 'garciafix4@gmail.com' ? '🎯 Demo Exclusivo Activo' : '🎵 Acceso Premium Desbloqueado'}
-                </h2>
-                <p className="text-sm text-green-600">
-                  {user.email === 'garciafix4@gmail.com'
-                    ? 'Tienes acceso completo + estadísticas de campaña en tiempo real'
-                    : `Top 40 completo desbloqueado • ${user.email}`
-                  }
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm font-semibold text-green-700">Top 40 Completo</div>
-              <div className="text-xs text-green-600">Todos los géneros</div>
-            </div>
-          </div>
-        </div>
-      )}*/}
-
-      <div className="relative z-10 mx-auto max-w-6xl px-4 py-8">
+      <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative z-10">
+        <div className="mb-4 flex flex-col gap-3 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-3 md:p-4 shadow-lg relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -1246,14 +937,15 @@ export default function TopArtists() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 relative z-30">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 relative z-30 w-full max-w-6xl mx-auto px-2 sm:px-0">
             {/* Filtro por País/Región */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🌎</span> País/Región
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">🌎</span>
+                <span className="truncate">País/Región</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
                 value={selectedCountry}
                 onChange={handleCountryChange}
                 disabled={loadingCountries}
@@ -1265,8 +957,7 @@ export default function TopArtists() {
                     <option value="">Selecciona un país</option>
                     {countries.map((country) => (
                       <option key={country.id} value={country.id.toString()}>
-                        {country.country || country.description} (
-                        {country.country_name})
+                        {country.country || country.description} ({country.country_name})
                       </option>
                     ))}
                   </>
@@ -1275,12 +966,13 @@ export default function TopArtists() {
             </div>
 
             {/* Filtro por Género */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-2">
-                <span>📊</span> Género
+            <div className="space-y-1 sm:space-y-2">
+              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">📊</span>
+                <span className="truncate">Género</span>
               </label>
               <select
-                className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-slate-400 focus:ring-offset-2"
+                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
                 value={selectedFormat}
                 onChange={(e) => setSelectedFormat(e.target.value)}
                 disabled={loadingFormats || !selectedCountry}
@@ -1302,9 +994,10 @@ export default function TopArtists() {
             </div>
 
             {/* Filtro por Ciudad */}
-            <div className="space-y-2 relative">
-              <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-2">
-                <span>🏙️</span> Ciudad Target
+            <div className="space-y-1 sm:space-y-2 relative z-50">
+              <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                <span className="text-sm sm:text-base">🏙️</span>
+                <span className="truncate">Ciudad Target</span>
               </label>
               <div className="relative">
                 <button
@@ -1313,35 +1006,34 @@ export default function TopArtists() {
                     setOpenDropdown(openDropdown === "city" ? null : "city");
                     setDropdownSearch("");
                   }}
-                  className="w-full rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-4 py-3 text-sm font-medium text-gray-800 shadow-lg focus:ring-2 focus:ring-orange-400 focus:ring-offset-2 text-left flex justify-between items-center"
+                  className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between"
                   disabled={loadingCities || !selectedCountry}
                 >
-                  <span className="truncate">
+                  <span className="truncate pr-2">
                     {loadingCities
                       ? "Cargando..."
                       : !selectedCountry
-                      ? "Selecciona país primero"
-                      : selectedCity !== "0" && cities.length > 0
-                      ? cities.find((c) => c.id.toString() === selectedCity)
-                          ?.city_name || "Todas las ciudades"
-                      : "Todas las ciudades"}
+                        ? "Selecciona país primero"
+                        : selectedCity !== "0" && cities.length > 0
+                          ? cities.find((c) => c.id.toString() === selectedCity)
+                            ?.city_name || "Todas las ciudades"
+                          : "Todas las ciudades"}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 transition-transform ${
-                      openDropdown === "city" ? "rotate-180" : ""
-                    }`}
+                    className={`w-3 h-3 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
                 {openDropdown === "city" && cities.length > 0 && (
-                  <div className="absolute z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-2xl shadow-2xl max-h-60 overflow-hidden transform translate-z-0 will-change-transform">
+                  <div className="absolute z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl max-h-48 sm:max-h-60 overflow-hidden transform translate-z-0 will-change-transform">
                     <div className="p-2 border-b border-gray-100">
                       <div className="relative">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
                         <input
                           type="text"
                           placeholder="Buscar ciudad..."
-                          className="w-full pl-10 pr-4 py-2 bg-white/80 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                          className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg sm:rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
                           value={dropdownSearch}
                           onChange={(e) => setDropdownSearch(e.target.value)}
                           autoFocus
@@ -1349,15 +1041,14 @@ export default function TopArtists() {
                       </div>
                     </div>
 
-                    <div className="max-h-48 overflow-y-auto">
+                    <div className="max-h-36 sm:max-h-48 overflow-y-auto">
                       {/* Opción "Todas las ciudades" */}
                       <button
                         onClick={() => handleOptionSelect("0", "city")}
-                        className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                          selectedCity === "0"
-                            ? "bg-orange-100 text-orange-700 font-semibold"
-                            : "text-gray-700"
-                        }`}
+                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
+                          ? "bg-orange-100 text-orange-700 font-semibold"
+                          : "text-gray-700"
+                          }`}
                       >
                         🎯 Todas las ciudades
                       </button>
@@ -1369,23 +1060,22 @@ export default function TopArtists() {
                             onClick={() =>
                               handleOptionSelect(city.id.toString(), "city")
                             }
-                            className={`w-full px-4 py-3 text-left text-sm hover:bg-orange-50 transition-colors ${
-                              selectedCity === city.id.toString()
-                                ? "bg-orange-100 text-orange-700 font-semibold"
-                                : "text-gray-700"
-                            }`}
+                            className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                              ? "bg-orange-100 text-orange-700 font-semibold"
+                              : "text-gray-700"
+                              }`}
                           >
-                            🎯 {city.city_name}
+                            🎯 <span className="truncate">{city.city_name}</span>
                           </button>
                         )
                       )}
 
                       {getFilteredOptions(cities, dropdownSearch, "city")
                         .length === 0 && (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
-                          No se encontraron ciudades
-                        </div>
-                      )}
+                          <div className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-500 text-center">
+                            No se encontraron ciudades
+                          </div>
+                        )}
                     </div>
                   </div>
                 )}
@@ -1393,6 +1083,7 @@ export default function TopArtists() {
             </div>
 
             {/* Filtro por Periodo Musical */}
+            {/*
             <div className="space-y-2">
               <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-2">
                 <span>⏰</span> Periodo Musical
@@ -1410,11 +1101,12 @@ export default function TopArtists() {
                 </select>
               </div>
             </div>
+            */}
           </div>
         </div>
 
         {/* Lista de Charts */}
-        <div className="mb-8 flex flex-col gap-6 border-b border-white/20 pb-6 bg-white/60 backdrop-blur-lg rounded-3xl p-4 md:p-8 shadow-lg relative">
+        <div className="mb-4 flex flex-col gap-0 border-b border-white/20 pb-2 bg-white/60 backdrop-blur-lg rounded-2xl p-2 md:p-3 shadow-lg relative">
           {/* Fab button de MUI para buscar */}
           <div className="absolute -top-4 -right-4 z-20">
             <Fab
@@ -1441,11 +1133,11 @@ export default function TopArtists() {
             </Fab>
           </div>
 
-          <div className="space-y-0.5">
+          <div className="space-y-0">
             {/* Buscador dentro de charts funcional */}
             {showSearchBar && (
-              <div className="mb-6 animate-in fade-in duration-300">
-                <div className="bg-white/60 backdrop-blur-sm border border-blue-200 rounded-2xl p-4 shadow-lg">
+              <div className="mb-3 animate-in fade-in duration-300">
+                <div className="bg-white/60 backdrop-blur-sm border border-blue-200 rounded-xl p-3 shadow-lg">
                   <div className="flex items-center gap-3">
                     <Search className="w-5 h-5 text-blue-500" />
                     <input
@@ -1472,7 +1164,7 @@ export default function TopArtists() {
                     <div className="mt-2 text-xs text-slate-600 flex justify-between items-center px-1">
                       <span className="font-medium">
                         {filteredSongs.length} de {trendingArtists.length}{" "}
-                        canciones encontradas
+                        artistas encontrados
                       </span>
                       {filteredSongs.length === 0 && (
                         <span className="text-orange-600 font-medium">
@@ -1509,125 +1201,135 @@ export default function TopArtists() {
                   onClick={() => setChartSearchQuery("")}
                   className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                 >
-                  Ver todas los artistas
+                  Ver todos los artistas
                 </button>
               </div>
             ) : (
               filteredSongs.map((row, index) => (
                 <div
                   key={`${row.rk}-${index}`}
-                  className="group bg-white/50 backdrop-blur-lg rounded-2xl shadow-md border border-white/30 overflow-hidden hover:shadow-lg hover:bg-white/60 transition-all duration-300 hover:scale-[1.005]"
+                  className="group bg-white/50 backdrop-blur-lg rounded-xl shadow-sm border border-white/30 overflow-hidden hover:shadow-md hover:bg-white/60 transition-all duration-200 hover:scale-[1.002]"
                 >
-                  <div className="grid grid-cols-11 items-center gap-4 px-6 py-4">
-                    {/* Rank */}
-                    <div className="col-span-1 flex items-center gap-1">
+                  {/* GRID ORIGINAL DE 11 COLUMNAS - AJUSTES MÍNIMOS SOLO PARA MÓVIL */}
+                  <div className="grid grid-cols-11 items-center gap-1 sm:gap-3 pl-1 sm:pl-4 pr-1 sm:pr-4 py-1.5 sm:py-2.5">
+
+                    {/* Rank - Compacto en móvil */}
+                    <div className="col-span-1 flex items-center justify-center">
                       <div className="relative group/rank">
                         <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-11 h-11 flex items-center justify-center shadow-sm group-hover/rank:shadow-md transition-all">
-                          <span className="text-lg font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
+                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded w-6 h-6 sm:w-9 sm:h-9 flex items-center justify-center shadow-xs transition-all">
+                          <span className="text-[10px] sm:text-base font-bold text-slate-700">
                             {row.rk}
                           </span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Artist Info */}
-                    <div className="col-span-3 flex items-center gap-3">
-                      <div className="relative group-hover:scale-105 transition-transform">
-                        <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
-                        <div className="relative">
-                          <Avatar className="relative h-14 w-14 rounded-lg shadow-sm group-hover:shadow-md transition-shadow">
-                            <AvatarImage
-                              src={row.img}
-                              alt={row.artist}
-                              className="rounded-lg object-cover"
-                            />
-                            <AvatarFallback className="rounded-lg bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-sm">
-                              {row.artist
-                                .split(" ")
-                                .map((n) => n[0])
-                                .join("")
-                                .slice(0, 2)
-                                .toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                        </div>
+                    {/* Track Info - Compacto en móvil */}
+                    <div className="col-span-3 flex items-center gap-2 sm:gap-3">
+                      <div className="relative">
+                        <Avatar className="relative h-7 w-7 sm:h-11 sm:w-11 rounded shadow-xs transition-shadow">
+                          <AvatarImage
+                            src={row.img}
+                            alt={row.img}
+                            className="rounded object-cover"
+                          />
+                          <AvatarFallback className="rounded bg-gradient-to-br from-purple-400 to-pink-400 text-white font-bold text-xs">
+                            {row.artist
+                              .split(" ")
+                              .map((n) => n[0])
+                              .join("")
+                              .slice(0, 1)
+                              .toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-base text-gray-900 truncate group-hover:text-purple-600 transition-colors leading-tight">
+                      <div className="flex-1 min-w-0 overflow-hidden">
+                        <h3 className="font-bold text-[10px] sm:text-sm text-gray-900 truncate leading-tight">
                           {row.artist}
                         </h3>
-                        <p className="text-sm font-medium text-gray-600 truncate">
+                        <p className="text-[9px] text-gray-600 truncate sm:text-xs">
                           • Followers: {formatNumber(row.followers_total)}
                         </p>
                       </div>
                     </div>
 
-                    {/* Artist Stats */}
-                    <div className="col-span-7 place-items-stretch">
-                      <div className="flex gap-0 overflow-x-auto pb-1">
-                        {/* Monthly Listeners */}
+                    {/* ESPACIO VACÍO PARA EMPUJAR STATS A LA DERECHA EN DESKTOP */}
+                    <div className="hidden sm:block col-span-2"></div>
+
+                    {/* Artist Stats - COMPACTO EN MÓVIL, ORIGINAL EN DESKTOP */}
+                    <div className="col-span-6 sm:col-span-4">
+                      {/* Versión móvil compacta */}
+                      <div className="sm:hidden flex items-center gap-1 w-full">
+                        {/* Oyentes Mensuales compacto */}
+                        <div className="flex-1 flex flex-col items-center bg-white/80 backdrop-blur-sm border border-white/60 rounded-lg p-1 shadow-xs">
+                          <span className="text-[8px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5 truncate w-full text-center">
+                            Oyentes
+                          </span>
+                          <div className="text-[10px] font-bold text-slate-700">
+                            {row.monthly_listeners >= 1000000
+                              ? (row.monthly_listeners / 1000000).toFixed(1).replace('.0', '') + 'M'
+                              : row.monthly_listeners >= 1000
+                                ? (row.monthly_listeners / 1000).toFixed(1).replace('.0', '') + 'K'
+                                : row.monthly_listeners}
+                          </div>
+                        </div>
+
+                        {/* Playlists compacto */}
+                        <div className="flex-1 flex flex-col items-center bg-white/80 backdrop-blur-sm border border-white/60 rounded-lg p-1.5 shadow-xs">
+                          <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide mb-0.5 truncate w-full text-center">
+                            Playlists
+                          </span>
+                          <div className="text-xs font-bold text-slate-700">
+                            {row.playlists >= 1000
+                              ? (row.playlists / 1000).toFixed(1).replace('.0', '') + 'K'
+                              : row.playlists}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Versión desktop ORIGINAL */}
+                      <div className="hidden sm:flex items-center justify-end gap-2">
                         <ButtonBigNumber
                           name="Oyentes Mensuales"
                           quantity={row.monthly_listeners}
+                          compact={false}
+                          className="bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-1.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90"
                         />
-                        {/* Instagram Followers */}
-                        <ButtonBigNumber
-                          name="Seguidores Instagram"
-                          quantity={row.followers_total_instagram}
-                        />
-                        {/* Facebook Followers */}
-                        <ButtonBigNumber
-                          name="Seguidores Facebook"
-                          quantity={row.followers_total_facebook}
-                        />
-                        {/* TitkTok Followers */}
-                        <ButtonBigNumber
-                          name="Seguidores TikTok"
-                          quantity={row.followers_total_tiktok}
-                        />
-                        {/* Playlist */}
                         <ButtonBigNumber
                           name="Playlist"
                           quantity={row.playlists}
+                          compact={false}
+                          className="bg-white/80 backdrop-blur-sm border border-white/60 rounded-xl p-1.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90"
                         />
-
-                        {/* Expand Button */}
-                        {/*
-                        <div className="col-span-1 text-right">
-                          <ButtonInfoArtist
-                            index={index}
-                            isExpanded={isExpanded(index)}
-                            onToggle={() => handleRestrictedToggle(index, row)}
-                          />
-                      </div>
-                          */}
                       </div>
                     </div>
 
-                    {/* Expand Button - SOLO el botón aquí */}
-                    <div className="col-span-1 text-right">
+                    {/* Expand Button - Compacto en móvil */}
+                    <div className="col-span-1 sm:col-span-1 flex justify-center sm:justify-end">
                       <ButtonInfoArtist
                         index={index}
                         isExpanded={isExpanded(index)}
-                        onToggle={() => handleToggleRow(index, row)}
+                        onToggle={() => handleRestrictedToggle(index, row)}
                         artist={{
                           spotifyid: row.spotifyid,
                           artist: row.artist,
                           rk: parseInt(row.rk),
                           img: row.img,
                           followers_total: row.followers_total,
-                          monthly_listeners: row.monthly_listeners
+                          monthly_listeners: row.monthly_listeners,
                         }}
                         selectedCountry={selectedCountry}
+                        compact={true}
+                        className="text-xs px-2 py-1 h-7 sm:text-sm sm:px-3 sm:py-2 bg-white/80 backdrop-blur-sm border border-white/60 rounded-lg sm:rounded-xl shadow-xs sm:shadow-sm hover:shadow-md"
                       />
                     </div>
                   </div>
 
-                  {/* CONTENIDO EXPANDIDO FUERA DEL GRID - igual que en Debut.tsx */}
+                  {/* Expanded Row Content fuera del Grid */}
                   {isExpanded(index) && (
-                    <div className="px-6 pb-4">
+                    <div className="px-2 sm:px-6 pb-4">
                       <ExpandRow
                         artist={{
                           spotifyid: row.spotifyid,
@@ -1665,7 +1367,7 @@ export default function TopArtists() {
               </div>
 
               {/* Canciones borrosas simulando contenido bloqueado */}
-              <div className="grid gap-2 opacity-50 pointer-events-none">
+              <div className="grid gap-1 opacity-50 pointer-events-none">
                 {[
                   {
                     rank: 21,
@@ -1688,14 +1390,14 @@ export default function TopArtists() {
                 ].map((song) => (
                   <div
                     key={song.rank}
-                    className="flex items-center gap-3 p-3 bg-white/30 rounded-xl"
+                    className="flex items-center gap-2 p-2 bg-white/30 rounded-lg"
                   >
-                    <div className="w-8 h-8 bg-gray-300 rounded-lg flex items-center justify-center">
-                      <span className="text-sm font-bold text-gray-600">
+                    <div className="w-7 h-7 bg-gray-300 rounded-lg flex items-center justify-center">
+                      <span className="text-xs font-bold text-gray-600">
                         {song.rank}
                       </span>
                     </div>
-                    <div className="w-12 h-12 bg-gray-200 rounded-lg"></div>
+                    <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
                     <div className="flex-1">
                       <div className="font-semibold text-gray-700">
                         {song.track}
@@ -1811,3 +1513,4 @@ export default function TopArtists() {
     </div>
   );
 }
+

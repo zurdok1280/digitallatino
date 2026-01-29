@@ -6,7 +6,6 @@ import Grid from "@mui/material/Grid";
 import amazonmusicIcon from '/src/assets/covers/icons/amazonmusic-icon.svg';
 import applemusicIcon from '/src/assets/covers/icons/applemusic-icon.png';
 import deezerIcon from '/src/assets/covers/icons/deezer-icon.png';
-import pandoraIcon from '/src/assets/covers/icons/pandora-icon.png';
 import soundcloudIcon from '/src/assets/covers/icons/soundcloud-icon.svg';
 import spotifyIcon from '/src/assets/covers/icons/spotify-icon.png';
 import tidalIcon from '/src/assets/covers/icons/tidal-icon.png';
@@ -145,15 +144,7 @@ const platforms = [
             { key: "soundcloud_engagement_rate_total" as keyof SongInfoPlatform, label: "Engagement Rate Total" },
         ],
     },
-    {
-        key: "pandora",
-        name: "Pandora",
-        logo: pandoraIcon,
-        rankKey: "rk_pandora" as keyof SongInfoPlatform,
-        fields: [
-            { key: "pan_streams" as keyof SongInfoPlatform, label: "Streams" },
-        ],
-    },
+
 ];
 
 // Función para formatear números

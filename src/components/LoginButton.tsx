@@ -38,32 +38,32 @@ export function LoginButton() {
         <span className="text-sm font-medium text-gray-700 hidden sm:inline">
           Hola, {user.name || 'Usuario'}
         </span>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 rounded-full">
-            <User className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <div className="flex items-center justify-start gap-2 p-2">
-            <div className="flex flex-col space-y-1 leading-none">
-              <p className="text-sm font-bold">{user.name || 'Usuario'}</p>
-              <p className="text-sm font-medium">{user.email}</p>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 rounded-full">
+              <User className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <div className="flex items-center justify-start gap-2 p-2">
+              <div className="flex flex-col space-y-1 leading-none">
+                <p className="text-sm font-bold">{user.name || 'Usuario'}</p>
+                <p className="text-sm font-medium">{user.email}</p>
+              </div>
             </div>
-          </div>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link to="/mi-cuenta">
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link to="/mi-cuenta">
                 <User className="mr-2 h-4 w-4" />
                 <span>Mi cuenta</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleSignOut}>
-            <LogOut className="mr-2 h-4 w-4" />
-            <span>Cerrar sesión</span>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleSignOut}>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Cerrar sesión</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   }
@@ -90,7 +90,8 @@ export function LoginButton() {
       >
         <span className="relative z-10 flex items-center gap-2">
           <LogIn className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-          <span className="transition-all duration-300">Login/Sign in</span>
+          <span className="transition-all duration-300 hidden sm:inline">Login/Sign in</span>
+          <span className="sm:hidden"> </span>
         </span>
       </Button>
 
