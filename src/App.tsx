@@ -8,6 +8,9 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { AuthProvider } from "./hooks/useAuth";
 import { lazy, Suspense } from "react";
 import { RequireSubscription } from "./components/RequireSubscription";
+import { ForgotPassword } from './pages/ForgotPassword'; 
+import ResetPassword from './pages/ResetPassword'; 
+
 
 // Lazy loading de páginas para optimizar tiempo de carga inicial
 const Index = lazy(() => import("./pages/Index"));
@@ -84,25 +87,32 @@ const App = () => (
                 </Suspense>
               }
             />
+            <Route
+             path="/forgot-password" 
+             element={
+             <ForgotPassword />
+             }
+              />
+              <Route path="/reset-password" element={<ResetPassword />} />
             {/* --- Only premium  with thw component RequireSubscription --- */}
-              <Route element={<RequireSubscription />}>
-              <Route path="/" element={withLazy(Charts)} />
-            <Route path="/studio" element={withLazy(Index)} />
-            <Route path="/dashboard" element={withLazy(Dashboard)} />
-            <Route path="/campaign" element={withLazy(Campaign)} />
-            <Route path="/my-artist" element={withLazy(MyArtist)} />
-            <Route
-              path="/campaign-details"
-              element={withLazy(CampaignDetails)}
-            />
-            <Route
-              path="/weekly-top-songs"
-              element={withLazy(WeeklyTopSongs)}
-            />
-            <Route path="/top-platforms" element={withLazy(TopPlatforms)} />
-            <Route path="/top-artists" element={withLazy(TopArtists)} />
-            <Route path="/debut" element={withLazy(Debut)} />
-            <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
+            <Route element={<RequireSubscription />}>
+              <Route path="/" element={withLazy(WeeklyTopSongs)} />
+              <Route path="/studio" element={withLazy(Index)} />
+              <Route path="/dashboard" element={withLazy(Dashboard)} />
+              <Route path="/campaign" element={withLazy(Campaign)} />
+              <Route path="/my-artist" element={withLazy(MyArtist)} />
+              <Route
+                path="/campaign-details"
+                element={withLazy(CampaignDetails)}
+              />
+              <Route
+                path="/weekly-top-songs"
+                element={withLazy(WeeklyTopSongs)}
+              />
+              <Route path="/top-platforms" element={withLazy(TopPlatforms)} />
+              <Route path="/top-artists" element={withLazy(TopArtists)} />
+              <Route path="/debut" element={withLazy(Debut)} />
+              <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route

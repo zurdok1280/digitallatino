@@ -1,37 +1,37 @@
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-import { Mail, Lock, User, Sparkles, Music, Phone } from 'lucide-react';
-import { PasswordStrength } from './PasswordStrength';
-import { useState, useEffect } from 'react';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
+import { Mail, Lock, User, Sparkles, Music, Phone } from "lucide-react";
+import { PasswordStrength } from "./PasswordStrength";
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 interface LoginFormProps {
   onClose: () => void;
 }
 
 export function LoginForm({ onClose }: LoginFormProps) {
-  const [email, setEmail] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [phone, setPhone] = useState('');
-  const [passwordError, setPasswordError] = useState('');
+  const [email, setEmail] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const { toast } = useToast();
 
   useEffect(() => {
     if (confirmPassword && password !== confirmPassword) {
-      setPasswordError('Las contraseñas no coinciden.');
+      setPasswordError("Las contraseñas no coinciden.");
     } else {
-      setPasswordError('');
+      setPasswordError("");
     }
   }, [password, confirmPassword]);
-
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,19 +39,17 @@ export function LoginForm({ onClose }: LoginFormProps) {
 
     try {
       const response = await fetch('https://security.digital-latino.com/api/auth/login', {
-      //const response = await fetch('http://localhost:8085/api/auth/login', {
-        method: 'POST',
+      //const response = await fetch("http://localhost:8085/api/auth/login", {
+        method: "POST",
         headers: {
-
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
 
-
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al iniciar sesión.');
+        throw new Error(errorData.error || "Error al iniciar sesión.");
       }
 
       const data = await response.json();
@@ -83,9 +81,9 @@ export function LoginForm({ onClose }: LoginFormProps) {
 
     try {
       const response = await fetch('https://security.digital-latino.com/api/auth/register', {
-      //const response = await fetch('http://localhost:8085/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      //const response = await fetch("http://localhost:8085/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           firstName,
           lastName,
@@ -97,26 +95,24 @@ export function LoginForm({ onClose }: LoginFormProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al crear cuenta');
+        throw new Error(errorData.error || "Error al crear cuenta");
       }
       const data = await response.json();
       toast({
         title: "¡Cuenta creada!",
         description: data.message,
       });
-      setEmail('');
-      setPassword('');
-      setFirstName('');
-      setLastName('');
-      setConfirmPassword('');
+      setEmail("");
+      setPassword("");
+      setFirstName("");
+      setLastName("");
+      setConfirmPassword("");
       onClose();
       toast({
         title: "Verifica tu email",
         description: "¡Revisa tu bandeja de entrada para continuar!",
       });
-
-    }
-    catch (error: unknown) {
+    } catch (error: unknown) {
       let errorMessage = "Ocurrió un error desconocido.";
       if (error instanceof Error) {
         errorMessage = error.message;
@@ -126,12 +122,10 @@ export function LoginForm({ onClose }: LoginFormProps) {
         description: errorMessage,
         variant: "destructive",
       });
-
     } finally {
       setLoading(false);
     }
   };
-
 
   const isSignUpDisabled =
     loading ||
@@ -178,7 +172,10 @@ export function LoginForm({ onClose }: LoginFormProps) {
           <div className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 rounded-2xl p-6 border border-purple-100">
             <form onSubmit={handleSignIn} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="signin-email" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="signin-email"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Email
                 </Label>
                 <div className="relative">
@@ -196,7 +193,10 @@ export function LoginForm({ onClose }: LoginFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="signin-password" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="signin-password"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Contraseña
                 </Label>
                 <div className="relative">
@@ -211,6 +211,16 @@ export function LoginForm({ onClose }: LoginFormProps) {
                     required
                   />
                 </div>
+              </div>
+              {/*  forgot Password*/}
+              <div className="flex justify-end">
+                <Link
+                  to="/forgot-password"
+                  onClick={onClose} // Esto cierra el modal de login al irse a la otra página
+                  className="text-xs font-medium text-purple-600 hover:text-purple-500 hover:underline transition-colors"
+                >
+                  ¿Olvidaste tu contraseña?
+                </Link>
               </div>
 
               <Button
@@ -238,7 +248,10 @@ export function LoginForm({ onClose }: LoginFormProps) {
           <div className="bg-gradient-to-br from-blue-50/50 to-purple-50/50 rounded-2xl p-6 border border-blue-100">
             <form onSubmit={handleSignUp} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="signup-firstname" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="signup-firstname"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Nombre
                 </Label>
                 <div className="relative">
@@ -255,7 +268,10 @@ export function LoginForm({ onClose }: LoginFormProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="signup-lastname" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="signup-lastname"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Apellidos
                 </Label>
                 <div className="relative">
@@ -272,7 +288,10 @@ export function LoginForm({ onClose }: LoginFormProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="signup-phone" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="signup-phone"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Teléfono (Opcional)
                 </Label>
                 <div className="relative">
@@ -289,7 +308,10 @@ export function LoginForm({ onClose }: LoginFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="signup-email" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="signup-email"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Email
                 </Label>
                 <div className="relative">
@@ -307,7 +329,10 @@ export function LoginForm({ onClose }: LoginFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="signup-password" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="signup-password"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Contraseña
                 </Label>
                 <div className="relative">
@@ -325,7 +350,10 @@ export function LoginForm({ onClose }: LoginFormProps) {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="signup-confirm-password" className="text-sm font-medium text-gray-700">
+                <Label
+                  htmlFor="signup-confirm-password"
+                  className="text-sm font-medium text-gray-700"
+                >
                   Confirmar Contraseña
                 </Label>
                 <div className="relative">
@@ -352,7 +380,6 @@ export function LoginForm({ onClose }: LoginFormProps) {
                 className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 disabled={isSignUpDisabled}
               >
-
                 {loading ? (
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
