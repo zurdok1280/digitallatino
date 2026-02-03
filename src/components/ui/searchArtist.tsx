@@ -126,7 +126,7 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                 console.error("Error al registrar el log de la cancion:", error);
             }
 
-            console.error(' Error obteniendo detalles de la canción:', error);
+            console.error(' Error obteniendo métricas de la canción:', error);
             toast({
                 title: "Error",
                 description: "No se pudo cargar la información detallada de la canción",
@@ -175,8 +175,8 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                                 onClick={handleDetailsClick}
                             >
                                 <Info className="w-2 h-2 sm:w-3 sm:h-3" />
-                                <span className="hidden sm:inline">{loadingDetails ? "Cargando..." : "Detalles"}</span>
-                                <span className="sm:hidden">{loadingDetails ? "..." : "Det."}</span>
+                                <span className="hidden sm:inline">{loadingDetails ? "Cargando..." : "Métricas"}</span>
+                                <span className="sm:hidden">{loadingDetails ? "..." : "Met."}</span>
                             </Button>
                         ) : (
                             <Button
@@ -186,8 +186,8 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                                 onClick={() => setShowLoginDialog(true)}
                             >
                                 <Lock className="w-2 h-2 sm:w-3 sm:h-3" />
-                                <span className="hidden sm:inline">Detalles</span>
-                                <span className="sm:hidden">Det.</span>
+                                <span className="hidden sm:inline">Métricas</span>
+                                <span className="sm:hidden">Met.</span>
                             </Button>
                         )}
                         <Button
@@ -203,7 +203,7 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                 </div>
             </Card>
 
-            {/* Modal de Detalles */}
+            {/* Modal de Detalles/Métricas */}
             {isDetailsOpen && songDetails && (
                 <ChartSongDetails
                     song={songDetails}
@@ -246,7 +246,6 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
 
         setLoadingDetails(true);
         try {
-            console.log('🔍 Obteniendo detalles del artista:', artist.id);
 
             // Crear objeto ArtistDetails con la información básica
             const artistData: ArtistDetails = {
@@ -269,7 +268,7 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                 isartist: true
             });
 
-            console.error('❌ Error obteniendo detalles del artista:', error);
+            console.error('Error obteniendo métricas del artista:', error);
             toast({
                 title: "Error",
                 description: "No se pudo cargar la información detallada del artista",
@@ -311,7 +310,7 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                     </div>
                     {/* Botones Songs */}
                     <div className="flex flex-row sm:flex-col gap-2 justify-end">
-                        {/* Botón de detalles */}
+                        {/* Botón de Métricas */}
                         {user ? (
                             <Button
                                 variant="outline"
@@ -321,8 +320,8 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                                 onClick={handleDetailsClick}
                             >
                                 <Info className="w-2 h-2 sm:w-3 sm:h-3" />
-                                <span className="hidden sm:inline">{loadingDetails ? "Cargando..." : "Detalles"}</span>
-                                <span className="sm:hidden">{loadingDetails ? "..." : "Det."}</span>
+                                <span className="hidden sm:inline">{loadingDetails ? "Cargando..." : "Métricas"}</span>
+                                <span className="sm:hidden">{loadingDetails ? "..." : "Met."}</span>
                             </Button>
                         ) : (
                             <Button
@@ -332,8 +331,8 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                                 onClick={() => setShowLoginDialog(true)}
                             >
                                 <Lock className="w-2 h-2 sm:w-3 sm:h-3" />
-                                <span className="hidden sm:inline">Detalles</span>
-                                <span className="sm:hidden">Det.</span>
+                                <span className="hidden sm:inline">Métricas</span>
+                                <span className="sm:hidden">Met.</span>
                             </Button>
                         )}
 
@@ -365,7 +364,7 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                 </div>
             </Card>
 
-            {/* Modal de Detalles del Artista */}
+            {/* Modal de Métricas del Artista */}
             {isDetailsOpen && artistDetails && (
                 <ChartArtistDetails
                     artist={artistDetails}

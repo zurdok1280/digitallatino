@@ -366,13 +366,15 @@ export default function Charts() {
   const [artistDetailsModal, setArtistDetailsModal] = useState<{
     isOpen: boolean;
     artist: Song | null;
+    selectedCountry?: string;
   }>({
     isOpen: false,
-    artist: null
+    artist: null,
+    selectedCountry: selectedCountry
   });
 
   // Función para manejar el click en el nombre de la canción/artista
-  const handleArtistDetailsClick = (row: Song) => {
+  const handleArtistDetailsClick = (row: Song, selectedCountry: string) => {
     if (!user) {
       setShowLoginDialog(true);
       return;
@@ -396,7 +398,8 @@ export default function Charts() {
 
     setArtistDetailsModal({
       isOpen: true,
-      artist: row
+      artist: row,
+      selectedCountry: selectedCountry
     });
   };
 
@@ -1351,7 +1354,7 @@ export default function Charts() {
                         </h3>
                         <p
                           className="text-[10px] sm:text-xs font-medium text-gray-600 truncate cursor-pointer hover:text-purple-600 transition-colors"
-                          onClick={() => handleArtistDetailsClick(row)}
+                          onClick={() => handleArtistDetailsClick(row, selectedCountry)}
                           title={`Ver detalles de ${row.artists}`}
                         >
                           {row.artists}

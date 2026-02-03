@@ -378,7 +378,7 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
                                                 {loadingDetails[song.cs_song] && (
                                                     <div className="flex items-center gap-1">
                                                         <div className="w-3 h-3 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
-                                                        <span>Cargando detalles...</span>
+                                                        <span>Cargando Métricas...</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -386,15 +386,6 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
 
                                         {/* Botones de acción */}
                                         <div className="flex flex-col gap-2 flex-shrink-0">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800 flex items-center gap-1"
-                                                onClick={() => handleSongSelect(song)}
-                                            >
-                                                <Play className="w-3 h-3" />
-                                                Ver Campaña
-                                            </Button>
 
                                             {user ? (
                                                 <Button
@@ -405,7 +396,7 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
                                                     onClick={() => handleDetailsClick(song)}
                                                 >
                                                     <Info className="w-3 h-3" />
-                                                    {loadingSongDetails ? "Cargando..." : "Detalles"}
+                                                    {loadingSongDetails ? "Cargando..." : "Métricas"}
                                                 </Button>
                                             ) : (
                                                 <Button
@@ -415,9 +406,18 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
                                                     onClick={() => setShowLoginDialog(true)}
                                                 >
                                                     <Lock className="w-3 h-3" />
-                                                    Detalles
+                                                    Métricas
                                                 </Button>
                                             )}
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800 flex items-center gap-1"
+                                                onClick={() => handleSongSelect(song)}
+                                            >
+                                                <Play className="w-3 h-3" />
+                                                Ver Campaña
+                                            </Button>
                                         </div>
                                     </div>
                                 ) : (
@@ -489,15 +489,6 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
 
                                         {/* Botones de acción */}
                                         <div className="flex flex-row justify-between gap-2 mt-2">
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="flex-1 text-xs px-2 py-1 bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800 flex items-center gap-1 justify-center"
-                                                onClick={() => handleSongSelect(song)}
-                                            >
-                                                <Play className="w-3 h-3" />
-                                                Campaña
-                                            </Button>
 
                                             {user ? (
                                                 <Button
@@ -508,7 +499,7 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
                                                     onClick={() => handleDetailsClick(song)}
                                                 >
                                                     <Info className="w-3 h-3" />
-                                                    {loadingSongDetails ? "Cargando..." : "Detalles"}
+                                                    {loadingSongDetails ? "Cargando..." : "Métricas"}
                                                 </Button>
                                             ) : (
                                                 <Button
@@ -518,9 +509,18 @@ export function ExpandRowArtist({ artist, selectedCountry, isExpanded }: ExpandR
                                                     onClick={() => setShowLoginDialog(true)}
                                                 >
                                                     <Lock className="w-3 h-3" />
-                                                    Detalles
+                                                    Métricas
                                                 </Button>
                                             )}
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="flex-1 text-xs px-2 py-1 bg-gradient-to-r from-slate-600 via-gray-700 to-blue-700 text-white border-none hover:from-slate-700 hover:via-gray-800 hover:to-blue-800 flex items-center gap-1 justify-center"
+                                                onClick={() => handleSongSelect(song)}
+                                            >
+                                                <Play className="w-3 h-3" />
+                                                Campaña
+                                            </Button>
                                         </div>
                                     </div>
                                 )}
