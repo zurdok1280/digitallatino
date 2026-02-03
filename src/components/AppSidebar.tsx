@@ -113,8 +113,9 @@ export function AppSidebar() {
                           }  h-5 w-5 transition-colors`}
                       />
                       {!isCollapsed && (
-                        <span className="font-medium">
-                          {user.allowedArtistName || "Artista"}
+                        <span
+                          className="font-medium ">
+                          {user?.allowedArtistName || "Artista"}
                         </span>
                       )}
                     </NavLink>

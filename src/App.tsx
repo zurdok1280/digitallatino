@@ -8,6 +8,9 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { AuthProvider } from "./hooks/useAuth";
 import { lazy, Suspense } from "react";
 import { RequireSubscription } from "./components/RequireSubscription";
+import { ForgotPassword } from './pages/ForgotPassword'; 
+import ResetPassword from './pages/ResetPassword'; 
+
 
 // Lazy loading de páginas para optimizar tiempo de carga inicial
 const Index = lazy(() => import("./pages/Index"));
@@ -84,6 +87,13 @@ const App = () => (
                 </Suspense>
               }
             />
+            <Route
+             path="/forgot-password" 
+             element={
+             <ForgotPassword />
+             }
+              />
+              <Route path="/reset-password" element={<ResetPassword />} />
             {/* --- Only premium  with thw component RequireSubscription --- */}
             <Route element={<RequireSubscription />}>
               <Route path="/" element={withLazy(WeeklyTopSongs)} />
