@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import axios from 'axios'; 
+import axios from 'axios';
 
 export function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -18,27 +18,27 @@ export function ForgotPassword() {
     setIsLoading(true);
 
     try {
-    
+
       await axios.post('https://security.digital-latino.com/api/auth/forgot-password', {
-      //await axios.post('http://localhost:8085/api/auth/forgot-password', { 
-        email: email 
+        //await axios.post('http://localhost:8085/api/auth/forgot-password', { 
+        email: email
       });
 
-      
+
       setIsSubmitted(true);
       toast({
         title: "¡Correo enviado!",
         description: "Revisa tu bandeja de entrada para restablecer tu contraseña.",
       });
-      
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any 
     } catch (error: any) {
       console.error(error);
-      
-      
-      const errorMessage = error.response?.data?.error || 
-                           error.response?.data?.message || 
-                           "Hubo un problema al enviar el correo.";
+
+
+      const errorMessage = error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Hubo un problema al enviar el correo.";
 
       toast({
         title: "Error",
@@ -71,22 +71,22 @@ export function ForgotPassword() {
     );
   }
 
- return (
+  return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-purple-100 p-8">
         <div className="text-center mb-8">
-            <img
-              src="/lovable-uploads/4e68bccf-80d3-468a-9ffe-3f3aee0bffdd.png"
-              alt="Digital Latino"
-              className="h-10 mx-auto mb-6" 
-            />
-          
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Recuperar Contraseña</h2>
-            <p className="text-gray-600 text-sm">
-              Ingresa tu email y te enviaremos instrucciones para restablecer tu cuenta.
-            </p>
+          <img
+            src="/lovable-uploads/4e68bccf-80d3-468a-9ffe-3f3aee0bffdd.png"
+            alt="Digital Latino"
+            className="h-10 mx-auto mb-6"
+          />
+
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Recuperar Contraseña</h2>
+          <p className="text-gray-600 text-sm">
+            Ingresa tu email y te enviaremos instrucciones para restablecer tu cuenta.
+          </p>
         </div>
-    
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-gray-700">Correo Electrónico</Label>
@@ -114,8 +114,8 @@ export function ForgotPassword() {
         </form>
 
         <div className="mt-6 text-center">
-          <Link 
-            to="/" 
+          <Link
+            to="/"
             className="inline-flex items-center text-sm text-gray-500 hover:text-purple-600 transition-colors"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
