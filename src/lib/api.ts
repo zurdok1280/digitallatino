@@ -78,6 +78,8 @@ export interface Song {
   url: string;
   spotifyid: string;
   spotifyartistid?: string;
+  movement?: string;
+  lw_score?: number;
 }
 //Interface para Ids de canciones
 export interface idSongs {

@@ -20,6 +20,8 @@ import {
   Pause,
   Trophy,
   Zap,
+  ArrowDown,
+  ArrowUp,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -1293,15 +1295,47 @@ export default function Charts() {
                 >
                   <div className="grid grid-cols-9 items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-3 py-1.5">
 
-                    {/* Rank */}
+                    {/* Rank & movement */}
                     <div className="col-span-1 flex items-center justify-center">
-                      <div className="relative group/rank">
-                        <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center shadow-sm transition-all">
-                          <span className="text-xs sm:text-base font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
-                            {row.rk}
-                          </span>
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        {/* Rank */}
+                        <div className="relative group/rank">
+                          <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
+                          <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center shadow-sm transition-all">
+                            <span className="text-xs sm:text-base font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
+                              {row.rk}
+                            </span>
+                          </div>
                         </div>
+
+                        {row.movement && (
+                          <div className={`flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-md transition-colors
+        ${row.movement === "up"
+                              ? "bg-green-100/70 hover:bg-green-200/70"
+                              : row.movement === "down"
+                                ? "bg-red-100/70 hover:bg-red-200/70"
+                                : "bg-gray-100/70 hover:bg-gray-200/70"}
+      `}>
+                            {row.movement === "up" && (
+                              <ArrowUp
+                                size={12}
+                                className="sm:w-3.5 sm:h-3.5 text-green-600"
+                              />
+                            )}
+                            {row.movement === "down" && (
+                              <ArrowDown
+                                size={12}
+                                className="sm:w-3.5 sm:h-3.5 text-red-600"
+                              />
+                            )}
+                            {row.movement === "equal" && (
+                              <Minus
+                                size={12}
+                                className="sm:w-3.5 sm:h-3.5 text-gray-500"
+                              />
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1613,131 +1647,137 @@ export default function Charts() {
 
 
 
-      {!user && (showGenreOverlay || showCrgOverlay) && (
-        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
-            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <span className="text-3xl">🔒</span>
-            </div>
-            <h3 className="text-2xl font-bold mb-2 text-foreground">
-              {showGenreOverlay
-                ? "Filtros por Género"
-                : "Filtros por Plataforma"}
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              Esta función es parte de las herramientas avanzadas. Activa una
-              campaña para desbloquearla.
-            </p>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
-                <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
-                  <Crown className="w-4 h-4 text-white" />
-                </div>
-                <div className="mb-3">
-                  <div className="text-sm font-bold text-foreground">
-                    Premium
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-1">
-                    Solo Charts & Analytics
-                  </div>
-                  <div className="text-sm font-bold text-foreground">
-                    $14.99/mes
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    // TODO: Integrar con Stripe cuando esté listo
-                    console.log("Redirect to premium subscription");
-                    setShowGenreOverlay(false);
-                    setShowCrgOverlay(false);
-                  }}
-                  className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                >
-                  Suscribirse
-                </button>
+      {
+        !user && (showGenreOverlay || showCrgOverlay) && (
+          <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
+              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <span className="text-3xl">🔒</span>
               </div>
+              <h3 className="text-2xl font-bold mb-2 text-foreground">
+                {showGenreOverlay
+                  ? "Filtros por Género"
+                  : "Filtros por Plataforma"}
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Esta función es parte de las herramientas avanzadas. Activa una
+                campaña para desbloquearla.
+              </p>
+              <div className="grid md:grid-cols-2 gap-3">
+                <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
+                  <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                    <Crown className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="mb-3">
+                    <div className="text-sm font-bold text-foreground">
+                      Premium
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Solo Charts & Analytics
+                    </div>
+                    <div className="text-sm font-bold text-foreground">
+                      $14.99/mes
+                    </div>
+                  </div>
 
-              <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
-                    INCLUYE TODO
-                  </span>
+                  <button
+                    onClick={() => {
+                      // TODO: Integrar con Stripe cuando esté listo
+                      console.log("Redirect to premium subscription");
+                      setShowGenreOverlay(false);
+                      setShowCrgOverlay(false);
+                    }}
+                    className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                  >
+                    Suscribirse
+                  </button>
                 </div>
 
-                <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
-                  <span className="text-white font-bold text-sm">🚀</span>
-                </div>
-                <div className="mb-3">
-                  <div className="text-sm font-bold text-foreground">
-                    Campaña Completa
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
+                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
+                      INCLUYE TODO
+                    </span>
                   </div>
-                  <div className="text-xs text-muted-foreground mb-1">
-                    Premium + Promoción
-                  </div>
-                  <div className="text-sm font-bold text-foreground">
-                    Desde $750
-                  </div>
-                </div>
 
-                <button
-                  onClick={() => {
-                    navigate("/campaign");
-                    setShowGenreOverlay(false);
-                    setShowCrgOverlay(false);
-                  }}
-                  className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                >
-                  Crear Campaña
-                </button>
+                  <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
+                    <span className="text-white font-bold text-sm">🚀</span>
+                  </div>
+                  <div className="mb-3">
+                    <div className="text-sm font-bold text-foreground">
+                      Campaña Completa
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Premium + Promoción
+                    </div>
+                    <div className="text-sm font-bold text-foreground">
+                      Desde $750
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      navigate("/campaign");
+                      setShowGenreOverlay(false);
+                      setShowCrgOverlay(false);
+                    }}
+                    className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                  >
+                    Crear Campaña
+                  </button>
+                </div>
               </div>
+              <button
+                onClick={() => {
+                  setShowGenreOverlay(false);
+                  setShowCrgOverlay(false);
+                }}
+                className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm"
+              >
+                Cerrar
+              </button>
             </div>
-            <button
-              onClick={() => {
-                setShowGenreOverlay(false);
-                setShowCrgOverlay(false);
-              }}
-              className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm"
-            >
-              Cerrar
-            </button>
           </div>
-        </div>
-      )}
+        )
+      }
       {/* Overlay global mientras se carga */}
       <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      {showScoreTooltip && (
-        <div
-          className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
-          style={{
-            left: tooltipPosition.x,
-            top: tooltipPosition.y - 20,
-          }}
-        >
-          El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
-          <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
-        </div>
-      )}
+      {
+        showScoreTooltip && (
+          <div
+            className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
+            style={{
+              left: tooltipPosition.x,
+              top: tooltipPosition.y - 20,
+            }}
+          >
+            El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
+            <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
+          </div>
+        )
+      }
       {/* Modal de detalles del artista */}
-      {artistDetailsModal.isOpen && artistDetailsModal.artist && (
-        <ChartArtistDetails
-          artist={{
-            artist: artistDetailsModal.artist.artists,
-            spotifyid: artistDetailsModal.artist.spotifyartistid || "",
-            img: artistDetailsModal.artist.avatar || "",
-            rk: artistDetailsModal.artist.rk || 0,
-            score: artistDetailsModal.artist.score || 0,
-            followers_total: 0,
-            monthly_listeners: 0,
-          }}
-          selectedCountry={selectedCountry}
-          countries={countries}
-          isOpen={artistDetailsModal.isOpen}
-          onClose={handleCloseArtistDetails}
-        />
-      )}
-    </div>
+      {
+        artistDetailsModal.isOpen && artistDetailsModal.artist && (
+          <ChartArtistDetails
+            artist={{
+              artist: artistDetailsModal.artist.artists,
+              spotifyid: artistDetailsModal.artist.spotifyartistid || "",
+              img: artistDetailsModal.artist.avatar || "",
+              rk: artistDetailsModal.artist.rk || 0,
+              score: artistDetailsModal.artist.score || 0,
+              followers_total: 0,
+              monthly_listeners: 0,
+            }}
+            selectedCountry={selectedCountry}
+            countries={countries}
+            isOpen={artistDetailsModal.isOpen}
+            onClose={handleCloseArtistDetails}
+          />
+        )
+      }
+    </div >
   );
 }

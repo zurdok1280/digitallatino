@@ -18,7 +18,6 @@ export function ForgotPassword() {
     setIsLoading(true);
 
     try {
-
       await axios.post('https://security.digital-latino.com/api/auth/forgot-password', {
         //await axios.post('http://localhost:8085/api/auth/forgot-password', { 
         email: email
@@ -34,7 +33,6 @@ export function ForgotPassword() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any 
     } catch (error: any) {
       console.error(error);
-
 
       const errorMessage = error.response?.data?.error ||
         error.response?.data?.message ||
