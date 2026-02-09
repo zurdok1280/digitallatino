@@ -34,10 +34,8 @@ const ResetPassword = () => {
     setLoading(true);
 
     try {
-      await axios.post(
-        "https://security.digital-latino.com/api/auth/reset-password",
-        {
-          //await axios.post("http://localhost:8085/api/auth/reset-password", {
+      await axios.post("https://security.digital-latino.com/api/auth/reset-password",{
+      //await axios.post("http://localhost:8085/api/auth/reset-password", {
           token: token,
           newPassword: newPassword,
         },
