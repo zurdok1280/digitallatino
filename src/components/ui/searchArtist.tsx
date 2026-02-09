@@ -426,7 +426,7 @@ export function SearchArtist() {
 
     // Search tracks y artists on Spotify
     const searchTracksAndArtists = useCallback(async (query: string) => {
-        console.log('🔍 Buscando en Spotify:', query);
+        console.log('🔍 Buscando:', query);
 
         if (!query.trim()) {
             setSearchResults({ tracks: [], artists: [] });
@@ -469,7 +469,7 @@ export function SearchArtist() {
             console.error('❌ Error buscando en Spotify:', error);
             toast({
                 title: "Error",
-                description: "No se pudo buscar en Spotify. Intenta de nuevo.",
+                description: "No se pudo buscar. Intenta de nuevo.",
                 variant: "destructive"
             });
             setSearchResults({ tracks: [], artists: [] });
@@ -542,7 +542,7 @@ export function SearchArtist() {
                     <div className="flex flex-row gap-3 items-center w-full lg:w-[500px] xl:w-[500px] 2xl:w-[800px] mx-auto">
                         <div className="flex-1 relative">
                             <Input
-                                placeholder="Buscar artista o canción en Spotify..."
+                                placeholder="Buscar artista o canción..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full rounded-xl lg:rounded-2xl border-0 bg-white/90 backdrop-blur-sm px-4 lg:px-6 py-2 text-sm lg:text-base shadow-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 lg:focus:ring-offset-2 pr-12 h-10 lg:h-[44px] placeholder:text-gray-500 placeholder:text-sm lg:placeholder:text-base"
