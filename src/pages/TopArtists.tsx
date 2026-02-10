@@ -423,6 +423,8 @@ export default function TopArtists() {
   const [chartSearchQuery, setChartSearchQuery] = useState("");
   const [showSearchBar, setShowSearchBar] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  //last data update:
+  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
 
   // Dropdown state keyboard navigation
   const [openDropdown, setOpenDropdown] = useState<
@@ -557,6 +559,17 @@ export default function TopArtists() {
     }
   }, []);
 
+  const fetchLastUpdate = async () => {
+    try {
+      const response = await digitalLatinoApi.getLastUpdate();
+      setLastUpdate(response.data.message);
+      console.log("LastUpdate:", response.data);
+    } catch (error) {
+      console.error("Error fetching last update:", error);
+    }
+  };
+
+
   const fetchCountries = async () => {
     try {
       setLoadingCountries(true);
@@ -630,6 +643,7 @@ export default function TopArtists() {
   // Fetch countries from API
   useEffect(() => {
     fetchCountries();
+    fetchLastUpdate();
   }, []);
 
   // Fetch formats when country changes
@@ -1107,6 +1121,9 @@ export default function TopArtists() {
 
         {/* Lista de Charts */}
         <div className="mb-4 flex flex-col gap-0 border-b border-white/20 pb-2 bg-white/60 backdrop-blur-lg rounded-2xl p-2 md:p-3 shadow-lg relative">
+          <div className="text-xs text-muted-foreground items-end justify-end flex pr-7 pb-2">
+            {`Última actualización: ${lastUpdate ? lastUpdate : "Cargando..."}`}
+          </div>
           {/* Fab button de MUI para buscar */}
           <div className="absolute -top-4 -right-4 z-20">
             <Fab

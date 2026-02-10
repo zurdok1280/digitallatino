@@ -721,6 +721,9 @@ export const digitalLatinoApi = {
     data: SetLogSongRequest,
   ): Promise<ApiResponse<SetLogSongResponse>> =>
     api.post<SetLogSongResponse>("report/setLogSong", data),
+  //Obtener ultima acrualización de datos dd-mm-yyyy
+  getLastUpdate: (): Promise<ApiResponse<{ message: string }>> =>
+    api.get<{ message: string }>("report/getLastUpdate"),
 };
 
 // Ejemplo de uso:
