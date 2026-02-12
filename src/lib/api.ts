@@ -399,6 +399,27 @@ export interface SetLogSongResponse {
   text?: string;
   [key: string]: any;
 }
+//Interface para datos comparativos de dos canciones o artistas
+export interface VsSongData {
+  country_code: string;
+  city_name: string;
+  first_score: number;
+  second_streams: number;
+  dif_streams: number;
+  first_streams: number;
+  second_score: number;
+}
+// Interface para canción seleccionada para comparar
+export interface SelectedSong {
+  cs_song: number;
+  spotifyid: string;
+  song: string;
+  artists: string;
+  label: string;
+  avatar?: string;
+  rk: number;
+  score: number;
+}
 
 // Clase principal para manejar las conexiones API
 export class ApiClient {
@@ -724,6 +745,12 @@ export const digitalLatinoApi = {
   //Obtener ultima acrualización de datos dd-mm-yyyy
   getLastUpdate: (): Promise<ApiResponse<{ message: string }>> =>
     api.get<{ message: string }>("report/getLastUpdate"),
+  //Obtener datos comparativos de dos artistas
+  getVsSongs: (
+    csSong1: number,
+    csSong2: number,
+  ): Promise<ApiResponse<VsSongData[]>> =>
+    api.get<VsSongData[]>(`report/getVsSong/${csSong1}/${csSong2}`),
 };
 
 // Ejemplo de uso:

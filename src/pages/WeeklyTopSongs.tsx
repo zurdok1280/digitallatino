@@ -22,6 +22,7 @@ import {
   Zap,
   ArrowDown,
   ArrowUp,
+  BarChart3,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ import {
   City,
   Song,
   CityDataForSong,
+  SelectedSong,
 } from "@/lib/api";
 // Import album covers
 import { Backdrop, CircularProgress, Fab } from "@mui/material";
@@ -60,6 +62,8 @@ import {
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
 import ChartArtistDetails from "@/components/ui/ChartArtistDetails";
+import { SongCompare } from "@/components/ui/songCompare";
+import { ComparisonMode } from "@/components/ui/ComparisonMode";
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -376,6 +380,14 @@ export default function Charts() {
     artist: null,
     selectedCountry: selectedCountry
   });
+  //States para comparación de canciones
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [selectedSongs, setSelectedSongs] = useState<SelectedSong[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
+  const [songForComparison, setSongForComparison] = useState<{
+    song1: SelectedSong | null;
+    song2: SelectedSong | null;
+  }>({ song1: null, song2: null });
 
   // Función para manejar el click en el nombre de la canción/artista
   const handleArtistDetailsClick = (row: Song, selectedCountry: string) => {
@@ -923,6 +935,101 @@ export default function Charts() {
     e.target.selectedIndex = 0;
   };
 
+  // Función para manejar la selección de canciones para comparación
+  const handleToggleComparisonMode = () => {
+    setComparisonMode(!comparisonMode);
+    if (!comparisonMode) {
+      setSelectedSongs([]);
+    }
+  };
+  const handleSelectSong = (song: Song) => {
+    if (!comparisonMode) return;
+
+    const selectedSong: SelectedSong = {
+      cs_song: song.cs_song,
+      spotifyid: song.spotifyid,
+      song: song.song,
+      artists: song.artists,
+      label: song.label,
+      avatar: song.avatar,
+      rk: song.rk,
+      score: song.score,
+    };
+
+    // Verificar si ya está seleccionada
+    const isAlreadySelected = selectedSongs.some(s => s.cs_song === song.cs_song);
+
+    if (isAlreadySelected) {
+      // Remover si ya está seleccionada
+      setSelectedSongs(prev => prev.filter(s => s.cs_song !== song.cs_song));
+    } else if (selectedSongs.length < 2) {
+      // Agregar si hay espacio
+      setSelectedSongs(prev => [...prev, selectedSong]);
+    } else {
+      // Reemplazar la primera selección si ya hay 2
+      toast({
+        title: 'Límite alcanzado',
+        description: 'Solo puedes comparar 2 canciones a la vez. Remueve una selección para agregar otra.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedSongs([]);
+  };
+
+  const handleCompareSelected = () => {
+    if (selectedSongs.length === 2) {
+      setSongForComparison({
+        song1: selectedSongs[0],
+        song2: selectedSongs[1],
+      });
+      setShowComparison(true);
+      setComparisonMode(false);
+      setSelectedSongs([]);
+    }
+  };
+
+  const handleCompareFromRow = (song: Song, secondSong?: Song) => {
+    const song1: SelectedSong = {
+      cs_song: song.cs_song,
+      spotifyid: song.spotifyid,
+      song: song.song,
+      artists: song.artists,
+      label: song.label,
+      avatar: song.avatar,
+      rk: song.rk,
+      score: song.score,
+    };
+
+    if (secondSong) {
+      // Comparar directamente con otra canción específica
+      const song2: SelectedSong = {
+        cs_song: secondSong.cs_song,
+        spotifyid: secondSong.spotifyid,
+        song: secondSong.song,
+        artists: secondSong.artists,
+        label: secondSong.label,
+        avatar: secondSong.avatar,
+        rk: secondSong.rk,
+        score: secondSong.score,
+      };
+      setSongForComparison({ song1, song2 });
+      setShowComparison(true);
+    } else {
+      // Iniciar modo comparación con esta canción como primera selección
+      setSelectedSongs([song1]);
+      setComparisonMode(true);
+      toast({
+        title: 'Modo comparación activado',
+        description: `Selecciona otra canción para comparar con "${song.song}"`,
+      });
+    }
+  };
+
+
+
   const handlePlayPreview = useCallback(
     (trackRank: number, audioUrl: string) => {
       console.log("handlePlayPreview called for:", trackRank, audioUrl);
@@ -1216,6 +1323,14 @@ export default function Charts() {
 
         {/* Lista de Charts */}
         <div className="mb-4 flex flex-col gap-0 border-b border-white/20 pb-2 bg-white/60 backdrop-blur-lg rounded-2xl p-2 md:p-3 shadow-lg relative">
+          {/* Botón flotante para activar modo comparación */}
+          <ComparisonMode
+            isActive={comparisonMode}
+            onToggle={handleToggleComparisonMode}
+            selectedCount={selectedSongs.length}
+            onCompare={handleCompareSelected}
+            onClear={handleClearSelection}
+          />
           <div className="text-xs text-muted-foreground items-end justify-end flex pr-7 pb-2">
             {`Última actualización: ${lastUpdate ? lastUpdate : "Cargando..."}`}
           </div>
@@ -1319,12 +1434,31 @@ export default function Charts() {
               songsToDisplay.map((row, index) => (
                 <div
                   key={`${row.cs_song}-${index}`}
-                  className="group bg-white/50 backdrop-blur-lg rounded-xl shadow-sm border border-white/30 overflow-hidden hover:shadow-md hover:bg-white/60 transition-all duration-200 hover:scale-[1.002]"
+                  className={`group bg-white/50 backdrop-blur-lg rounded-xl shadow-sm border border-white/30 overflow-hidden hover:shadow-md hover:bg-white/60 transition-all duration-200 hover:scale-[1.002] ${selectedSongs.some(s => s.cs_song === row.cs_song)
+                    ? 'ring-2 ring-purple-500 ring-opacity-50'
+                    : ''
+                    }`}
                 >
                   <div className="grid grid-cols-9 items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-3 py-1.5">
 
                     {/* Rank & movement */}
                     <div className="col-span-1 flex items-center justify-center">
+                      {/* Checkbox si esta en modo comparacion */}
+                      {comparisonMode && (
+                        <div className="col-span-1 flex items-center justify-center">
+                          <button
+                            onClick={() => handleSelectSong(row)}
+                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${selectedSongs.some(s => s.cs_song === row.cs_song)
+                              ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-transparent text-white'
+                              : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                              }`}
+                          >
+                            {selectedSongs.some(s => s.cs_song === row.cs_song) && (
+                              <span className="text-xs font-bold">✓</span>
+                            )}
+                          </button>
+                        </div>
+                      )}
                       <div className="flex items-center gap-1.5 sm:gap-2">
                         {/* Rank */}
                         <div className="relative group/rank">
@@ -1472,6 +1606,7 @@ export default function Charts() {
 
                   {isExpanded(index) && (
                     <div className="px-2 sm:px-6 pb-4">
+
                       <ExpandRow
                         row={row}
                         onPromote={() =>
@@ -1490,6 +1625,17 @@ export default function Charts() {
                         cityDataForSong={cityData}
                         loadingCityData={loadingCityData}
                       />
+                      <div className="mt-4 items-end justify-end flex">
+                        <Button
+                          onClick={() => handleCompareFromRow(row)}
+                          variant="outline"
+                          size="sm"
+                          className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 text-purple-700 hover:from-purple-100 hover:to-pink-100"
+                        >
+                          <BarChart3 className="mr-2 h-4 w-4" />
+                          Comparar esta canción con otra
+                        </Button>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1806,6 +1952,23 @@ export default function Charts() {
           />
         )
       }
+      <>
+
+
+        {/* Modal de comparación */}
+        {showComparison && songForComparison.song1 && songForComparison.song2 && (
+          <SongCompare
+            isOpen={showComparison}
+            onClose={() => {
+              setShowComparison(false);
+              setSongForComparison({ song1: null, song2: null });
+            }}
+            song1={songForComparison.song1}
+            song2={songForComparison.song2}
+            countries={countries}
+          />
+        )}
+      </>
     </div >
   );
 }
