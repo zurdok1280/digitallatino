@@ -1062,10 +1062,13 @@ export default function TopPlatforms() {
               </label>
 
               {/* Custom Select para Plataformas */}
-              <div className="relative">
+              <div className="relative platform-filter">
                 <button
                   type="button"
-                  onClick={() => setOpenDropdown(openDropdown === 'platform' ? null : 'platform')}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDropdown(openDropdown === 'platform' ? null : 'platform');
+                  }}
                   className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-purple-400 cursor-pointer flex items-center gap-2 justify-between"
                 >
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -1081,7 +1084,10 @@ export default function TopPlatforms() {
 
                 {/* Dropdown Menu */}
                 {openDropdown === 'platform' && (
-                  <div className="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg py-1 max-h-48 overflow-y-auto">
+                  <div
+                    className="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg py-1 max-h-48 overflow-y-auto"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {[
                       { value: 'spotify', label: 'Spotify' },
                       { value: 'tiktok', label: 'TikTok' },
@@ -1091,7 +1097,9 @@ export default function TopPlatforms() {
                       <button
                         key={platform.value}
                         type="button"
-                        onClick={() => {
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          e.preventDefault();
                           setSelectedPlatform(platform.value);
                           setOpenDropdown(null);
                         }}
