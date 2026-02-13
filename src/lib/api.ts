@@ -314,11 +314,16 @@ export interface SpotifyArtist {
 }
 
 export interface SpotifyTrackResult {
-  type: string;
-  song_name: string;
+  duration_ms?: number;
+  my_song_id?: number;
+  tocadas?: number;
   artist_name: string;
   spotify_id: string;
   image_url: string;
+  exist_in_db?: boolean;
+  match_type?: string;
+  song_name: string;
+  type: string;
   url: string;
 }
 export interface SpotifyArtistResult {
