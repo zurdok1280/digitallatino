@@ -10,6 +10,7 @@ import { LatinAmericaMap } from "@/components/LatinAmericaMap";
 import { SpotifyTrack } from "@/types/spotify";
 import { useAuth } from "@/hooks/useAuth";
 import { digitalLatinoApi, Country, Format, City, Song, DebutSongs, CityDataForSong } from "@/lib/api";
+import { createPortal } from 'react-dom';
 // Import album covers
 import { Backdrop, CircularProgress, Fab } from '@mui/material';
 import teddySwimsCover from "@/assets/covers/teddy-swims-lose-control.jpg";
@@ -419,6 +420,10 @@ export default function Charts() {
     isOpen: false,
     artist: null
   });
+  //State para filtrs dropdown
+  const [showFilters, setShowFilters] = useState(true);
+  const [countryDropdownPosition, setCountryDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const countryButtonRef = useRef<HTMLDivElement>(null);
 
   // Función para abrir detalles del artista
   const handleArtistDetailsClick = (row: Song) => {
@@ -782,6 +787,25 @@ export default function Charts() {
     handleSpotifyCallback();
   }, [toast]);
 
+  // useEffect para cerrar dropdowns al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
+
+      if (openDropdown === "country") {
+        const countryPortal = document.querySelector('[data-country-portal="true"]');
+        if (countryButtonRef.current && !countryButtonRef.current.contains(target) &&
+          countryPortal && !countryPortal.contains(target)) {
+          setOpenDropdown(null);
+          setDropdownSearch("");
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openDropdown]);
+
   // Connect to Spotify with OAuth
   const connectToSpotify = () => {
     console.log('connectToSpotify called');
@@ -935,7 +959,7 @@ export default function Charts() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-4 flex flex-col gap-3 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-3 md:p-4 shadow-lg relative z-10">
+        <div className="">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -945,64 +969,177 @@ export default function Charts() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-2 relative z-30 w-full max-w-6xl mx-auto px-2 sm:px-0">
-            {/* Filtro por País/Región */}
-            <div className="space-y-1 sm:space-y-2">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                <span className="text-sm sm:text-base">🌎</span>
-                <span className="truncate">País/Región</span>
-              </label>
-              <select
-                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
-                value={selectedCountry}
-                onChange={handleCountryChange}
-                disabled={loadingCountries}
-              >
-                {loadingCountries ? (
-                  <option value="">Cargando países...</option>
-                ) : (
-                  <>
-                    <option value="">Selecciona un país</option>
-                    {countries.map((country) => (
-                      <option key={country.id} value={country.id.toString()}>
-                        {country.country || country.description} ({country.country_name})
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
+          <div className="mb-4 bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 overflow-hidden">
+            {/* Desplegar/ocultar filtros */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="w-full px-4 py-3 flex items-center justify-between bg-gradient-to-r from-purple-50/50 to-pink-50/50 hover:from-purple-100/50 hover:to-pink-100/50 transition-all duration-300"
+            >
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                  Filtros
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+
+                <ChevronDown
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''
+                    }`}
+                />
+              </div>
+            </button>
+
+            {/* Filtros */}
+            <div
+              className={`
+      transition-all duration-300 ease-in-out overflow-hidden
+      ${showFilters ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}
+    `}
+            >
+              <div className="p-4 border-t border-white/30">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                  {/* Filtro por País/Región */}
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                      <span className="text-sm sm:text-base">🌎</span>
+                      <span className="truncate">País/Región</span>
+                    </label>
+                    <div className="relative" ref={countryButtonRef}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (loadingCountries) return;
+                          setOpenDropdown(openDropdown === "country" ? null : "country");
+                          setDropdownSearch("");
+
+                          if (countryButtonRef.current) {
+                            const rect = countryButtonRef.current.getBoundingClientRect();
+                            setCountryDropdownPosition({
+                              top: rect.bottom + window.scrollY,
+                              left: rect.left + window.scrollX,
+                              width: rect.width,
+                            });
+                          }
+                        }}
+                        className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={loadingCountries}
+                      >
+                        <span className="truncate pr-2">
+                          {loadingCountries ? (
+                            "Cargando países..."
+                          ) : (
+                            selectedCountry && countries.find(c => c.id.toString() === selectedCountry)
+                              ? `${countries.find(c => c.id.toString() === selectedCountry)?.country_name}`
+                              : "Selecciona un país"
+                          )}
+                        </span>
+                        <ChevronDown
+                          className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "country" ? "rotate-180" : ""
+                            }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Dropdown */}
+                  {openDropdown === "country" && !loadingCountries && createPortal(
+                    <div
+                      data-country-portal="true"
+                      className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                      style={{
+                        top: countryDropdownPosition.top,
+                        left: countryDropdownPosition.left,
+                        width: countryDropdownPosition.width,
+                        maxHeight: '300px',
+                      }}
+                    >
+                      <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
+                        <div className="relative">
+                          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                          <input
+                            type="text"
+                            placeholder="Buscar país..."
+                            className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                            value={dropdownSearch}
+                            onChange={(e) => setDropdownSearch(e.target.value)}
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+
+                      <div className="max-h-60 overflow-y-auto">
+
+
+                        {/* Opciones de países */}
+                        {getFilteredOptions(countries, dropdownSearch, "country").map(
+                          (country) => (
+                            <button
+                              key={country.id}
+                              onClick={() => {
+                                handleOptionSelect(country.id.toString(), "country");
+                                setOpenDropdown(null);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-pink-50 transition-colors ${selectedCountry === country.id.toString()
+                                ? "bg-pink-100 text-pink-700 font-semibold"
+                                : "text-gray-700"
+                                }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span>🌍</span>
+                                <span className="truncate">
+                                  {country.country || country.description} ({country.country_name})
+                                </span>
+                              </span>
+                            </button>
+                          )
+                        )}
+
+                        {getFilteredOptions(countries, dropdownSearch, "country").length === 0 && (
+                          <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
+                            No se encontraron países
+                          </div>
+                        )}
+                      </div>
+                    </div>,
+                    document.body
+                  )}
+
+                  {/* Filtro por Género */}
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                      <span className="text-sm sm:text-base">📊</span>
+                      <span className="truncate">Género</span>
+                    </label>
+                    <select
+                      className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      value={selectedFormat}
+                      onChange={(e) => setSelectedFormat(e.target.value)}
+                      disabled={loadingFormats || !selectedCountry}
+                    >
+                      {loadingFormats ? (
+                        <option value="">Cargando géneros...</option>
+                      ) : !selectedCountry ? (
+                        <option value="">Selecciona un país primero</option>
+                      ) : (
+                        <>
+                          {formats.map((format) => (
+                            <option key={format.id} value={format.id.toString()}>
+                              {format.format}
+                            </option>
+                          ))}
+                        </>
+                      )}
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            {/* Filtro por Género */}
-            <div className="space-y-1 sm:space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                <span className="text-sm sm:text-base">📊</span>
-                <span className="truncate">Género</span>
-              </label>
-              <select
-                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
-                value={selectedFormat}
-                onChange={(e) => setSelectedFormat(e.target.value)}
-                disabled={loadingFormats || !selectedCountry}
-              >
-                {loadingFormats ? (
-                  <option value="">Cargando géneros...</option>
-                ) : !selectedCountry ? (
-                  <option value="">Selecciona un país primero</option>
-                ) : (
-                  <>
-                    {formats.map((format) => (
-                      <option key={format.id} value={format.id.toString()}>
-                        {format.format}
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
-            </div>
-
-
-          </div >
+          </div>
         </div >
 
 

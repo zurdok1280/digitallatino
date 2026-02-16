@@ -308,7 +308,7 @@ export default function Charts() {
   // Countries API state
   const [countries, setCountries] = useState<Country[]>([]);
   const [loadingCountries, setLoadingCountries] = useState(true);
-  const [selectedCountry, setSelectedCountry] = useState("2"); // USA ID = 2 por defecto
+  const [selectedCountry, setSelectedCountry] = useState("0"); // USA ID = 2 por defecto
 
   // Formats API state
   const [formats, setFormats] = useState<Format[]>([]);
@@ -632,7 +632,7 @@ export default function Charts() {
 
       // Validar y parsear valores
       const formatId = selectedFormat ? parseInt(selectedFormat) : 0;
-      const countryId = selectedCountry ? parseInt(selectedCountry) : 2; // valor por defecto
+      const countryId = selectedCountry ? parseInt(selectedCountry) : 0; // valor por defecto
       const cityId = selectedCity ? parseInt(selectedCity) : 0;
 
       if (isNaN(countryId)) {
@@ -1129,7 +1129,7 @@ export default function Charts() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-4 flex flex-col gap-0 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-3 md:p-4 shadow-lg relative z-10">
+        <div className="">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -1152,7 +1152,7 @@ export default function Charts() {
                 </p>
               </div>
 
-              {/* Badge con el nombre del artista  */}
+              {/* Badge con el nombre del artista */}
               {user.name && (
                 <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -1164,7 +1164,7 @@ export default function Charts() {
 
           {/* Filtros  */}
           <div className="mb-4 bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 overflow-hidden">
-            {/* Botón para desplegar/ocultar filtros */}
+            {/* Desplegar/ocultar filtros */}
             <button
               onClick={() => setShowFilters(!showFilters)}
               className="w-full px-4 py-3 flex items-center justify-between bg-gradient-to-r from-purple-50/50 to-pink-50/50 hover:from-purple-100/50 hover:to-pink-100/50 transition-all duration-300"
@@ -1178,11 +1178,7 @@ export default function Charts() {
                 <span className="font-semibold text-gray-800 text-sm sm:text-base">
                   Filtros
                 </span>
-                <span className="text-xs text-gray-500 ml-2 hidden sm:inline">
-                  {selectedCountry && countries.find(c => c.id.toString() === selectedCountry)?.country_name
-                    ? `País: ${countries.find(c => c.id.toString() === selectedCountry)?.country_name}`
-                    : 'Selecciona país, género y ciudad'}
-                </span>
+
               </div>
               <div className="flex items-center gap-2">
 
@@ -1272,22 +1268,7 @@ export default function Charts() {
                       </div>
 
                       <div className="max-h-60 overflow-y-auto">
-                        {/* Opción "Selecciona un país" */}
-                        <button
-                          onClick={() => {
-                            handleOptionSelect("", "country");
-                            setOpenDropdown(null);
-                          }}
-                          className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-pink-50 transition-colors ${!selectedCountry
-                            ? "bg-pink-100 text-pink-700 font-semibold"
-                            : "text-gray-700"
-                            }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            <span>🌎</span>
-                            <span>Selecciona un país</span>
-                          </span>
-                        </button>
+
 
                         {/* Opciones de países */}
                         {getFilteredOptions(countries, dropdownSearch, "country").map(
@@ -1363,7 +1344,6 @@ export default function Charts() {
                         onClick={() => {
                           setOpenDropdown(openDropdown === "city" ? null : "city");
                           setDropdownSearch("");
-                          // Guardar la posición del botón para el portal
                           if (cityButtonRef.current) {
                             const rect = cityButtonRef.current.getBoundingClientRect();
                             setCityDropdownPosition({
@@ -1421,22 +1401,6 @@ export default function Charts() {
                       </div>
 
                       <div className="max-h-48 overflow-y-auto">
-                        {/* Opción "Todas las ciudades" */}
-                        <button
-                          onClick={() => {
-                            handleOptionSelect("0", "city");
-                            setOpenDropdown(null);
-                          }}
-                          className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
-                            ? "bg-orange-100 text-orange-700 font-semibold"
-                            : "text-gray-700"
-                            }`}
-                        >
-                          <span className="flex items-center gap-2">
-                            <span>🎯</span>
-                            <span>Todas las ciudades</span>
-                          </span>
-                        </button>
 
                         {/* Opciones de ciudades */}
                         {getFilteredOptions(cities, dropdownSearch, "city").map(
@@ -1473,25 +1437,6 @@ export default function Charts() {
 
                 </div>
 
-                {/* Botones de acción rápida para móvil */}
-                < div className="flex items-center justify-end gap-2 mt-4 pt-2 border-t border-gray-200/50 sm:hidden" >
-                  <button
-                    onClick={() => {
-                      setSelectedCountry("2");
-                      setSelectedFormat("0");
-                      setSelectedCity("0");
-                    }}
-                    className="text-xs px-3 py-1.5 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
-                  >
-                    Resetear
-                  </button>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 transition-colors shadow-md"
-                  >
-                    Aplicar y cerrar
-                  </button>
-                </div>
               </div>
             </div>
           </div>

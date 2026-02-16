@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Music, Search, Info, Lock, Users, Play, X } from "lucide-react";
 import { digitalLatinoApi, SpotifyTrackResult, Song, SpotifyArtistResult } from "@/lib/api";
@@ -9,6 +9,7 @@ import ChartSongDetails from "./ChartSongDetails";
 import ChartArtistDetails from "./ChartArtistDetails";
 import { useAuth } from "@/hooks/useAuth";
 import { ArtistSongs } from "./artistSongs";
+import { createPortal } from 'react-dom';
 import { log } from "console";
 
 interface SearchResultProps {
@@ -404,7 +405,6 @@ export function SearchArtist() {
         spotifyId: '',
         artistName: ''
     });
-
 
     // Debouncing para limitar las búsquedas por API al usuario
     const useDebounce = (value: string, delay: number) => {

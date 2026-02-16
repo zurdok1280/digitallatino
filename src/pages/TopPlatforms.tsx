@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef, useMemo } from "react";
+import { createPortal } from 'react-dom';
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap, ChevronDownIcon } from "lucide-react";
@@ -487,6 +488,17 @@ export default function TopPlatforms() {
     artist: null
   });
 
+  // Dropdown state keyboard navigation
+  const [openDropdown, setOpenDropdown] = useState<'country' | 'format' | 'platform' | 'city' | null>(null);
+  const [dropdownSearch, setDropdownSearch] = useState('');
+
+  // Estados para filtros desplegables
+  const [showFilters, setShowFilters] = useState(true);
+  const [countryDropdownPosition, setCountryDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const countryButtonRef = useRef<HTMLDivElement>(null);
+  const [platformDropdownPosition, setPlatformDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const platformButtonRef = useRef<HTMLDivElement>(null);
+
   // Función para abrir detalles del artista
   const handleArtistDetailsClick = (row: TopTrendingPlatforms) => {
     if (!user) {
@@ -514,6 +526,7 @@ export default function TopPlatforms() {
       artist: row
     });
   };
+
   const handleCloseArtistDetails = () => {
     setArtistDetailsModal({
       isOpen: false,
@@ -521,9 +534,6 @@ export default function TopPlatforms() {
     });
   };
 
-  // Dropdown state keyboard navigation
-  const [openDropdown, setOpenDropdown] = useState<'country' | 'format' | 'platform' | 'city' | null>(null);
-  const [dropdownSearch, setDropdownSearch] = useState('');
   // Función para obtener el icono de la plataforma
   const getPlatformIcon = (platform: string) => {
     const icons: { [key: string]: string } = {
@@ -616,6 +626,19 @@ export default function TopPlatforms() {
     });
   };
 
+  // Función para manejar la selección
+  const handleOptionSelect = (value: string, type: 'country' | 'format' | 'city') => {
+    if (type === 'country') {
+      setSelectedCountry(value);
+    } else if (type === 'format') {
+      setSelectedFormat(value);
+    } else if (type === 'city') {
+      setSelectedCity(value);
+    }
+    setOpenDropdown(null);
+    setDropdownSearch('');
+  };
+
   // Efecto para manejar la tecla Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -631,14 +654,30 @@ export default function TopPlatforms() {
   // Efecto para cerrar dropdowns al hacer click fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Element;
-      if (openDropdown && !target.closest('.platform-filter')) {
-        setOpenDropdown(null);
+      const target = event.target as Node;
+
+      // Cerrar dropdown de países
+      if (openDropdown === "country") {
+        const countryPortal = document.querySelector('[data-country-portal="true"]');
+        if (countryButtonRef.current && !countryButtonRef.current.contains(target) &&
+          countryPortal && !countryPortal.contains(target)) {
+          setOpenDropdown(null);
+          setDropdownSearch("");
+        }
+      }
+
+      // Cerrar dropdown de plataforma
+      if (openDropdown === "platform") {
+        const platformPortal = document.querySelector('[data-platform-portal="true"]');
+        if (platformButtonRef.current && !platformButtonRef.current.contains(target) &&
+          platformPortal && !platformPortal.contains(target)) {
+          setOpenDropdown(null);
+        }
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdown]);
 
   //Debouncing para limitar las busquedas por API al usuario
@@ -956,39 +995,9 @@ export default function TopPlatforms() {
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-gray-300/10 to-blue-300/10 rounded-full blur-3xl"></div>
       </div>
 
-      {/* Header para usuarios loggeados habilitar despues del login */}
-      {/*
-      {user && (
-        <div className="relative z-10 bg-gradient-to-r from-green-50 to-blue-50 border-b border-green-200 px-6 py-4">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold">✓</span>
-              </div>
-              <div>
-                <h2 className="font-bold text-green-800">
-                  {user.email === 'garciafix4@gmail.com' ? '🎯 Demo Exclusivo Activo' : '🎵 Acceso Premium Desbloqueado'}
-                </h2>
-                <p className="text-sm text-green-600">
-                  {user.email === 'garciafix4@gmail.com'
-                    ? 'Tienes acceso completo + estadísticas de campaña en tiempo real'
-                    : `Top 40 completo desbloqueado • ${user.email}`
-                  }
-                </p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm font-semibold text-green-700">Top 40 Completo</div>
-              <div className="text-xs text-green-600">Todos los géneros</div>
-            </div>
-          </div>
-        </div>
-      )}*/}
-
-
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-4 flex flex-col gap-3 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-3 md:p-4 shadow-lg relative z-10">
+        <div className="">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -998,127 +1007,255 @@ export default function TopPlatforms() {
           </div>
 
           {/* Filtros Profesionales */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 relative z-30 w-full max-w-6xl mx-auto px-2 sm:px-0">
-            {/* Filtro por País/Región */}
-            <div className="space-y-1 sm:space-y-2">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                <span className="text-sm sm:text-base">🌎</span>
-                <span className="truncate">País/Región</span>
-              </label>
-              <select
-                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
-                value={selectedCountry}
-                onChange={handleCountryChange}
-                disabled={loadingCountries}
-              >
-                {loadingCountries ? (
-                  <option value="">Cargando países...</option>
-                ) : (
-                  <>
-                    <option value="">Selecciona un país</option>
-                    {countries.map((country) => (
-                      <option key={country.id} value={country.id.toString()}>
-                        {country.country || country.description} ({country.country_name})
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
-            </div>
+          <div className="mb-4 bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 overflow-hidden">
+            {/* Desplegar/ocultar filtros */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="w-full px-4 py-3 flex items-center justify-between bg-gradient-to-r from-purple-50/50 to-pink-50/50 hover:from-purple-100/50 hover:to-pink-100/50 transition-all duration-300"
+            >
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                  </svg>
+                </div>
+                <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                  Filtros
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
 
-            {/* Filtro por Género */}
-            <div className="space-y-1 sm:space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                <span className="text-sm sm:text-base">📊</span>
-                <span className="truncate">Género</span>
-              </label>
-              <select
-                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
-                value={selectedFormat}
-                onChange={(e) => setSelectedFormat(e.target.value)}
-                disabled={loadingFormats || !selectedCountry}
-              >
-                {loadingFormats ? (
-                  <option value="">Cargando géneros...</option>
-                ) : !selectedCountry ? (
-                  <option value="">Selecciona un país primero</option>
-                ) : (
-                  <>
-                    {formats.map((format) => (
-                      <option key={format.id} value={format.id.toString()}>
-                        {format.format}
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
-            </div>
+                <ChevronDown
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''
+                    }`}
+                />
+              </div>
+            </button>
 
-            {/* Filtro por Plataforma */}
-            <div className="space-y-1 sm:space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                <span className="text-sm sm:text-base">🌐</span>
-                <span className="truncate">Plataforma</span>
-              </label>
-
-              {/* Custom Select para Plataformas */}
-              <div className="relative platform-filter">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenDropdown(openDropdown === 'platform' ? null : 'platform');
-                  }}
-                  className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-purple-400 cursor-pointer flex items-center gap-2 justify-between"
-                >
-                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <img
-                      src={getPlatformIcon(selectedPlatform)}
-                      alt={selectedPlatform}
-                      className="w-3 h-3 sm:w-4 sm:h-4 object-contain flex-shrink-0"
-                    />
-                    <span className="truncate">{getPlatformLabel(selectedPlatform)}</span>
-                  </div>
-                  <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === 'platform' ? 'rotate-180' : ''}`} />
-                </button>
-
-                {/* Dropdown Menu */}
-                {openDropdown === 'platform' && (
-                  <div
-                    className="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white/95 backdrop-blur-sm shadow-lg py-1 max-h-48 overflow-y-auto"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {[
-                      { value: 'spotify', label: 'Spotify' },
-                      { value: 'tiktok', label: 'TikTok' },
-                      { value: 'youtube', label: 'YouTube' },
-                      { value: 'shazam', label: 'Shazam' }
-                    ].map((platform) => (
+            {/* Filtros */}
+            <div
+              className={`
+                transition-all duration-300 ease-in-out overflow-hidden
+                ${showFilters ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}
+              `}
+            >
+              <div className="p-4 border-t border-white/30">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  {/* Filtro por País/Región */}
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                      <span className="text-sm sm:text-base">🌎</span>
+                      <span className="truncate">País/Región</span>
+                    </label>
+                    <div className="relative" ref={countryButtonRef}>
                       <button
-                        key={platform.value}
                         type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          setSelectedPlatform(platform.value);
-                          setOpenDropdown(null);
+                        onClick={() => {
+                          if (loadingCountries) return;
+                          setOpenDropdown(openDropdown === "country" ? null : "country");
+                          setDropdownSearch("");
+
+                          if (countryButtonRef.current) {
+                            const rect = countryButtonRef.current.getBoundingClientRect();
+                            setCountryDropdownPosition({
+                              top: rect.bottom + window.scrollY,
+                              left: rect.left + window.scrollX,
+                              width: rect.width,
+                            });
+                          }
                         }}
-                        className={`w-full px-2 py-1.5 text-left flex items-center gap-2 hover:bg-purple-50 transition-colors text-xs ${selectedPlatform === platform.value ? 'bg-purple-100 text-purple-700' : 'text-gray-800'
-                          }`}
+                        className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={loadingCountries}
                       >
-                        <img
-                          src={getPlatformIcon(platform.value)}
-                          alt={platform.value}
-                          className="w-3 h-3 sm:w-4 sm:h-4 object-contain flex-shrink-0"
+                        <span className="truncate pr-2">
+                          {loadingCountries ? (
+                            "Cargando países..."
+                          ) : (
+                            selectedCountry && countries.find(c => c.id.toString() === selectedCountry)
+                              ? `${countries.find(c => c.id.toString() === selectedCountry)?.country_name}`
+                              : "Selecciona un país"
+                          )}
+                        </span>
+                        <ChevronDown
+                          className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "country" ? "rotate-180" : ""
+                            }`}
                         />
-                        <span className="font-medium truncate">{platform.label}</span>
-                        {selectedPlatform === platform.value && (
-                          <div className="ml-auto w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-500 rounded-full flex-shrink-0" />
-                        )}
                       </button>
-                    ))}
+                    </div>
                   </div>
-                )}
+
+                  {/* Dropdown de países*/}
+                  {openDropdown === "country" && !loadingCountries && createPortal(
+                    <div
+                      data-country-portal="true"
+                      className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                      style={{
+                        top: countryDropdownPosition.top,
+                        left: countryDropdownPosition.left,
+                        width: countryDropdownPosition.width,
+                        maxHeight: '300px',
+                      }}
+                    >
+                      <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
+                        <div className="relative">
+                          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                          <input
+                            type="text"
+                            placeholder="Buscar país..."
+                            className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                            value={dropdownSearch}
+                            onChange={(e) => setDropdownSearch(e.target.value)}
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+
+                      <div className="max-h-60 overflow-y-auto">
+
+
+                        {/* Opciones de países */}
+                        {getFilteredOptions(countries, dropdownSearch, "country").map(
+                          (country) => (
+                            <button
+                              key={country.id}
+                              onClick={() => {
+                                handleOptionSelect(country.id.toString(), "country");
+                                setOpenDropdown(null);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-pink-50 transition-colors ${selectedCountry === country.id.toString()
+                                ? "bg-pink-100 text-pink-700 font-semibold"
+                                : "text-gray-700"
+                                }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span>🌍</span>
+                                <span className="truncate">
+                                  {country.country || country.description} ({country.country_name})
+                                </span>
+                              </span>
+                            </button>
+                          )
+                        )}
+
+                        {getFilteredOptions(countries, dropdownSearch, "country").length === 0 && (
+                          <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
+                            No se encontraron países
+                          </div>
+                        )}
+                      </div>
+                    </div>,
+                    document.body
+                  )}
+
+                  {/* Filtro por Género */}
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                      <span className="text-sm sm:text-base">📊</span>
+                      <span className="truncate">Género</span>
+                    </label>
+                    <select
+                      className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      value={selectedFormat}
+                      onChange={(e) => setSelectedFormat(e.target.value)}
+                      disabled={loadingFormats || !selectedCountry}
+                    >
+                      {loadingFormats ? (
+                        <option value="">Cargando géneros...</option>
+                      ) : !selectedCountry ? (
+                        <option value="">Selecciona un país primero</option>
+                      ) : (
+                        <>
+                          {formats.map((format) => (
+                            <option key={format.id} value={format.id.toString()}>
+                              {format.format}
+                            </option>
+                          ))}
+                        </>
+                      )}
+                    </select>
+                  </div>
+
+                  {/* Filtro por Plataforma */}
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                      <span className="text-sm sm:text-base">🌐</span>
+                      <span className="truncate">Plataforma</span>
+                    </label>
+
+                    <div className="relative" ref={platformButtonRef}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpenDropdown(openDropdown === 'platform' ? null : 'platform');
+                          if (platformButtonRef.current) {
+                            const rect = platformButtonRef.current.getBoundingClientRect();
+                            setPlatformDropdownPosition({
+                              top: rect.bottom + window.scrollY,
+                              left: rect.left + window.scrollX,
+                              width: rect.width,
+                            });
+                          }
+                        }}
+                        className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-purple-400 cursor-pointer flex items-center gap-2 justify-between"
+                      >
+                        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                          <img
+                            src={getPlatformIcon(selectedPlatform)}
+                            alt={selectedPlatform}
+                            className="w-3 h-3 sm:w-4 sm:h-4 object-contain flex-shrink-0"
+                          />
+                          <span className="truncate">{getPlatformLabel(selectedPlatform)}</span>
+                        </div>
+                        <ChevronDown className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === 'platform' ? 'rotate-180' : ''}`} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Dropdown de plataforma */}
+                  {openDropdown === 'platform' && createPortal(
+                    <div
+                      data-platform-portal="true"
+                      className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                      style={{
+                        top: platformDropdownPosition.top,
+                        left: platformDropdownPosition.left,
+                        width: platformDropdownPosition.width,
+                        maxHeight: '200px',
+                      }}
+                    >
+                      <div className="max-h-48 overflow-y-auto py-1">
+                        {[
+                          { value: 'spotify', label: 'Spotify', icon: spotifyIcon },
+                          { value: 'tiktok', label: 'TikTok', icon: tiktokIcon },
+                          { value: 'youtube', label: 'YouTube', icon: youtubeIcon },
+                          { value: 'shazam', label: 'Shazam', icon: shazamIcon }
+                        ].map((platform) => (
+                          <button
+                            key={platform.value}
+                            type="button"
+                            onClick={() => {
+                              setSelectedPlatform(platform.value);
+                              setOpenDropdown(null);
+                            }}
+                            className={`w-full px-3 py-2 text-left flex items-center gap-2 hover:bg-purple-50 transition-colors text-xs sm:text-sm ${selectedPlatform === platform.value ? 'bg-purple-100 text-purple-700 font-semibold' : 'text-gray-800'
+                              }`}
+                          >
+                            <img
+                              src={platform.icon}
+                              alt={platform.value}
+                              className="w-4 h-4 sm:w-5 sm:h-5 object-contain flex-shrink-0"
+                            />
+                            <span className="font-medium truncate">{platform.label}</span>
+                            {selectedPlatform === platform.value && (
+                              <div className="ml-auto w-1.5 h-1.5 sm:w-2 sm:h-2 bg-purple-500 rounded-full flex-shrink-0" />
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>,
+                    document.body
+                  )}
+                </div>
               </div>
             </div>
           </div>
