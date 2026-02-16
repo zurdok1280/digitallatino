@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Music, Search, Info, Lock, Users, Play, X } from "lucide-react";
 import { digitalLatinoApi, SpotifyTrackResult, Song, SpotifyArtistResult } from "@/lib/api";
@@ -9,7 +9,6 @@ import ChartSongDetails from "./ChartSongDetails";
 import ChartArtistDetails from "./ChartArtistDetails";
 import { useAuth } from "@/hooks/useAuth";
 import { ArtistSongs } from "./artistSongs";
-import { createPortal } from 'react-dom';
 import { log } from "console";
 
 interface SearchResultProps {
@@ -52,14 +51,10 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
 
         setLoadingDetails(true);
         try {
-            // Paso 1: Obtener el csSong usando el spotifyId
-            const csSongResponse = await digitalLatinoApi.getSongBySpotifyId(track.spotify_id);
+            if (track.my_song_id) {
+                const csSong = track.my_song_id;
+                console.log('✅ cs_song encontrado directamente:', csSong);
 
-            if (csSongResponse.data && csSongResponse.data.cs_song) {
-                const csSong = csSongResponse.data.cs_song;
-                console.log('✅ cs_song encontrado:', csSong);
-
-                // Crear objeto Song con valores por defecto usando la información que tenemos
                 const defaultSongData: Song = {
                     cs_song: csSong,
                     spotify_streams_total: 0,
@@ -88,45 +83,30 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                     spotifyid: track.spotify_id || ''
                 };
 
-
                 setSongDetails(defaultSongData);
                 setIsDetailsOpen(true);
-
             } else {
                 try {
                     const logResponse = await digitalLatinoApi.setLogSong({
                         userid: user.id,
                         spotifyid: track.spotify_id,
                         isartist: false
-                    })
+                    });
                     if (logResponse.success) {
                         console.log("Log registrado exitosamente:", logResponse.data);
                     }
                 } catch (error) {
                     console.error("Error al registrar el log de la cancion:", error);
                 }
-                console.log(' No se encontró cs_song en la respuesta');
+
+                console.log(' No se encontró my_song_id en la respuesta');
                 toast({
-                    title: "",
-                    description: "No se encontró el ID de la canción",
+                    title: "Información no disponible",
+                    description: "Esta canción aún no tiene métricas disponibles en nuestro sistema",
                     variant: "destructive"
                 });
             }
         } catch (error) {
-            //Si no hay datos de la cancion:
-            try {
-                const logResponse = await digitalLatinoApi.setLogSong({
-                    userid: user.id,
-                    spotifyid: track.spotify_id,
-                    isartist: false
-                })
-                if (logResponse.success) {
-                    console.log("Log registrado exitosamente:", logResponse.data);
-                }
-            } catch (error) {
-                console.error("Error al registrar el log de la cancion:", error);
-            }
-
             console.error(' Error obteniendo métricas de la canción:', error);
             toast({
                 title: "Error",
@@ -405,6 +385,7 @@ export function SearchArtist() {
         spotifyId: '',
         artistName: ''
     });
+
 
     // Debouncing para limitar las búsquedas por API al usuario
     const useDebounce = (value: string, delay: number) => {
