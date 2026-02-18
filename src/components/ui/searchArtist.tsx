@@ -548,7 +548,7 @@ export function SearchArtist() {
 
                     {/* Search Results en tiempo real */}
                     {showSearchResults && (
-                        <div className="absolute z-50 mt-2 sm:mt-3 w-full max-w-7xl bg-gray-50 border border-gray-300 rounded-xl lg:rounded-2xl shadow-2xl max-h-80 lg:max-h-96 overflow-hidden top-full">
+                        <div className="absolute z-50 mt-2 sm:mt-3 w-full max-w-7xl bg-gray-50 border border-gray-300 rounded-xl lg:rounded-2xl shadow-2xl max-h-90 lg:max-h-106 overflow-hidden top-full">
                             <div className="p-4 lg:p-5 border-b border-gray-300 bg-white">
                                 {/* Tabs para cambiar entre canciones y artistas */}
                                 {(hasTracks && hasArtists) && (
@@ -588,7 +588,7 @@ export function SearchArtist() {
                                 )}
                             </div>
 
-                            <div className="max-h-64 lg:max-h-80 overflow-y-auto bg-white">
+                            <div className="max-h-74 lg:max-h-90 overflow-y-auto bg-white">
                                 {activeTab === 'tracks' && hasTracks ? (
                                     searchResults.tracks.map((track) => (
                                         <div key={track.spotify_id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors ">

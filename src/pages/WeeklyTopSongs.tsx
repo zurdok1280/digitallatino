@@ -308,7 +308,7 @@ export default function Charts() {
   // Countries API state
   const [countries, setCountries] = useState<Country[]>([]);
   const [loadingCountries, setLoadingCountries] = useState(true);
-  const [selectedCountry, setSelectedCountry] = useState("0"); // USA ID = 2 por defecto
+  const [selectedCountry, setSelectedCountry] = useState("2"); // USA ID = 2 por defecto
 
   // Formats API state
   const [formats, setFormats] = useState<Format[]>([]);
@@ -368,7 +368,7 @@ export default function Charts() {
     song2: SelectedSong | null;
   }>({ song1: null, song2: null });
   //Desplegar Filtros
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [cityDropdownPosition, setCityDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const cityButtonRef = useRef<HTMLDivElement>(null);
   const [countryDropdownPosition, setCountryDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
@@ -632,7 +632,7 @@ export default function Charts() {
 
       // Validar y parsear valores
       const formatId = selectedFormat ? parseInt(selectedFormat) : 0;
-      const countryId = selectedCountry ? parseInt(selectedCountry) : 0; // valor por defecto
+      const countryId = selectedCountry ? parseInt(selectedCountry) : 2; // valor por defecto
       const cityId = selectedCity ? parseInt(selectedCity) : 0;
 
       if (isNaN(countryId)) {
@@ -1454,7 +1454,7 @@ export default function Charts() {
             onCompare={handleCompareSelected}
             onClear={handleClearSelection}
           />
-          <div className="text-xs text-muted-foreground items-end justify-end flex pr-7 pb-2">
+          <div className="text-xs text-muted-foreground items-end justify-center flex pr-7 pb-2">
             {`Última actualización: ${lastUpdate ? lastUpdate : "Cargando..."}`}
           </div>
           {/* Fab button de MUI para buscar */}
