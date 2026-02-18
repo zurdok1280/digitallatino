@@ -327,7 +327,7 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                             >
                                 <Play className="w-2 h-2 sm:w-3 sm:h-3" />
                                 <span className="hidden sm:inline">Ver Canciones</span>
-                                <span className="sm:hidden">Canciones</span>
+                                <span className="sm:hidden">Canci</span>
                             </Button>
                         ) : (
                             <Button

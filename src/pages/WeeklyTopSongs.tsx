@@ -1563,24 +1563,20 @@ export default function Charts() {
                     }`}
                 >
                   <div className="grid grid-cols-9 items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-3 py-1.5">
-
                     {/* Rank & movement */}
-                    <div className="col-span-1 flex items-center justify-center">
-                      {/* Checkbox si esta en modo comparacion */}
+                    <div className="col-span-1 flex items-center justify-start gap-1 min-w-0">
                       {comparisonMode && (
-                        <div className="col-span-1 flex items-center justify-center">
-                          <button
-                            onClick={() => handleSelectSong(row)}
-                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${selectedSongs.some(s => s.cs_song === row.cs_song)
-                              ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-transparent text-white'
-                              : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
-                              }`}
-                          >
-                            {selectedSongs.some(s => s.cs_song === row.cs_song) && (
-                              <span className="text-xs font-bold">✓</span>
-                            )}
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => handleSelectSong(row)}
+                          className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 ${selectedSongs.some(s => s.cs_song === row.cs_song)
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-transparent text-white'
+                            : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                            }`}
+                        >
+                          {selectedSongs.some(s => s.cs_song === row.cs_song) && (
+                            <span className="text-xs font-bold">✓</span>
+                          )}
+                        </button>
                       )}
                       <div className="flex items-center gap-1.5 sm:gap-2">
                         {/* Rank */}
@@ -1678,7 +1674,7 @@ export default function Charts() {
                         >
                           {row.artists}
                         </p>
-                        <p className="text-xs sm:text-sm font-medium text-gray-400 truncate">
+                        <p className="hidden sm:block col-span-1 truncate text-xs text-gray-400">
                           {row.label}
                         </p>
                       </div>
@@ -1748,17 +1744,7 @@ export default function Charts() {
                         cityDataForSong={cityData}
                         loadingCityData={loadingCityData}
                       />
-                      <div className="mt-4 items-end justify-end flex">
-                        <Button
-                          onClick={() => handleCompareFromRow(row)}
-                          variant="outline"
-                          size="sm"
-                          className="bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200 text-purple-700 hover:from-purple-100 hover:to-pink-100"
-                        >
-                          <BarChart3 className="mr-2 h-4 w-4" />
-                          Comparar esta canción con otra
-                        </Button>
-                      </div>
+
                     </div>
                   )}
                 </div>
@@ -1768,7 +1754,7 @@ export default function Charts() {
         </div>
         {/* Sección para mostrar más del Top 10 - Solo si NO está autenticado */}
         {!user && (
-          <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
+          <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-xl sm:rounded-3xl p-4 sm:p-8 shadow-lg w-full overflow-hidden">
             <div className="text-center space-y-6">
               <div className="flex justify-center items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
