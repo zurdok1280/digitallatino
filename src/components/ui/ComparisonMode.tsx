@@ -1,237 +1,142 @@
-// Componente FiltroCiudad con Scroll Infinito
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, ChevronDown, MapPin } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { BarChart3, Check, X, ChevronRight, SquareArrowLeft, } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 import { createPortal } from 'react-dom';
 
-interface CityFilterProps {
-    selectedCountry: string;
-    selectedCity: string;
-    onCitySelect: (cityId: string) => void;
-    loadingCities: boolean;
-    cities: any[];
-    openDropdown: string | null;
-    setOpenDropdown: (value: string | null) => void;
-    dropdownSearch: string;
-    setDropdownSearch: (value: string) => void;
-    getFilteredOptions: (options: any[], search: string, type: string) => any[];
-    handleOptionSelect: (value: string, type: string) => void;
+interface ComparisonModeProps {
+    isActive: boolean;
+    onToggle: () => void;
+    selectedCount: number;
+    onCompare: () => void;
+    onClear: () => void;
 }
 
-export function CityFilter({
-    selectedCountry,
-    selectedCity,
-    onCitySelect,
-    loadingCities,
-    cities,
-    openDropdown,
-    setOpenDropdown,
-    dropdownSearch,
-    setDropdownSearch,
-    getFilteredOptions,
-    handleOptionSelect
-}: CityFilterProps) {
-    const [cityDropdownPosition, setCityDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
-    const cityButtonRef = useRef<HTMLDivElement>(null);
+export function ComparisonMode({
+    isActive,
+    onToggle,
+    selectedCount,
+    onCompare,
+    onClear,
+}: ComparisonModeProps) {
+    const { toast } = useToast();
+    const [isHovered, setIsHovered] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
-    // Estados para scroll infinito
-    const [displayedCities, setDisplayedCities] = useState<any[]>([]);
-    const [page, setPage] = useState(1);
-    const [hasMore, setHasMore] = useState(true);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const CITIES_PER_PAGE = 30;
-
-    const observerRef = useRef<IntersectionObserver | null>(null);
-    const lastCityRef = useRef<HTMLDivElement | null>(null);
-
-    // Resetear cuando cambian las ciudades (nuevo país seleccionado)
     useEffect(() => {
-        setDisplayedCities(cities.slice(0, CITIES_PER_PAGE));
-        setPage(1);
-        setHasMore(cities.length > CITIES_PER_PAGE);
-    }, [cities]);
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
 
-    // Configurar Intersection Observer para scroll infinito
-    useEffect(() => {
-        if (loadingCities || !hasMore) return;
-
-        if (observerRef.current) {
-            observerRef.current.disconnect();
+    const handleCompareClick = () => {
+        if (selectedCount === 2) {
+            onCompare();
+        } else {
+            toast({
+                title: 'Selecciona 2 canciones',
+                description: `Actualmente tienes ${selectedCount} seleccionadas. Necesitas exactamente 2 para comparar.`,
+                variant: 'destructive',
+            });
         }
-
-        observerRef.current = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting && hasMore && !isLoadingMore) {
-                    // Cargar más ciudades
-                    setIsLoadingMore(true);
-
-                    // Simular carga asíncrona para no bloquear la UI
-                    setTimeout(() => {
-                        const nextPage = page + 1;
-                        const start = page * CITIES_PER_PAGE;
-                        const end = start + CITIES_PER_PAGE;
-                        const newCities = cities.slice(start, end);
-
-                        if (newCities.length > 0) {
-                            setDisplayedCities(prev => [...prev, ...newCities]);
-                            setPage(nextPage);
-                            setHasMore(end < cities.length);
-                        } else {
-                            setHasMore(false);
-                        }
-
-                        setIsLoadingMore(false);
-                    }, 100);
-                }
-            },
-            {
-                threshold: 0.1,
-                rootMargin: '100px' // Cargar 100px antes de llegar al final
-            }
-        );
-
-        return () => observerRef.current?.disconnect();
-    }, [loadingCities, hasMore, page, cities, isLoadingMore]);
-
-    // Efecto para conectar el observer al último elemento
-    useEffect(() => {
-        if (observerRef.current && lastCityRef.current) {
-            observerRef.current.disconnect();
-            observerRef.current.observe(lastCityRef.current);
-        }
-
-        return () => observerRef.current?.disconnect();
-    }, [displayedCities]);
-
-    // Filtrar ciudades mostradas según búsqueda
-    const filteredDisplayedCities = getFilteredOptions(displayedCities, dropdownSearch, "city");
+    };
 
     return (
-        <div className="space-y-1 sm:space-y-2 relative">
-            <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                <span className="text-sm sm:text-base">🏙️</span>
-                <span className="truncate">Ciudad Target</span>
-            </label>
-            <div className="relative" ref={cityButtonRef}>
-                <button
-                    type="button"
-                    onClick={() => {
-                        setOpenDropdown(openDropdown === "city" ? null : "city");
-                        setDropdownSearch("");
-                        if (cityButtonRef.current) {
-                            const rect = cityButtonRef.current.getBoundingClientRect();
-                            setCityDropdownPosition({
-                                top: rect.bottom + window.scrollY,
-                                left: rect.left + window.scrollX,
-                                width: rect.width,
-                            });
-                        }
-                    }}
-                    className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                    disabled={loadingCities || !selectedCountry}
+        <div
+            className="fixed top-1 left-2 z-50"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+        >
+            <div
+                onClick={onToggle}
+                className={`
+          flex items-center gap-2 px-3 py-1.5 rounded-full shadow-lg cursor-pointer
+          transition-all duration-300 transform hover:scale-105
+          ${!isActive
+                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700'
+                        : 'bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700'
+                    }
+        `}
+            >
+                {!isActive ? (
+                    <BarChart3 className="w-4 h-4 text-white" />
+                ) : (
+                    <SquareArrowLeft className="w-4 h-4 text-white" />
+                )}
+                <span
+                    className={`
+            text-xs font-medium text-white overflow-hidden transition-all duration-300
+            ${isHovered ? 'max-w-[120px] opacity-100 ml-1' : 'max-w-0 opacity-0'}
+          `}
                 >
-                    <span className="truncate pr-2">
-                        {loadingCities
-                            ? "Cargando..."
-                            : !selectedCountry
-                                ? "Selecciona país primero"
-                                : selectedCity !== "0" && cities.length > 0
-                                    ? cities.find((c) => c.id.toString() === selectedCity)?.city_name || "Todas las ciudades"
-                                    : "Todas las ciudades"}
-                    </span>
-                    <ChevronDown
-                        className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
-                            }`}
-                    />
-                </button>
+                    {!isActive ? 'Comparar' : 'Regresar'}
+                </span>
             </div>
 
-            {/* Dropdown de ciudades */}
-            {openDropdown === "city" && cities.length > 0 && createPortal(
-                <div
-                    data-city-portal="true"
-                    className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
-                    style={{
-                        top: cityDropdownPosition.top,
-                        left: cityDropdownPosition.left,
-                        width: cityDropdownPosition.width,
-                        maxHeight: '300px',
-                    }}
-                >
-                    <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95 z-10">
-                        <div className="relative">
-                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                            <input
-                                type="text"
-                                placeholder="Buscar ciudad..."
-                                className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-                                value={dropdownSearch}
-                                onChange={(e) => setDropdownSearch(e.target.value)}
-                                autoFocus
-                            />
-                        </div>
+            {/* Tooltip informativo */}
+            {isHovered && !isActive && (
+                <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl border border-purple-100 px-3 py-2 whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-200">
+                    <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />
+                        <span className="text-xs font-medium text-gray-700">
+                            Comparar 2 canciones
+                        </span>
                     </div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">
+                        Selecciona los tracks que quieras comparar
+                    </div>
+                </div>
+            )}
 
-                    <div className="overflow-y-auto" style={{ maxHeight: '250px' }}>
-                        {/* Opción "Todas las ciudades" */}
-                        <button
-                            onClick={() => {
-                                handleOptionSelect("0", "city");
-                                setOpenDropdown(null);
-                            }}
-                            className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors sticky top-0 ${selectedCity === "0"
-                                ? "bg-orange-100 text-orange-700 font-semibold"
-                                : "bg-white text-gray-700"
-                                }`}
-                        >
-                            <span className="flex items-center gap-2">
-                                <span>🎯</span>
-                                <span>Todas las ciudades</span>
+            {isActive && selectedCount === 0 && isHovered && (
+                <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl border border-red-100 px-3 py-2 whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-200">
+                    <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                        <span className="text-xs font-medium text-gray-700">
+                            Modo comparación activo
+                        </span>
+                    </div>
+                    <div className="text-[10px] text-gray-500 mt-0.5">
+                        Haz click en los checkboxes para seleccionar
+                    </div>
+                </div>
+            )}
+
+            {/* Contador flotante - SIN FILTRO DE CIUDADES, solo muestra el contador en el orden original */}
+            {mounted && isActive && selectedCount > 0 && createPortal(
+                <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[99999]">
+                    <div className="bg-white/95 backdrop-blur-md rounded-full shadow-2xl border border-purple-200 px-4 py-2 flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300">
+                        <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                                {selectedCount}
+                            </div>
+                            <span className="text-sm font-medium text-gray-700">
+                                {selectedCount === 2 ? '2/2 seleccionadas' : `${selectedCount}/2 seleccionadas`}
                             </span>
-                        </button>
+                        </div>
 
-                        {/* Lista de ciudades con scroll infinito */}
-                        {filteredDisplayedCities.length > 0 ? (
-                            filteredDisplayedCities.map((city, index) => (
-                                <div
-                                    key={city.id}
-                                    ref={index === filteredDisplayedCities.length - 1 ? lastCityRef : null}
-                                >
-                                    <button
-                                        onClick={() => {
-                                            handleOptionSelect(city.id.toString(), "city");
-                                            setOpenDropdown(null);
-                                        }}
-                                        className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
-                                            ? "bg-orange-100 text-orange-700 font-semibold"
-                                            : "text-gray-700"
-                                            }`}
-                                    >
-                                        <span className="flex items-center gap-2">
-                                            <MapPin className="w-3 h-3 text-gray-400" />
-                                            <span className="truncate">{city.city_name}</span>
-                                        </span>
-                                    </button>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
-                                No se encontraron ciudades
-                            </div>
-                        )}
+                        <div className="w-px h-5 bg-gray-200" />
 
-                        {/* Indicador de carga para más ciudades */}
-                        {isLoadingMore && (
-                            <div className="px-3 py-2 text-center">
-                                <div className="inline-block w-4 h-4 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
-                            </div>
-                        )}
-
-                        {/* Contador de ciudades totales */}
-                        {!hasMore && cities.length > CITIES_PER_PAGE && (
-                            <div className="px-3 py-2 text-[10px] text-gray-500 text-center border-t border-gray-100 bg-gray-50/50">
-                                {cities.length} ciudades cargadas
-                            </div>
-                        )}
+                        <div className="flex gap-1.5">
+                            <button
+                                onClick={onClear}
+                                className="text-xs px-2.5 py-1.5 rounded-full text-gray-600 hover:bg-gray-100 transition-colors"
+                            >
+                                Limpiar
+                            </button>
+                            <button
+                                onClick={handleCompareClick}
+                                disabled={selectedCount !== 2}
+                                className={`
+                  text-xs px-3 py-1.5 rounded-full font-medium transition-all
+                  ${selectedCount === 2
+                                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md hover:shadow-lg transform hover:scale-105'
+                                        : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    }
+                `}
+                            >
+                                Comparar
+                            </button>
+                        </div>
                     </div>
                 </div>,
                 document.body
