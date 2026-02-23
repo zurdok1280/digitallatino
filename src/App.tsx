@@ -8,8 +8,8 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { AuthProvider } from "./hooks/useAuth";
 import { lazy, Suspense } from "react";
 import { RequireSubscription } from "./components/RequireSubscription";
-import { ForgotPassword } from './pages/ForgotPassword'; 
-import ResetPassword from './pages/ResetPassword'; 
+import { ForgotPassword } from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 
 // Lazy loading de páginas para optimizar tiempo de carga inicial
@@ -27,6 +27,8 @@ const Payment = lazy(() => import("./pages/PaymentPage"));
 const AuthCallback = lazy(() => import("./pages/AuthCallbackPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const MyArtist = lazy(() => import("./pages/MyArtist"));
+const CuratorPics = lazy(() => import("./pages/CuratorPics"));
+const TiktokerPics = lazy(() => import("./pages/TiktokerPics"));
 
 // QueryClient optimizado para rendimiento
 const queryClient = new QueryClient({
@@ -88,12 +90,12 @@ const App = () => (
               }
             />
             <Route
-             path="/forgot-password" 
-             element={
-             <ForgotPassword />
-             }
-              />
-              <Route path="/reset-password" element={<ResetPassword />} />
+              path="/forgot-password"
+              element={
+                <ForgotPassword />
+              }
+            />
+            <Route path="/reset-password" element={<ResetPassword />} />
             {/* --- Only premium  with thw component RequireSubscription --- */}
             <Route element={<RequireSubscription />}>
               <Route path="/" element={withLazy(WeeklyTopSongs)} />
@@ -112,6 +114,8 @@ const App = () => (
               <Route path="/top-platforms" element={withLazy(TopPlatforms)} />
               <Route path="/top-artists" element={withLazy(TopArtists)} />
               <Route path="/debut" element={withLazy(Debut)} />
+              <Route path="/curator-pics" element={withLazy(CuratorPics)} />
+              <Route path="/tiktoker-pics" element={withLazy(TiktokerPics)} />
               <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

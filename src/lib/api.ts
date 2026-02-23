@@ -425,6 +425,36 @@ export interface SelectedSong {
   rk: number;
   score: number;
 }
+//Intwerface para Curator Pics
+export interface CuratorPicsData {
+  song: string;
+  cs_song: number;
+  sum_followers: number;
+  artists: string;
+  image_url: string;
+  avg_position: number;
+  rk: number;
+  label: string;
+}
+// Interface para tipos de playlist en Curator Pics
+export interface PlaylistTypeData {
+  name: string;
+  id: number;
+}
+// Interface para datos de Tiktok Pics
+export interface TiktokPicsData {
+  song: string;
+  shares_total: number;
+  cs_song: number;
+  artists: string;
+  image_url: string;
+  views_total: number;
+  comments_total: number;
+  rk: number;
+  no_videos: number;
+  likes_total: number;
+  label: string;
+}
 
 // Clase principal para manejar las conexiones API
 export class ApiClient {
@@ -756,6 +786,18 @@ export const digitalLatinoApi = {
     csSong2: number,
   ): Promise<ApiResponse<VsSongData[]>> =>
     api.get<VsSongData[]>(`report/getVsSong/${csSong1}/${csSong2}`),
+  //Obtener datos de curator pics con formato y tipo de playlist
+  getCuratorPics: (
+    formatId: number,
+    type: number,
+  ): Promise<ApiResponse<CuratorPicsData[]>> =>
+    api.get<CuratorPicsData[]>(`report/getCuratorPics/${formatId}/${type}`),
+  //Obtener los tipos de playlist disponibles para curator pics
+  getPlaylistType: (): Promise<ApiResponse<PlaylistTypeData[]>> =>
+    api.get<PlaylistTypeData[]>(`report/getPlaylistType`),
+  ///report/getTiktokPics/{formatId}
+  getTiktokPics: (formatId: number): Promise<ApiResponse<TiktokPicsData[]>> =>
+    api.get<TiktokPicsData[]>(`report/getTiktokPics/${formatId}`),
 };
 
 // Ejemplo de uso:

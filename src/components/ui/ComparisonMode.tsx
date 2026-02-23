@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, Check, X, ChevronRight } from 'lucide-react';
+import { BarChart3, Check, X, ChevronRight, SquareArrowLeft, } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { createPortal } from 'react-dom';
@@ -60,15 +60,20 @@ export function ComparisonMode({
                 {!isActive ? (
                     <BarChart3 className="w-4 h-4 text-white" />
                 ) : (
-                    <X className="w-4 h-4 text-white" />
+                    <SquareArrowLeft className="w-4 h-4 text-white" />
                 )}
+                {/*
+                <Undo className="w-4 h-4 text-white" />
+
+                < X className="w-4 h-4 text-white" />
+                        */}
                 <span
                     className={`
             text-xs font-medium text-white overflow-hidden transition-all duration-300
             ${isHovered ? 'max-w-[120px] opacity-100 ml-1' : 'max-w-0 opacity-0'}
           `}
                 >
-                    {!isActive ? 'Comparar' : 'Cancelar'}
+                    {!isActive ? 'Comparar' : 'Regresar'}
                 </span>
             </div>
 

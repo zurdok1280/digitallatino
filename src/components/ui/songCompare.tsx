@@ -26,7 +26,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
     }>({ key: 'dif_streams', direction: 'desc' });
     const [currentPage, setCurrentPage] = useState(1);
     const [isMobile, setIsMobile] = useState(false);
-    const itemsPerPage = 10;
+    const itemsPerPage = 1000;
 
     useEffect(() => {
         const checkMobile = () => {
@@ -145,9 +145,18 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
     };
 
     const formatNumber = (num: number) => {
-        if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
-        if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+        if (num === 0) return <span className="text-gray-400">-</span>;
+        if (num >= 1000000) return `${(num / 1000000).toFixed(1)} M`;
+        if (num >= 1000) return `${(num / 1000).toFixed(1)} K`;
+        if (num <= -1000000) return `${(num / 1000000).toFixed(1)} M`;
+        if (num <= -1000) return `${(num / 1000).toFixed(1)} K`;
         return num.toLocaleString();
+    };
+
+    const formatDifference = (num: number) => {
+        if (num === 0) return <span className="text-gray-400">-</span>;
+        const formatted = num > 0 ? `+${num.toLocaleString()}` : num.toLocaleString();
+        return formatted;
     };
 
     if (!isOpen) return null;
@@ -169,7 +178,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                         : 'max-w-6xl w-full h-[90vh] p-4'
                     }
         `}>
-                    {/* Header pora moviles */}
+                    {/* Header para moviles */}
                     {isMobile ? (
                         <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
                             <Button
@@ -330,7 +339,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                         {metrics.citiesSong1Wins}
                                     </div>
                                     <div className="text-[10px] md:text-xs text-gray-600 truncate">
-                                        Gana {isMobile ? song1.song.substring(0, 8) : song1.song}
+                                        {isMobile ? song1.song.substring(0, 8) : song1.song}
                                     </div>
                                 </div>
                             </Card>
@@ -342,7 +351,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                         {metrics.citiesSong2Wins}
                                     </div>
                                     <div className="text-[10px] md:text-xs text-gray-600 truncate">
-                                        Gana {isMobile ? song2.song.substring(0, 8) : song2.song}
+                                        {isMobile ? song2.song.substring(0, 8) : song2.song}
                                     </div>
                                 </div>
                             </Card>
@@ -350,8 +359,18 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                             <Card className="p-2 md:p-3 bg-white/80 backdrop-blur-sm">
                                 <div className="text-center">
                                     <div className="text-lg md:text-2xl font-bold text-gray-900">
-                                        {metrics.streamDifference > 0 ? '+' : ''}
-                                        {formatNumber(metrics.streamDifference)}
+                                        {metrics.streamDifference === 0 ? (
+                                            <span className="text-gray-400">-</span>
+                                        ) : (
+                                            <>
+                                                {metrics.streamDifference > 0 ? '+' : ''}
+                                                {metrics.streamDifference >= 1000000
+                                                    ? `${(metrics.streamDifference / 1000000).toFixed(1)} M`
+                                                    : metrics.streamDifference >= 1000
+                                                        ? `${(metrics.streamDifference / 1000).toFixed(1)} K`
+                                                        : metrics.streamDifference.toLocaleString()}
+                                            </>
+                                        )}
                                     </div>
                                     <div className="text-[10px] md:text-xs text-gray-600">
                                         Diff. Streams
@@ -477,23 +496,34 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                             </td>
                                                             <td className="py-2 md:py-3 px-2 md:px-4">
                                                                 <div className="text-xs md:text-sm font-bold text-purple-700">
-                                                                    {formatNumber(item.first_streams)}
+                                                                    {item.first_streams === 0 ? (
+                                                                        <span className="text-gray-400">-</span>
+                                                                    ) : (
+                                                                        formatNumber(item.first_streams)
+                                                                    )}
                                                                 </div>
                                                             </td>
                                                             <td className="py-2 md:py-3 px-2 md:px-4">
                                                                 <div className="text-xs md:text-sm font-bold text-blue-700">
-                                                                    {formatNumber(item.second_streams)}
+                                                                    {item.second_streams === 0 ? (
+                                                                        <span className="text-gray-400">-</span>
+                                                                    ) : (
+                                                                        formatNumber(item.second_streams)
+                                                                    )}
                                                                 </div>
                                                             </td>
                                                             <td className="py-2 md:py-3 px-2 md:px-4">
-                                                                <div className={`
-                                  text-xs md:text-sm font-bold
-                                  ${item.dif_streams > 0 ? 'text-green-600' :
-                                                                        item.dif_streams < 0 ? 'text-red-600' : 'text-gray-600'}
-                                `}>
-                                                                    {item.dif_streams > 0 ? '+' : ''}
-                                                                    {formatNumber(item.dif_streams)}
-                                                                </div>
+                                                                {item.dif_streams === 0 || item.first_streams === 0 || item.second_streams === 0 ? (
+                                                                    <span className="text-xs md:text-sm font-bold text-gray-400">-</span>
+                                                                ) : (
+                                                                    <div className={`
+                                                                        text-xs md:text-sm font-bold
+                                                                        ${item.dif_streams > 0 ? 'text-green-600' : 'text-red-600'}
+                                                                    `}>
+                                                                        {item.dif_streams > 0 ? '+' : ''}
+                                                                        {formatNumber(item.dif_streams)}
+                                                                    </div>
+                                                                )}
                                                             </td>
                                                             <td className="py-2 md:py-3 px-2 md:px-4">
                                                                 {item.first_streams > item.second_streams ? (
@@ -611,7 +641,10 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                             fontSize: isMobile ? '10px' : '12px',
                                                             padding: isMobile ? '8px' : '12px',
                                                         }}
-                                                        formatter={(value: number) => formatNumber(value)}
+                                                        formatter={(value: number) => {
+                                                            if (value === 0) return <span className="text-gray-400">-</span>;
+                                                            return formatNumber(value);
+                                                        }}
                                                         labelFormatter={(label) => `Ciudad: ${label}`}
                                                     />
                                                     <Legend
@@ -665,7 +698,6 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                             >
                                 Cerrar
                             </Button>
-
                         </div>
                     )}
                 </div>

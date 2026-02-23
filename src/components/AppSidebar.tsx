@@ -8,8 +8,9 @@ import {
   LayoutDashboard,
   Crown,
   Mic2,
+  DiscAlbum,
 } from "lucide-react";
-
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -32,21 +33,23 @@ type NavItem = {
 };
 
 const navigation: NavItem[] = [
-  { title: "Top Canciones Semanal", url: "/weekly-top-songs", icon: Home },
+  { title: "Charts", url: "/weekly-top-songs", icon: Home },
   // { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, requiresAuth: true },
   {
-    title: "Top Plataformas",
+    title: "Platforms",
     url: "/top-platforms",
     icon: BarChart3,
     requiresAuth: true,
   },
   {
-    title: "Top Artistas",
+    title: "Artists Analytics",
     url: "/top-artists",
     icon: Headphones,
     requiresAuth: true,
   },
-  { title: "Debut", url: "/debut", icon: Sparkles, requiresAuth: true },
+  { title: "Heavy Hitters", url: "/debut", icon: Sparkles, requiresAuth: true },
+  { title: "Curator Pics", url: "/curator-pics", icon: DiscAlbum, requiresAuth: true },
+  { title: "Tiktoker Pics", url: "/tiktoker-pics", icon: AutoAwesomeIcon, requiresAuth: true },
 ];
 
 export function AppSidebar() {

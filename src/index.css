@@ -2,6 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== NUEVAS REGLAS PARA MÓVILES ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent; /* Elimina el highlight gris en taps móviles */
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  min-height: 100vh;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Previene el escalado de texto en móviles */
+html {
+  -webkit-text-size-adjust: 100%;
+  -moz-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  font-size: 16px; /* Tamaño base fijo */
+}
+
+/* Ajuste para pantallas muy pequeñas */
+@media (max-width: 360px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+/* Ajustes para inputs en móviles */
+input,
+textarea,
+select,
+button {
+  font-size: 16px;
+  max-width: 100%;
+}
+
 /* Design System Premium */
 @layer base {
   :root {
@@ -12,7 +71,7 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    
+
     /* Brand colors - Premium gradients */
     --primary: 222.2 47.4% 11.2%;
     --primary-glow: 260 100% 80%;
@@ -23,7 +82,7 @@
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-    
+
     /* System colors - Refined */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -42,7 +101,7 @@
     --spotify: 114 44% 49%;
     --spotify-hover: 114 56% 41%;
     --apple-music: 0 0% 8%;
-    
+
     /* CTA colors - Elegant */
     --cta-primary: 250 84% 60%;
     --cta-primary-hover: 250 84% 54%;
@@ -50,47 +109,74 @@
     --cta-secondary-hover: 220 13% 85%;
     --cta-white: 0 0% 100%;
     --cta-white-text: 220 13% 9%;
-    
+
     /* Gradients - Sophisticated */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-subtle: linear-gradient(180deg, hsl(var(--background)), hsl(var(--muted)));
-    --gradient-glass: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-    --gradient-hero: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--muted)) 100%);
-    
+    --gradient-primary: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(var(--primary-glow))
+    );
+    --gradient-subtle: linear-gradient(
+      180deg,
+      hsl(var(--background)),
+      hsl(var(--muted))
+    );
+    --gradient-glass: linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.1),
+      rgba(255, 255, 255, 0.05)
+    );
+    --gradient-hero: linear-gradient(
+      135deg,
+      hsl(var(--background)) 0%,
+      hsl(var(--muted)) 100%
+    );
+
     /* Shadows - Premium depth */
-    --shadow-subtle: 0 1px 3px 0 hsl(var(--foreground) / 0.1), 0 1px 2px -1px hsl(var(--foreground) / 0.1);
-    --shadow-medium: 0 4px 6px -1px hsl(var(--foreground) / 0.1), 0 2px 4px -2px hsl(var(--foreground) / 0.1);
-    --shadow-large: 0 10px 15px -3px hsl(var(--foreground) / 0.1), 0 4px 6px -4px hsl(var(--foreground) / 0.1);
-    --shadow-glow: 0 0 0 1px hsl(var(--primary) / 0.05), 0 1px 3px 0 hsl(var(--primary) / 0.1), 0 4px 6px 0 hsl(var(--primary) / 0.1);
+    --shadow-subtle:
+      0 1px 3px 0 hsl(var(--foreground) / 0.1),
+      0 1px 2px -1px hsl(var(--foreground) / 0.1);
+    --shadow-medium:
+      0 4px 6px -1px hsl(var(--foreground) / 0.1),
+      0 2px 4px -2px hsl(var(--foreground) / 0.1);
+    --shadow-large:
+      0 10px 15px -3px hsl(var(--foreground) / 0.1),
+      0 4px 6px -4px hsl(var(--foreground) / 0.1);
+    --shadow-glow:
+      0 0 0 1px hsl(var(--primary) / 0.05),
+      0 1px 3px 0 hsl(var(--primary) / 0.1),
+      0 4px 6px 0 hsl(var(--primary) / 0.1);
     --shadow-glass: 0 8px 32px hsl(var(--foreground) / 0.12);
-    --shadow-float: 0 20px 25px -5px hsl(var(--foreground) / 0.1), 0 8px 10px -6px hsl(var(--foreground) / 0.1);
-    
+    --shadow-float:
+      0 20px 25px -5px hsl(var(--foreground) / 0.1),
+      0 8px 10px -6px hsl(var(--foreground) / 0.1);
+
     /* Transitions - Smooth */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     --transition-spring: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    
+
     /* Typography Scale */
-    --text-xs: 0.75rem;    /* 12px */
-    --text-sm: 0.875rem;   /* 14px */
-    --text-base: 1rem;     /* 16px */
-    --text-lg: 1.125rem;   /* 18px */
-    --text-xl: 1.25rem;    /* 20px */
-    --text-2xl: 1.5rem;    /* 24px */
-    --text-3xl: 1.875rem;  /* 30px */
-    --text-4xl: 2.25rem;   /* 36px */
-    --text-5xl: 3rem;      /* 48px */
-    
+    --text-xs: 0.75rem; /* 12px */
+    --text-sm: 0.875rem; /* 14px */
+    --text-base: 1rem; /* 16px */
+    --text-lg: 1.125rem; /* 18px */
+    --text-xl: 1.25rem; /* 20px */
+    --text-2xl: 1.5rem; /* 24px */
+    --text-3xl: 1.875rem; /* 30px */
+    --text-4xl: 2.25rem; /* 36px */
+    --text-5xl: 3rem; /* 48px */
+
     /* Spacing Scale */
-    --space-1: 0.25rem;    /* 4px */
-    --space-2: 0.5rem;     /* 8px */
-    --space-3: 0.75rem;    /* 12px */
-    --space-4: 1rem;       /* 16px */
-    --space-6: 1.5rem;     /* 24px */
-    --space-8: 2rem;       /* 32px */
-    --space-12: 3rem;      /* 48px */
-    --space-16: 4rem;      /* 64px */
-    
+    --space-1: 0.25rem; /* 4px */
+    --space-2: 0.5rem; /* 8px */
+    --space-3: 0.75rem; /* 12px */
+    --space-4: 1rem; /* 16px */
+    --space-6: 1.5rem; /* 24px */
+    --space-8: 2rem; /* 32px */
+    --space-12: 3rem; /* 48px */
+    --space-16: 4rem; /* 64px */
+
     /* Sidebar */
     --sidebar-background: 270 91% 65%;
     --sidebar-foreground: 0 0% 98%;
@@ -144,22 +230,24 @@
     @apply bg-background text-foreground;
     font-display: swap; /* Optimización fuentes */
   }
-  
+
   /* Optimizaciones de rendimiento */
   img {
     content-visibility: auto;
   }
-  
+
   /* Smooth scrolling optimizado */
   html {
     scroll-behavior: smooth;
   }
-  
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
     }
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
