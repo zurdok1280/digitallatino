@@ -439,7 +439,7 @@ export default function CuratorPics() {
                                 </svg>
                             </div>
                             <span className="font-semibold text-gray-800 text-sm sm:text-base">
-                                Filtros Curator Pics
+                                Filtros
                             </span>
                         </div>
                         <ChevronDown

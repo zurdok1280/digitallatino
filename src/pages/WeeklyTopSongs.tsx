@@ -1454,7 +1454,7 @@ export default function Charts() {
             onCompare={handleCompareSelected}
             onClear={handleClearSelection}
           />
-          <div className="text-xs text-muted-foreground items-end justify-center flex pr-7 pb-2">
+          <div className="text-xs text-muted-foreground items-end justify-end flex pr-7 pb-2">
             {`Última actualización: ${lastUpdate ? lastUpdate : "Cargando..."}`}
           </div>
           {/* Fab button de MUI para buscar */}

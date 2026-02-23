@@ -548,50 +548,52 @@ export function SearchArtist() {
 
                     {/* Search Results en tiempo real */}
                     {showSearchResults && (
-                        <div className="absolute z-50 mt-2 sm:mt-3 w-full max-w-7xl bg-gray-50 border border-gray-300 rounded-xl lg:rounded-2xl shadow-2xl max-h-90 lg:max-h-106 overflow-hidden top-full">
+                        <div className="absolute z-50 mt-2 sm:mt-3 w-full max-w-8xl bg-gray-50 border border-gray-300 rounded-xl lg:rounded-2xl shadow-2xl overflow-hidden top-full">
+                            {/* Cabecera fija con tabs */}
                             <div className="p-4 lg:p-5 border-b border-gray-300 bg-white">
-                                {/* Tabs para cambiar entre canciones y artistas */}
-                                {(hasTracks && hasArtists) && (
-                                    <div className="flex border-b border-gray-200">
-                                        <button
-                                            className={`flex-1 py-3 lg:py-4 text-sm lg:text-base font-medium ${activeTab === 'tracks'
-                                                ? 'text-blue-600 border-b-2 border-blue-600 font-semibold'
-                                                : 'text-gray-600 hover:text-gray-800'
-                                                }`}
-                                            onClick={() => setActiveTab('tracks')}
-                                        >
-                                            <span className="truncate hidden sm:inline">Canciones </span>
-                                            <span className="sm:hidden">Can. </span>
-                                        </button>
-                                        <button
-                                            className={`flex-1 py-3 lg:py-4 text-sm lg:text-base font-medium ${activeTab === 'artists'
-                                                ? 'text-purple-600 border-b-2 border-purple-600 font-semibold'
-                                                : 'text-gray-600 hover:text-gray-800'
-                                                }`}
-                                            onClick={() => setActiveTab('artists')}
-                                        >
-                                            <span className="truncate hidden sm:inline">Artistas</span>
-                                            <span className="sm:hidden">Art. </span>
-
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setShowSearchResults(false);
-                                                setSearchQuery('');
-                                                setSearchResults({ tracks: [], artists: [] });
-                                            }}
-                                            className="text-slate-600 hover:text-slate-800 transition-colors text-sm lg:text-base flex items-center gap-2 hover:bg-gray-200 rounded-lg px-3 py-2"
-                                        >
-                                            <X className="w-4 h-4 lg:w-4 lg:h-4" />
-                                        </button>
-                                    </div>
-                                )}
+                                <div className="flex items-center justify-between">
+                                    {(hasTracks && hasArtists) && (
+                                        <div className="flex border-b border-gray-200 flex-1">
+                                            <button
+                                                className={`flex-1 py-3 lg:py-4 text-sm lg:text-base font-medium ${activeTab === 'tracks'
+                                                    ? 'text-blue-600 border-b-2 border-blue-600 font-semibold'
+                                                    : 'text-gray-600 hover:text-gray-800'
+                                                    }`}
+                                                onClick={() => setActiveTab('tracks')}
+                                            >
+                                                <span className="truncate hidden sm:inline">Canciones ({searchResults.tracks.length})</span>
+                                                <span className="sm:hidden">Can. ({searchResults.tracks.length})</span>
+                                            </button>
+                                            <button
+                                                className={`flex-1 py-3 lg:py-4 text-sm lg:text-base font-medium ${activeTab === 'artists'
+                                                    ? 'text-purple-600 border-b-2 border-purple-600 font-semibold'
+                                                    : 'text-gray-600 hover:text-gray-800'
+                                                    }`}
+                                                onClick={() => setActiveTab('artists')}
+                                            >
+                                                <span className="truncate hidden sm:inline">Artistas ({searchResults.artists.length})</span>
+                                                <span className="sm:hidden">Art. ({searchResults.artists.length})</span>
+                                            </button>
+                                        </div>
+                                    )}
+                                    <button
+                                        onClick={() => {
+                                            setShowSearchResults(false);
+                                            setSearchQuery('');
+                                            setSearchResults({ tracks: [], artists: [] });
+                                        }}
+                                        className="text-slate-600 hover:text-slate-800 transition-colors text-sm lg:text-base flex items-center gap-2 hover:bg-gray-200 rounded-lg px-3 py-2 ml-2 shrink-0"
+                                    >
+                                        <X className="w-4 h-4 lg:w-4 lg:h-4" />
+                                    </button>
+                                </div>
                             </div>
 
-                            <div className="max-h-74 lg:max-h-90 overflow-y-auto bg-white">
+                            {/* Contenedor con altura máxima y scroll */}
+                            <div className="max-h-[70vh] sm:max-h-[60vh] md:max-h-[50vh] lg:max-h-[60vh] overflow-y-auto bg-white scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
                                 {activeTab === 'tracks' && hasTracks ? (
                                     searchResults.tracks.map((track) => (
-                                        <div key={track.spotify_id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors ">
+                                        <div key={track.spotify_id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
                                             <SearchResult
                                                 track={track}
                                                 onSelect={handleSearchResultSelect}
@@ -618,7 +620,6 @@ export function SearchArtist() {
                             </div>
                         </div>
                     )}
-
                 </div>
             </div>
             {/* Modal de canciones del artista */}

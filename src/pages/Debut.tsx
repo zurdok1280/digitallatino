@@ -421,7 +421,7 @@ export default function Charts() {
     artist: null
   });
   //State para filtrs dropdown
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [countryDropdownPosition, setCountryDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const countryButtonRef = useRef<HTMLDivElement>(null);
 

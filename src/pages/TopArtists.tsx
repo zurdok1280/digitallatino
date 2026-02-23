@@ -427,7 +427,7 @@ export default function TopArtists() {
   //last data update:
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   //Filtro dropdown states
-  const [showFilters, setShowFilters] = useState(true);
+  const [showFilters, setShowFilters] = useState(false);
   const [cityDropdownPosition, setCityDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const cityButtonRef = useRef<HTMLDivElement>(null);
   const [countryDropdownPosition, setCountryDropdownPosition] = useState({ top: 0, left: 0, width: 0 });

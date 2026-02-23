@@ -233,7 +233,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                   ${isMobile ? 'w-12 h-12 text-xs' : 'w-16 h-16'}
                 `}>
                                     {song1.avatar ? (
-                                        <img src={song1.avatar} alt={song1.song} className="w-full h-full rounded-lg object-cover" />
+                                        <img src={song1.spotifyid} alt={song1.song} className="w-full h-full rounded-lg object-cover" />
                                     ) : (
                                         song1.song.substring(0, 2).toUpperCase()
                                     )}
@@ -277,7 +277,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                   ${isMobile ? 'w-12 h-12 text-xs' : 'w-16 h-16'}
                 `}>
                                     {song2.avatar ? (
-                                        <img src={song2.avatar} alt={song2.song} className="w-full h-full rounded-lg object-cover" />
+                                        <img src={song2.spotifyid} alt={song2.song} className="w-full h-full rounded-lg object-cover" />
                                     ) : (
                                         song2.song.substring(0, 2).toUpperCase()
                                     )}
@@ -363,11 +363,11 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                             <span className="text-gray-400">-</span>
                                         ) : (
                                             <>
-                                                {metrics.streamDifference > 0 ? '+' : ''}
-                                                {metrics.streamDifference >= 1000000
-                                                    ? `${(metrics.streamDifference / 1000000).toFixed(1)} M`
-                                                    : metrics.streamDifference >= 1000
-                                                        ? `${(metrics.streamDifference / 1000).toFixed(1)} K`
+                                                {metrics.streamDifference < 0 ? '' : ''}
+                                                {metrics.streamDifference <= -1000000
+                                                    ? `${(metrics.streamDifference / -1000000).toFixed(1)} M`
+                                                    : metrics.streamDifference <= -1000
+                                                        ? `${(metrics.streamDifference / -1000).toFixed(1)} K`
                                                         : metrics.streamDifference.toLocaleString()}
                                             </>
                                         )}
