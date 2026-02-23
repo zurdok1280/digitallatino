@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, BarChart3, MapPin, TrendingUp, TrendingDown, Music, Globe, ChevronLeft, ChevronRight, ListMusic, Video, ArrowUp, ArrowDown } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,9 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
     const [playlistsData, setPlaylistsData] = useState<VsSongPlaylistsData[]>([]);
     const [tiktoksData, setTiktoksData] = useState<VsSongTiktoksData[]>([]);
     const [activeTab, setActiveTab] = useState('table');
+
+    // Referencia para el contenido con scroll
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // Sort config for main table
     const [sortConfig, setSortConfig] = useState<{
@@ -59,18 +62,60 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
+    // Bloquear scroll del body y eventos de fondo
     useEffect(() => {
         if (isOpen) {
+            // Guardar el scroll actual
+            const scrollY = window.scrollY;
+
+            // Bloquear scroll del body
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
             document.body.style.overflow = 'hidden';
-            document.body.style.paddingRight = '15px';
-        } else {
-            document.body.style.overflow = 'unset';
-            document.body.style.paddingRight = '0px';
+            document.body.style.paddingRight = '15px'; // Compensar scrollbar
+
+            // Prevenir eventos táctiles en el fondo
+            const preventTouch = (e: TouchEvent) => {
+                if (!(e.target as Element)?.closest('.compare-modal-content')) {
+                    e.preventDefault();
+                }
+            };
+
+            document.addEventListener('touchmove', preventTouch, { passive: false });
+
+            return () => {
+                // Restaurar scroll del body
+                document.body.style.position = '';
+                document.body.style.top = '';
+                document.body.style.left = '';
+                document.body.style.right = '';
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '0px';
+
+                // Restaurar la posición del scroll
+                window.scrollTo(0, scrollY);
+
+                document.removeEventListener('touchmove', preventTouch);
+            };
         }
+    }, [isOpen]);
+
+    // Prevenir eventos de rueda en el fondo
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const preventWheel = (e: WheelEvent) => {
+            if (!(e.target as Element)?.closest('.compare-modal-content')) {
+                e.preventDefault();
+            }
+        };
+
+        window.addEventListener('wheel', preventWheel, { passive: false });
 
         return () => {
-            document.body.style.overflow = 'unset';
-            document.body.style.paddingRight = '0px';
+            window.removeEventListener('wheel', preventWheel);
         };
     }, [isOpen]);
 
@@ -330,19 +375,32 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
     return (
         <>
             <div
-                className="fixed inset-0 z-[10000] bg-black/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 overflow-hidden"
-                onClick={(e) => {
-                    if (e.target === e.currentTarget) onClose();
+                className="fixed inset-0 z-[10000] flex items-center justify-center p-2 md:p-4 overflow-hidden"
+                style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
+                onMouseDown={(e) => {
+                    // Cerrar solo si se hace click directamente en el backdrop (no en el contenido)
+                    if (e.target === e.currentTarget) {
+                        onClose();
+                    }
+                }}
+                onTouchEnd={(e) => {
+                    // Para móviles, cerrar solo si se toca el backdrop
+                    if (e.target === e.currentTarget) {
+                        onClose();
+                    }
                 }}
             >
-                <div className={`
-          bg-gradient-to-br from-white to-gray-50/95 backdrop-blur-lg rounded-2xl 
-          shadow-2xl border border-white/30 flex flex-col
-          ${isMobile
-                        ? 'w-full h-[95vh] p-3'
-                        : 'max-w-6xl w-full h-[90vh] p-4'
-                    }
-        `}>
+                <div
+                    className={`
+                        bg-gradient-to-br from-white to-gray-50/95 backdrop-blur-lg rounded-2xl 
+                        shadow-2xl border border-white/30 flex flex-col
+                        ${isMobile ? 'w-full h-[95vh] p-3' : 'max-w-6xl w-full h-[90vh] p-4'}
+                        compare-modal-content
+                    `}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onWheel={(e) => e.stopPropagation()}
+                >
                     {/* Header para moviles */}
                     {isMobile ? (
                         <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-200">
@@ -387,16 +445,16 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
 
                     {/* Canciones comparadas */}
                     <div className={`
-            grid gap-3 mb-4
-            ${isMobile ? 'grid-cols-1' : 'grid-cols-2 gap-6'}
-          `}>
+                        grid gap-3 mb-4
+                        ${isMobile ? 'grid-cols-1' : 'grid-cols-2 gap-6'}
+                    `}>
                         <div className="bg-gradient-to-r from-purple-50 to-purple-100/50 rounded-xl p-3 md:p-4 border border-purple-200">
                             <div className="flex items-start gap-2 md:gap-3">
                                 <div className={`
-                  bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg 
-                  flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden
-                  ${isMobile ? 'w-12 h-12 text-xs' : 'w-16 h-16'}
-                `}>
+                                    bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg 
+                                    flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden
+                                    ${isMobile ? 'w-12 h-12 text-xs' : 'w-16 h-16'}
+                                `}>
                                     {song1.avatar ? (
                                         <img
                                             src={song1.avatar}
@@ -413,21 +471,21 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className={`
-                    font-bold text-gray-900 truncate
-                    ${isMobile ? 'text-sm' : 'text-lg'}
-                  `}>
+                                        font-bold text-gray-900 truncate
+                                        ${isMobile ? 'text-sm' : 'text-lg'}
+                                    `}>
                                         {song1.song}
                                     </h3>
                                     <p className={`
-                    text-gray-700 truncate
-                    ${isMobile ? 'text-xs' : 'text-sm'}
-                  `}>
+                                        text-gray-700 truncate
+                                        ${isMobile ? 'text-xs' : 'text-sm'}
+                                    `}>
                                         {song1.artists}
                                     </p>
                                     <p className={`
-                    text-gray-500 truncate
-                    ${isMobile ? 'text-[10px]' : 'text-xs'}
-                  `}>
+                                        text-gray-500 truncate
+                                        ${isMobile ? 'text-[10px]' : 'text-xs'}
+                                    `}>
                                         {song1.label}
                                     </p>
                                     <div className="flex items-center gap-2 mt-1 md:mt-2">
@@ -445,10 +503,10 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                         <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 rounded-xl p-3 md:p-4 border border-blue-200">
                             <div className="flex items-start gap-2 md:gap-3">
                                 <div className={`
-                  bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg 
-                  flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden
-                  ${isMobile ? 'w-12 h-12 text-xs' : 'w-16 h-16'}
-                `}>
+                                    bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg 
+                                    flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden
+                                    ${isMobile ? 'w-12 h-12 text-xs' : 'w-16 h-16'}
+                                `}>
                                     {song2.avatar ? (
                                         <img
                                             src={song2.avatar}
@@ -465,21 +523,21 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <h3 className={`
-                    font-bold text-gray-900 truncate
-                    ${isMobile ? 'text-sm' : 'text-lg'}
-                  `}>
+                                        font-bold text-gray-900 truncate
+                                        ${isMobile ? 'text-sm' : 'text-lg'}
+                                    `}>
                                         {song2.song}
                                     </h3>
                                     <p className={`
-                    text-gray-700 truncate
-                    ${isMobile ? 'text-xs' : 'text-sm'}
-                  `}>
+                                        text-gray-700 truncate
+                                        ${isMobile ? 'text-xs' : 'text-sm'}
+                                    `}>
                                         {song2.artists}
                                     </p>
                                     <p className={`
-                    text-gray-500 truncate
-                    ${isMobile ? 'text-[10px]' : 'text-xs'}
-                  `}>
+                                        text-gray-500 truncate
+                                        ${isMobile ? 'text-[10px]' : 'text-xs'}
+                                    `}>
                                         {song2.label}
                                     </p>
                                     <div className="flex items-center gap-2 mt-1 md:mt-2">
@@ -498,9 +556,9 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                     {/* Métricas generales */}
                     {metrics && (
                         <div className={`
-              grid gap-2 mb-4
-              ${isMobile ? 'grid-cols-2' : 'grid-cols-4 gap-3'}
-            `}>
+                            grid gap-2 mb-4
+                            ${isMobile ? 'grid-cols-2' : 'grid-cols-4 gap-3'}
+                        `}>
                             <Card className="p-2 md:p-3 bg-white/80 backdrop-blur-sm">
                                 <div className="text-center">
                                     <div className="text-lg md:text-2xl font-bold text-gray-900">
@@ -561,15 +619,15 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                         </div>
                     )}
 
-                    {/* Tabs - AHORA CON 4 TABS: Tabla, Playlists, TikTok, Gráficos */}
+                    {/* Tabs */}
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
                         <div className={`
-              border-b border-gray-200 mb-3
-              ${isMobile ? 'overflow-x-auto pb-1' : ''}
-            `}>
+                            border-b border-gray-200 mb-3
+                            ${isMobile ? 'overflow-x-auto pb-1' : ''}
+                        `}>
                             <TabsList className={`
-                ${isMobile ? 'inline-flex w-auto' : 'grid w-full grid-cols-4'}
-              `}>
+                                ${isMobile ? 'inline-flex w-auto' : 'grid w-full grid-cols-4'}
+                            `}>
                                 <TabsTrigger value="table" className={isMobile ? 'px-4 py-1.5 text-xs' : ''}>
                                     📊 Tabla
                                 </TabsTrigger>
@@ -585,8 +643,13 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                             </TabsList>
                         </div>
 
-                        {/* Contenido de tabs */}
-                        <div className="flex-1 overflow-auto min-h-0">
+                        {/* Contenido de tabs con scroll */}
+                        <div
+                            ref={scrollContainerRef}
+                            className="flex-1 overflow-auto min-h-0"
+                            onWheel={(e) => e.stopPropagation()}
+                            onTouchMove={(e) => e.stopPropagation()}
+                        >
                             {/* TABLA PRINCIPAL */}
                             <TabsContent value="table" className="h-full m-0">
                                 {loading ? (
@@ -765,7 +828,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                 )}
                             </TabsContent>
 
-                            {/* TABLA DE PLAYLISTS - CON SORT */}
+                            {/* TABLA DE PLAYLISTS */}
                             <TabsContent value="playlists" className="h-full m-0">
                                 {loadingPlaylists ? (
                                     <div className="h-full flex items-center justify-center">
@@ -953,7 +1016,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                 )}
                             </TabsContent>
 
-                            {/* TABLA DE TIKTOK - CON SORT */}
+                            {/* TABLA DE TIKTOK */}
                             <TabsContent value="tiktok" className="h-full m-0">
                                 {loadingTiktoks ? (
                                     <div className="h-full flex items-center justify-center">
