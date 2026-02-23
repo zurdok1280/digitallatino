@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, BarChart3, MapPin, TrendingUp, TrendingDown, Music, Globe, ChevronLeft, ChevronRight, ListMusic, Video } from 'lucide-react';
+import { X, BarChart3, MapPin, TrendingUp, TrendingDown, Music, Globe, ChevronLeft, ChevronRight, ListMusic, Video, ArrowUp, ArrowDown } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +15,9 @@ interface SongCompareProps {
     song2: SelectedSong;
 }
 
+type PlaylistSortKey = keyof VsSongPlaylistsData | 'song1_position' | 'song2_position';
+type TiktokSortKey = keyof VsSongTiktoksData | 'song1_metrics' | 'song2_metrics';
+
 export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps) {
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
@@ -24,10 +27,25 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
     const [playlistsData, setPlaylistsData] = useState<VsSongPlaylistsData[]>([]);
     const [tiktoksData, setTiktoksData] = useState<VsSongTiktoksData[]>([]);
     const [activeTab, setActiveTab] = useState('table');
+
+    // Sort config for main table
     const [sortConfig, setSortConfig] = useState<{
         key: keyof VsSongData | 'winner';
         direction: 'asc' | 'desc';
     }>({ key: 'dif_streams', direction: 'desc' });
+
+    // Sort config for playlists table
+    const [playlistSortConfig, setPlaylistSortConfig] = useState<{
+        key: PlaylistSortKey;
+        direction: 'asc' | 'desc';
+    }>({ key: 'followers_count', direction: 'desc' });
+
+    // Sort config for tiktok table
+    const [tiktokSortConfig, setTiktokSortConfig] = useState<{
+        key: TiktokSortKey;
+        direction: 'asc' | 'desc';
+    }>({ key: 'tiktok_user_followers', direction: 'desc' });
+
     const [currentPage, setCurrentPage] = useState(1);
     const [isMobile, setIsMobile] = useState(false);
     const itemsPerPage = 1000;
@@ -116,22 +134,101 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
         }
     };
 
-    // Ordenar datos
-    const sortedData = [...comparisonData].sort((a, b) => {
-        if (sortConfig.key === 'winner') {
-            const aWins = a.first_streams > a.second_streams ? 1 : -1;
-            const bWins = b.first_streams > b.second_streams ? 1 : -1;
-            return sortConfig.direction === 'asc' ? aWins - bWins : bWins - aWins;
-        }
+    // Sort functions for each tab
+    const getSortedData = () => {
+        return [...comparisonData].sort((a, b) => {
+            if (sortConfig.key === 'winner') {
+                const aWins = a.first_streams > a.second_streams ? 1 : -1;
+                const bWins = b.first_streams > b.second_streams ? 1 : -1;
+                return sortConfig.direction === 'asc' ? aWins - bWins : bWins - aWins;
+            }
 
-        const aValue = a[sortConfig.key as keyof VsSongData];
-        const bValue = b[sortConfig.key as keyof VsSongData];
+            const aValue = a[sortConfig.key as keyof VsSongData];
+            const bValue = b[sortConfig.key as keyof VsSongData];
 
-        if (typeof aValue === 'number' && typeof bValue === 'number') {
-            return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
-        }
-        return 0;
-    });
+            if (typeof aValue === 'number' && typeof bValue === 'number') {
+                return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+            }
+
+            // String comparison
+            if (typeof aValue === 'string' && typeof bValue === 'string') {
+                return sortConfig.direction === 'asc'
+                    ? aValue.localeCompare(bValue)
+                    : bValue.localeCompare(aValue);
+            }
+            return 0;
+        });
+    };
+
+    const getSortedPlaylistsData = () => {
+        return [...playlistsData].sort((a, b) => {
+            let aValue: any;
+            let bValue: any;
+
+            switch (playlistSortConfig.key) {
+                case 'song1_position':
+                    aValue = a.first_current_position;
+                    bValue = b.first_current_position;
+                    break;
+                case 'song2_position':
+                    aValue = a.second_current_position;
+                    bValue = b.second_current_position;
+                    break;
+                default:
+                    aValue = a[playlistSortConfig.key as keyof VsSongPlaylistsData];
+                    bValue = b[playlistSortConfig.key as keyof VsSongPlaylistsData];
+            }
+
+            if (typeof aValue === 'number' && typeof bValue === 'number') {
+                return playlistSortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+            }
+
+            if (typeof aValue === 'string' && typeof bValue === 'string') {
+                return playlistSortConfig.direction === 'asc'
+                    ? aValue.localeCompare(bValue)
+                    : bValue.localeCompare(aValue);
+            }
+            return 0;
+        });
+    };
+
+    const getSortedTiktoksData = () => {
+        return [...tiktoksData].sort((a, b) => {
+            let aValue: any;
+            let bValue: any;
+
+            switch (tiktokSortConfig.key) {
+                case 'song1_metrics':
+                    // Ordenar por suma de vistas + likes + comentarios de la canción 1
+                    aValue = (a.first_views_total || 0) + (a.first_likes_total || 0) + (a.first_comments_total || 0);
+                    bValue = (b.first_views_total || 0) + (b.first_likes_total || 0) + (b.first_comments_total || 0);
+                    break;
+                case 'song2_metrics':
+                    // Ordenar por suma de vistas + likes + comentarios de la canción 2
+                    aValue = (a.second_views_total || 0) + (a.second_likes_total || 0) + (a.second_comments_total || 0);
+                    bValue = (b.second_views_total || 0) + (b.second_likes_total || 0) + (b.second_comments_total || 0);
+                    break;
+                default:
+                    aValue = a[tiktokSortConfig.key as keyof VsSongTiktoksData];
+                    bValue = b[tiktokSortConfig.key as keyof VsSongTiktoksData];
+            }
+
+            if (typeof aValue === 'number' && typeof bValue === 'number') {
+                return tiktokSortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+            }
+
+            if (typeof aValue === 'string' && typeof bValue === 'string') {
+                return tiktokSortConfig.direction === 'asc'
+                    ? aValue.localeCompare(bValue)
+                    : bValue.localeCompare(aValue);
+            }
+            return 0;
+        });
+    };
+
+    const sortedData = getSortedData();
+    const sortedPlaylistsData = getSortedPlaylistsData();
+    const sortedTiktoksData = getSortedTiktoksData();
 
     const totalPages = Math.ceil(sortedData.length / itemsPerPage);
     const paginatedData = sortedData.slice(
@@ -177,8 +274,23 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
             winner: item.first_streams > item.second_streams ? 'song1' : 'song2',
         }));
 
+    // Sort handlers
     const requestSort = (key: keyof VsSongData | 'winner') => {
         setSortConfig(prev => ({
+            key,
+            direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc',
+        }));
+    };
+
+    const requestPlaylistSort = (key: PlaylistSortKey) => {
+        setPlaylistSortConfig(prev => ({
+            key,
+            direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc',
+        }));
+    };
+
+    const requestTiktokSort = (key: TiktokSortKey) => {
+        setTiktokSortConfig(prev => ({
             key,
             direction: prev.key === key && prev.direction === 'desc' ? 'asc' : 'desc',
         }));
@@ -204,6 +316,13 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
         if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
         if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
         return num.toLocaleString();
+    };
+
+    const renderSortIcon = (currentKey: string, configKey: string, direction: string) => {
+        if (currentKey !== configKey) return null;
+        return direction === 'asc' ?
+            <ArrowUp className="w-3 h-3 inline-block ml-1" /> :
+            <ArrowDown className="w-3 h-3 inline-block ml-1" />;
     };
 
     if (!isOpen) return null;
@@ -501,9 +620,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                         >
                                                             <div className="flex items-center gap-1">
                                                                 Ciudad
-                                                                {sortConfig.key === 'city_name' && (
-                                                                    <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                                                                )}
+                                                                {renderSortIcon(sortConfig.key, 'city_name', sortConfig.direction)}
                                                             </div>
                                                         </th>
                                                         <th
@@ -512,9 +629,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                         >
                                                             <div className="flex items-center gap-1">
                                                                 {song1.song.substring(0, 8)}
-                                                                {sortConfig.key === 'first_streams' && (
-                                                                    <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                                                                )}
+                                                                {renderSortIcon(sortConfig.key, 'first_streams', sortConfig.direction)}
                                                             </div>
                                                         </th>
                                                         <th
@@ -523,9 +638,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                         >
                                                             <div className="flex items-center gap-1">
                                                                 {song2.song.substring(0, 8)}
-                                                                {sortConfig.key === 'second_streams' && (
-                                                                    <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                                                                )}
+                                                                {renderSortIcon(sortConfig.key, 'second_streams', sortConfig.direction)}
                                                             </div>
                                                         </th>
                                                         <th
@@ -534,9 +647,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                         >
                                                             <div className="flex items-center gap-1">
                                                                 Diferencia
-                                                                {sortConfig.key === 'dif_streams' && (
-                                                                    <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                                                                )}
+                                                                {renderSortIcon(sortConfig.key, 'dif_streams', sortConfig.direction)}
                                                             </div>
                                                         </th>
                                                         <th
@@ -545,9 +656,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                         >
                                                             <div className="flex items-center gap-1">
                                                                 Ganador
-                                                                {sortConfig.key === 'winner' && (
-                                                                    <span>{sortConfig.direction === 'asc' ? '↑' : '↓'}</span>
-                                                                )}
+                                                                {renderSortIcon(sortConfig.key, 'winner', sortConfig.direction)}
                                                             </div>
                                                         </th>
                                                     </tr>
@@ -656,7 +765,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                 )}
                             </TabsContent>
 
-                            {/* TABLA DE PLAYLISTS - NUEVA */}
+                            {/* TABLA DE PLAYLISTS - CON SORT */}
                             <TabsContent value="playlists" className="h-full m-0">
                                 {loadingPlaylists ? (
                                     <div className="h-full flex items-center justify-center">
@@ -667,7 +776,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                             </p>
                                         </div>
                                     </div>
-                                ) : playlistsData.length === 0 ? (
+                                ) : sortedPlaylistsData.length === 0 ? (
                                     <div className="h-full flex items-center justify-center">
                                         <div className="text-center">
                                             <ListMusic className="w-8 h-8 md:w-12 md:h-12 text-gray-400 mx-auto mb-2 md:mb-3" />
@@ -681,17 +790,41 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                         <table className="w-full min-w-[800px] md:min-w-full">
                                             <thead className="bg-gray-50">
                                                 <tr>
-                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        Playlist
+                                                    <th
+                                                        className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                                        onClick={() => requestPlaylistSort('playlist_name')}
+                                                    >
+                                                        <div className="flex items-center gap-1">
+                                                            Playlist
+                                                            {renderSortIcon(playlistSortConfig.key, 'playlist_name', playlistSortConfig.direction)}
+                                                        </div>
                                                     </th>
-                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        Dueño
+                                                    <th
+                                                        className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                                        onClick={() => requestPlaylistSort('owner_name')}
+                                                    >
+                                                        <div className="flex items-center gap-1">
+                                                            Dueño
+                                                            {renderSortIcon(playlistSortConfig.key, 'owner_name', playlistSortConfig.direction)}
+                                                        </div>
                                                     </th>
-                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        Tipo
+                                                    <th
+                                                        className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                                        onClick={() => requestPlaylistSort('playlist_type')}
+                                                    >
+                                                        <div className="flex items-center gap-1">
+                                                            Tipo
+                                                            {renderSortIcon(playlistSortConfig.key, 'playlist_type', playlistSortConfig.direction)}
+                                                        </div>
                                                     </th>
-                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        Seguidores
+                                                    <th
+                                                        className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                                        onClick={() => requestPlaylistSort('followers_count')}
+                                                    >
+                                                        <div className="flex items-center gap-1">
+                                                            Seguidores
+                                                            {renderSortIcon(playlistSortConfig.key, 'followers_count', playlistSortConfig.direction)}
+                                                        </div>
                                                     </th>
                                                     <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider" colSpan={2}>
                                                         <div className="text-center">{song1.song.substring(0, 15)}</div>
@@ -705,14 +838,46 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                     <th></th>
                                                     <th></th>
                                                     <th></th>
-                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Posición</th>
-                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Agregada</th>
-                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Posición</th>
-                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Agregada</th>
+                                                    <th
+                                                        className="py-1 px-2 text-[9px] md:text-xs text-gray-500 cursor-pointer hover:bg-gray-200"
+                                                        onClick={() => requestPlaylistSort('song1_position')}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            Posición
+                                                            {renderSortIcon(playlistSortConfig.key, 'song1_position', playlistSortConfig.direction)}
+                                                        </div>
+                                                    </th>
+                                                    <th
+                                                        className="py-1 px-2 text-[9px] md:text-xs text-gray-500 cursor-pointer hover:bg-gray-200"
+                                                        onClick={() => requestPlaylistSort('first_added_at')}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            Agregada
+                                                            {renderSortIcon(playlistSortConfig.key, 'first_added_at', playlistSortConfig.direction)}
+                                                        </div>
+                                                    </th>
+                                                    <th
+                                                        className="py-1 px-2 text-[9px] md:text-xs text-gray-500 cursor-pointer hover:bg-gray-200"
+                                                        onClick={() => requestPlaylistSort('song2_position')}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            Posición
+                                                            {renderSortIcon(playlistSortConfig.key, 'song2_position', playlistSortConfig.direction)}
+                                                        </div>
+                                                    </th>
+                                                    <th
+                                                        className="py-1 px-2 text-[9px] md:text-xs text-gray-500 cursor-pointer hover:bg-gray-200"
+                                                        onClick={() => requestPlaylistSort('second_added_at')}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            Agregada
+                                                            {renderSortIcon(playlistSortConfig.key, 'second_added_at', playlistSortConfig.direction)}
+                                                        </div>
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200">
-                                                {playlistsData.map((item, index) => (
+                                                {sortedPlaylistsData.map((item, index) => (
                                                     <tr key={index} className="hover:bg-gray-50 transition-colors">
                                                         <td className="py-2 md:py-3 px-2 md:px-4">
                                                             <span className="text-xs md:text-sm font-medium text-gray-900 truncate block max-w-[150px]">
@@ -736,13 +901,19 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                         </td>
                                                         <td className="py-2 md:py-3 px-2 md:px-4">
                                                             <div className="text-center">
-                                                                <span className="text-xs md:text-sm font-bold text-purple-700">
-                                                                    #{item.first_current_position}
-                                                                </span>
-                                                                {item.first_top_position && item.first_top_position < item.first_current_position && (
-                                                                    <span className="ml-1 text-[9px] text-green-600">
-                                                                        (top #{item.first_top_position})
-                                                                    </span>
+                                                                {item.first_current_position === 0 ? (
+                                                                    <span className="text-xs md:text-sm font-bold text-gray-400">-</span>
+                                                                ) : (
+                                                                    <>
+                                                                        <span className="text-xs md:text-sm font-bold text-purple-700">
+                                                                            #{item.first_current_position}
+                                                                        </span>
+                                                                        {item.first_top_position && item.first_top_position < item.first_current_position && (
+                                                                            <span className="ml-1 text-[9px] text-green-600">
+                                                                                (top #{item.first_top_position})
+                                                                            </span>
+                                                                        )}
+                                                                    </>
                                                                 )}
                                                             </div>
                                                         </td>
@@ -753,13 +924,19 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                         </td>
                                                         <td className="py-2 md:py-3 px-2 md:px-4">
                                                             <div className="text-center">
-                                                                <span className="text-xs md:text-sm font-bold text-blue-700">
-                                                                    #{item.second_current_position}
-                                                                </span>
-                                                                {item.second_top_position && item.second_top_position < item.second_current_position && (
-                                                                    <span className="ml-1 text-[9px] text-green-600">
-                                                                        (top #{item.second_top_position})
-                                                                    </span>
+                                                                {item.second_current_position === 0 ? (
+                                                                    <span className="text-xs md:text-sm font-bold text-gray-400">-</span>
+                                                                ) : (
+                                                                    <>
+                                                                        <span className="text-xs md:text-sm font-bold text-blue-700">
+                                                                            #{item.second_current_position}
+                                                                        </span>
+                                                                        {item.second_top_position && item.second_top_position < item.second_current_position && (
+                                                                            <span className="ml-1 text-[9px] text-green-600">
+                                                                                (top #{item.second_top_position})
+                                                                            </span>
+                                                                        )}
+                                                                    </>
                                                                 )}
                                                             </div>
                                                         </td>
@@ -776,7 +953,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                 )}
                             </TabsContent>
 
-                            {/* TABLA DE TIKTOK - NUEVA */}
+                            {/* TABLA DE TIKTOK - CON SORT */}
                             <TabsContent value="tiktok" className="h-full m-0">
                                 {loadingTiktoks ? (
                                     <div className="h-full flex items-center justify-center">
@@ -787,7 +964,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                             </p>
                                         </div>
                                     </div>
-                                ) : tiktoksData.length === 0 ? (
+                                ) : sortedTiktoksData.length === 0 ? (
                                     <div className="h-full flex items-center justify-center">
                                         <div className="text-center">
                                             <Video className="w-8 h-8 md:w-12 md:h-12 text-gray-400 mx-auto mb-2 md:mb-3" />
@@ -801,11 +978,23 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                         <table className="w-full min-w-[800px] md:min-w-full">
                                             <thead className="bg-gray-50">
                                                 <tr>
-                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        Usuario
+                                                    <th
+                                                        className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                                        onClick={() => requestTiktokSort('user_name')}
+                                                    >
+                                                        <div className="flex items-center gap-1">
+                                                            Usuario
+                                                            {renderSortIcon(tiktokSortConfig.key, 'user_name', tiktokSortConfig.direction)}
+                                                        </div>
                                                     </th>
-                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                                        Seguidores
+                                                    <th
+                                                        className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                                                        onClick={() => requestTiktokSort('tiktok_user_followers')}
+                                                    >
+                                                        <div className="flex items-center gap-1">
+                                                            Seguidores
+                                                            {renderSortIcon(tiktokSortConfig.key, 'tiktok_user_followers', tiktokSortConfig.direction)}
+                                                        </div>
                                                     </th>
                                                     <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider" colSpan={3}>
                                                         <div className="text-center">{song1.song.substring(0, 15)}</div>
@@ -817,16 +1006,64 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                 <tr className="bg-gray-100/50">
                                                     <th></th>
                                                     <th></th>
-                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Videos</th>
-                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Vistas</th>
-                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Likes</th>
-                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Videos</th>
-                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Vistas</th>
-                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Likes</th>
+                                                    <th
+                                                        className="py-1 px-2 text-[9px] md:text-xs text-gray-500 cursor-pointer hover:bg-gray-200"
+                                                        onClick={() => requestTiktokSort('first_no_videos')}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            Videos
+                                                            {renderSortIcon(tiktokSortConfig.key, 'first_no_videos', tiktokSortConfig.direction)}
+                                                        </div>
+                                                    </th>
+                                                    <th
+                                                        className="py-1 px-2 text-[9px] md:text-xs text-gray-500 cursor-pointer hover:bg-gray-200"
+                                                        onClick={() => requestTiktokSort('first_views_total')}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            Vistas
+                                                            {renderSortIcon(tiktokSortConfig.key, 'first_views_total', tiktokSortConfig.direction)}
+                                                        </div>
+                                                    </th>
+                                                    <th
+                                                        className="py-1 px-2 text-[9px] md:text-xs text-gray-500 cursor-pointer hover:bg-gray-200"
+                                                        onClick={() => requestTiktokSort('first_likes_total')}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            Likes
+                                                            {renderSortIcon(tiktokSortConfig.key, 'first_likes_total', tiktokSortConfig.direction)}
+                                                        </div>
+                                                    </th>
+                                                    <th
+                                                        className="py-1 px-2 text-[9px] md:text-xs text-gray-500 cursor-pointer hover:bg-gray-200"
+                                                        onClick={() => requestTiktokSort('second_no_videos')}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            Videos
+                                                            {renderSortIcon(tiktokSortConfig.key, 'second_no_videos', tiktokSortConfig.direction)}
+                                                        </div>
+                                                    </th>
+                                                    <th
+                                                        className="py-1 px-2 text-[9px] md:text-xs text-gray-500 cursor-pointer hover:bg-gray-200"
+                                                        onClick={() => requestTiktokSort('second_views_total')}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            Vistas
+                                                            {renderSortIcon(tiktokSortConfig.key, 'second_views_total', tiktokSortConfig.direction)}
+                                                        </div>
+                                                    </th>
+                                                    <th
+                                                        className="py-1 px-2 text-[9px] md:text-xs text-gray-500 cursor-pointer hover:bg-gray-200"
+                                                        onClick={() => requestTiktokSort('second_likes_total')}
+                                                    >
+                                                        <div className="flex items-center justify-center gap-1">
+                                                            Likes
+                                                            {renderSortIcon(tiktokSortConfig.key, 'second_likes_total', tiktokSortConfig.direction)}
+                                                        </div>
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody className="divide-y divide-gray-200">
-                                                {tiktoksData.map((item, index) => (
+                                                {sortedTiktoksData.map((item, index) => (
                                                     <tr key={index} className="hover:bg-gray-50 transition-colors">
                                                         <td className="py-2 md:py-3 px-2 md:px-4">
                                                             <div>
