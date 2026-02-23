@@ -455,9 +455,9 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                     flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden
                                     ${isMobile ? 'w-12 h-12 text-xs' : 'w-16 h-16'}
                                 `}>
-                                    {song1.avatar ? (
+                                    {song1.spotifyid ? (
                                         <img
-                                            src={song1.avatar}
+                                            src={song1.spotifyid}
                                             alt={song1.song}
                                             className="w-full h-full rounded-lg object-cover"
                                             onError={(e) => {
@@ -507,9 +507,9 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                     flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden
                                     ${isMobile ? 'w-12 h-12 text-xs' : 'w-16 h-16'}
                                 `}>
-                                    {song2.avatar ? (
+                                    {song2.spotifyid ? (
                                         <img
-                                            src={song2.avatar}
+                                            src={song2.spotifyid}
                                             alt={song2.song}
                                             className="w-full h-full rounded-lg object-cover"
                                             onError={(e) => {
