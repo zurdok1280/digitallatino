@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, BarChart3, MapPin, TrendingUp, TrendingDown, Music, Globe, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, BarChart3, MapPin, TrendingUp, TrendingDown, Music, Globe, ChevronLeft, ChevronRight, ListMusic, Video } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { digitalLatinoApi, VsSongData, SelectedSong } from '@/lib/api';
+import { digitalLatinoApi, VsSongData, SelectedSong, VsSongPlaylistsData, VsSongTiktoksData } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Backdrop, CircularProgress } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
@@ -18,7 +18,11 @@ interface SongCompareProps {
 export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps) {
     const { toast } = useToast();
     const [loading, setLoading] = useState(false);
+    const [loadingPlaylists, setLoadingPlaylists] = useState(false);
+    const [loadingTiktoks, setLoadingTiktoks] = useState(false);
     const [comparisonData, setComparisonData] = useState<VsSongData[]>([]);
+    const [playlistsData, setPlaylistsData] = useState<VsSongPlaylistsData[]>([]);
+    const [tiktoksData, setTiktoksData] = useState<VsSongTiktoksData[]>([]);
     const [activeTab, setActiveTab] = useState('table');
     const [sortConfig, setSortConfig] = useState<{
         key: keyof VsSongData | 'winner';
@@ -55,6 +59,8 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
     useEffect(() => {
         if (isOpen && song1 && song2) {
             fetchComparisonData();
+            fetchPlaylistsData();
+            fetchTiktoksData();
         }
     }, [isOpen, song1, song2]);
 
@@ -63,7 +69,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
             setLoading(true);
             const response = await digitalLatinoApi.getVsSongs(song1.cs_song, song2.cs_song);
             setComparisonData(response.data);
-            setCurrentPage(1); // Resetear página cuando cargan nuevos datos
+            setCurrentPage(1);
         } catch (error) {
             console.error('Error fetching comparison data:', error);
             toast({
@@ -73,6 +79,40 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
             });
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchPlaylistsData = async () => {
+        try {
+            setLoadingPlaylists(true);
+            const response = await digitalLatinoApi.getVsSongPlaylists(song1.cs_song, song2.cs_song);
+            setPlaylistsData(response.data);
+        } catch (error) {
+            console.error('Error fetching playlists data:', error);
+            toast({
+                title: 'Error',
+                description: 'No se pudieron cargar los datos de playlists',
+                variant: 'destructive',
+            });
+        } finally {
+            setLoadingPlaylists(false);
+        }
+    };
+
+    const fetchTiktoksData = async () => {
+        try {
+            setLoadingTiktoks(true);
+            const response = await digitalLatinoApi.getVsSongTiktoks(song1.cs_song, song2.cs_song);
+            setTiktoksData(response.data);
+        } catch (error) {
+            console.error('Error fetching tiktoks data:', error);
+            toast({
+                title: 'Error',
+                description: 'No se pudieron cargar los datos de TikTok',
+                variant: 'destructive',
+            });
+        } finally {
+            setLoadingTiktoks(false);
         }
     };
 
@@ -153,10 +193,17 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
         return num.toLocaleString();
     };
 
-    const formatDifference = (num: number) => {
+    const formatDate = (dateString: string) => {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-MX', { year: 'numeric', month: 'short', day: 'numeric' });
+    };
+
+    const formatNumberSimple = (num: number) => {
         if (num === 0) return <span className="text-gray-400">-</span>;
-        const formatted = num > 0 ? `+${num.toLocaleString()}` : num.toLocaleString();
-        return formatted;
+        if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+        if (num >= 1000) return `${(num / 1000).toFixed(1)}K`;
+        return num.toLocaleString();
     };
 
     if (!isOpen) return null;
@@ -166,7 +213,6 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
             <div
                 className="fixed inset-0 z-[10000] bg-black/70 backdrop-blur-md flex items-center justify-center p-2 md:p-4 overflow-hidden"
                 onClick={(e) => {
-                    // Cerrar si se hace click en el backdrop
                     if (e.target === e.currentTarget) onClose();
                 }}
             >
@@ -206,7 +252,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                 </div>
                                 <div>
                                     <h2 className="text-xl font-bold text-gray-900">Comparación de Canciones</h2>
-                                    <p className="text-sm text-gray-600">Análisis detallado por ciudad</p>
+                                    <p className="text-sm text-gray-600">Análisis detallado por ciudad, playlists y TikTok</p>
                                 </div>
                             </div>
                             <Button
@@ -229,13 +275,21 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                             <div className="flex items-start gap-2 md:gap-3">
                                 <div className={`
                   bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg 
-                  flex items-center justify-center text-white font-bold flex-shrink-0
+                  flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden
                   ${isMobile ? 'w-12 h-12 text-xs' : 'w-16 h-16'}
                 `}>
                                     {song1.avatar ? (
-                                        <img src={song1.spotifyid} alt={song1.song} className="w-full h-full rounded-lg object-cover" />
+                                        <img
+                                            src={song1.avatar}
+                                            alt={song1.song}
+                                            className="w-full h-full rounded-lg object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                                e.currentTarget.parentElement?.classList.add('flex', 'items-center', 'justify-center');
+                                            }}
+                                        />
                                     ) : (
-                                        song1.song.substring(0, 2).toUpperCase()
+                                        <span>{song1.song.substring(0, 2).toUpperCase()}</span>
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -273,13 +327,21 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                             <div className="flex items-start gap-2 md:gap-3">
                                 <div className={`
                   bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg 
-                  flex items-center justify-center text-white font-bold flex-shrink-0
+                  flex items-center justify-center text-white font-bold flex-shrink-0 overflow-hidden
                   ${isMobile ? 'w-12 h-12 text-xs' : 'w-16 h-16'}
                 `}>
                                     {song2.avatar ? (
-                                        <img src={song2.spotifyid} alt={song2.song} className="w-full h-full rounded-lg object-cover" />
+                                        <img
+                                            src={song2.avatar}
+                                            alt={song2.song}
+                                            className="w-full h-full rounded-lg object-cover"
+                                            onError={(e) => {
+                                                e.currentTarget.style.display = 'none';
+                                                e.currentTarget.parentElement?.classList.add('flex', 'items-center', 'justify-center');
+                                            }}
+                                        />
                                     ) : (
-                                        song2.song.substring(0, 2).toUpperCase()
+                                        <span>{song2.song.substring(0, 2).toUpperCase()}</span>
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
@@ -380,17 +442,23 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                         </div>
                     )}
 
-                    {/* Tabs */}
+                    {/* Tabs - AHORA CON 4 TABS: Tabla, Playlists, TikTok, Gráficos */}
                     <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col min-h-0">
                         <div className={`
               border-b border-gray-200 mb-3
               ${isMobile ? 'overflow-x-auto pb-1' : ''}
             `}>
                             <TabsList className={`
-                ${isMobile ? 'inline-flex w-auto' : 'grid w-full grid-cols-2'}
+                ${isMobile ? 'inline-flex w-auto' : 'grid w-full grid-cols-4'}
               `}>
                                 <TabsTrigger value="table" className={isMobile ? 'px-4 py-1.5 text-xs' : ''}>
                                     📊 Tabla
+                                </TabsTrigger>
+                                <TabsTrigger value="playlists" className={isMobile ? 'px-4 py-1.5 text-xs' : ''}>
+                                    🎵 Playlists
+                                </TabsTrigger>
+                                <TabsTrigger value="tiktok" className={isMobile ? 'px-4 py-1.5 text-xs' : ''}>
+                                    🎬 TikTok
                                 </TabsTrigger>
                                 <TabsTrigger value="charts" className={isMobile ? 'px-4 py-1.5 text-xs' : ''}>
                                     📈 Gráficos
@@ -400,6 +468,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
 
                         {/* Contenido de tabs */}
                         <div className="flex-1 overflow-auto min-h-0">
+                            {/* TABLA PRINCIPAL */}
                             <TabsContent value="table" className="h-full m-0">
                                 {loading ? (
                                     <div className="h-full flex items-center justify-center">
@@ -587,6 +656,256 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                 )}
                             </TabsContent>
 
+                            {/* TABLA DE PLAYLISTS - NUEVA */}
+                            <TabsContent value="playlists" className="h-full m-0">
+                                {loadingPlaylists ? (
+                                    <div className="h-full flex items-center justify-center">
+                                        <div className="text-center">
+                                            <CircularProgress size={isMobile ? 32 : 40} />
+                                            <p className="mt-2 text-xs md:text-sm text-gray-600">
+                                                Cargando datos de playlists...
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : playlistsData.length === 0 ? (
+                                    <div className="h-full flex items-center justify-center">
+                                        <div className="text-center">
+                                            <ListMusic className="w-8 h-8 md:w-12 md:h-12 text-gray-400 mx-auto mb-2 md:mb-3" />
+                                            <p className="text-xs md:text-sm text-gray-600">
+                                                No hay datos de playlists disponibles
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto rounded-lg md:rounded-xl border border-gray-200">
+                                        <table className="w-full min-w-[800px] md:min-w-full">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Playlist
+                                                    </th>
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Dueño
+                                                    </th>
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Tipo
+                                                    </th>
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Seguidores
+                                                    </th>
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider" colSpan={2}>
+                                                        <div className="text-center">{song1.song.substring(0, 15)}</div>
+                                                    </th>
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider" colSpan={2}>
+                                                        <div className="text-center">{song2.song.substring(0, 15)}</div>
+                                                    </th>
+                                                </tr>
+                                                <tr className="bg-gray-100/50">
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Posición</th>
+                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Agregada</th>
+                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Posición</th>
+                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Agregada</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200">
+                                                {playlistsData.map((item, index) => (
+                                                    <tr key={index} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-xs md:text-sm font-medium text-gray-900 truncate block max-w-[150px]">
+                                                                {item.playlist_name}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-xs md:text-sm text-gray-700">
+                                                                {item.owner_name}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="inline-flex px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 text-[9px] md:text-xs">
+                                                                {item.playlist_type}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-xs md:text-sm font-medium text-gray-900">
+                                                                {formatNumberSimple(item.followers_count)}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <div className="text-center">
+                                                                <span className="text-xs md:text-sm font-bold text-purple-700">
+                                                                    #{item.first_current_position}
+                                                                </span>
+                                                                {item.first_top_position && item.first_top_position < item.first_current_position && (
+                                                                    <span className="ml-1 text-[9px] text-green-600">
+                                                                        (top #{item.first_top_position})
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-[9px] md:text-xs text-gray-600">
+                                                                {formatDate(item.first_added_at)}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <div className="text-center">
+                                                                <span className="text-xs md:text-sm font-bold text-blue-700">
+                                                                    #{item.second_current_position}
+                                                                </span>
+                                                                {item.second_top_position && item.second_top_position < item.second_current_position && (
+                                                                    <span className="ml-1 text-[9px] text-green-600">
+                                                                        (top #{item.second_top_position})
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-[9px] md:text-xs text-gray-600">
+                                                                {formatDate(item.second_added_at)}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </TabsContent>
+
+                            {/* TABLA DE TIKTOK - NUEVA */}
+                            <TabsContent value="tiktok" className="h-full m-0">
+                                {loadingTiktoks ? (
+                                    <div className="h-full flex items-center justify-center">
+                                        <div className="text-center">
+                                            <CircularProgress size={isMobile ? 32 : 40} />
+                                            <p className="mt-2 text-xs md:text-sm text-gray-600">
+                                                Cargando datos de TikTok...
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : tiktoksData.length === 0 ? (
+                                    <div className="h-full flex items-center justify-center">
+                                        <div className="text-center">
+                                            <Video className="w-8 h-8 md:w-12 md:h-12 text-gray-400 mx-auto mb-2 md:mb-3" />
+                                            <p className="text-xs md:text-sm text-gray-600">
+                                                No hay datos de TikTok disponibles
+                                            </p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="overflow-x-auto rounded-lg md:rounded-xl border border-gray-200">
+                                        <table className="w-full min-w-[800px] md:min-w-full">
+                                            <thead className="bg-gray-50">
+                                                <tr>
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Usuario
+                                                    </th>
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        Seguidores
+                                                    </th>
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider" colSpan={3}>
+                                                        <div className="text-center">{song1.song.substring(0, 15)}</div>
+                                                    </th>
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider" colSpan={3}>
+                                                        <div className="text-center">{song2.song.substring(0, 15)}</div>
+                                                    </th>
+                                                </tr>
+                                                <tr className="bg-gray-100/50">
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Videos</th>
+                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Vistas</th>
+                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Likes</th>
+                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Videos</th>
+                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Vistas</th>
+                                                    <th className="py-1 px-2 text-[9px] md:text-xs text-gray-500">Likes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-200">
+                                                {tiktoksData.map((item, index) => (
+                                                    <tr key={index} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <div>
+                                                                <span className="text-xs md:text-sm font-medium text-gray-900 block">
+                                                                    {item.user_name}
+                                                                </span>
+                                                                <span className="text-[9px] md:text-xs text-gray-500">
+                                                                    @{item.user_handle}
+                                                                </span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-xs md:text-sm font-medium text-gray-900">
+                                                                {formatNumberSimple(item.tiktok_user_followers)}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-xs md:text-sm font-bold text-purple-700">
+                                                                {item.first_no_videos === 0 ? (
+                                                                    <span className="text-gray-400">-</span>
+                                                                ) : (
+                                                                    item.first_no_videos
+                                                                )}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-xs md:text-sm font-bold text-purple-700">
+                                                                {item.first_views_total === 0 ? (
+                                                                    <span className="text-gray-400">-</span>
+                                                                ) : (
+                                                                    formatNumberSimple(item.first_views_total)
+                                                                )}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-xs md:text-sm font-bold text-purple-700">
+                                                                {item.first_likes_total === 0 ? (
+                                                                    <span className="text-gray-400">-</span>
+                                                                ) : (
+                                                                    formatNumberSimple(item.first_likes_total)
+                                                                )}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-xs md:text-sm font-bold text-blue-700">
+                                                                {item.second_no_videos === 0 ? (
+                                                                    <span className="text-gray-400">-</span>
+                                                                ) : (
+                                                                    item.second_no_videos
+                                                                )}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-xs md:text-sm font-bold text-blue-700">
+                                                                {item.second_views_total === 0 ? (
+                                                                    <span className="text-gray-400">-</span>
+                                                                ) : (
+                                                                    formatNumberSimple(item.second_views_total)
+                                                                )}
+                                                            </span>
+                                                        </td>
+                                                        <td className="py-2 md:py-3 px-2 md:px-4">
+                                                            <span className="text-xs md:text-sm font-bold text-blue-700">
+                                                                {item.second_likes_total === 0 ? (
+                                                                    <span className="text-gray-400">-</span>
+                                                                ) : (
+                                                                    formatNumberSimple(item.second_likes_total)
+                                                                )}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </TabsContent>
+
+                            {/* GRÁFICOS */}
                             <TabsContent value="charts" className="h-full m-0">
                                 {loading ? (
                                     <div className="h-full flex items-center justify-center">
@@ -703,7 +1022,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                 </div>
             </div>
 
-            <Backdrop open={loading} sx={{ color: '#fff', zIndex: 99999 }}>
+            <Backdrop open={loading || loadingPlaylists || loadingTiktoks} sx={{ color: '#fff', zIndex: 99999 }}>
                 <CircularProgress color="inherit" />
             </Backdrop>
         </>
