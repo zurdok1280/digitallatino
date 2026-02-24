@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 
 const stripePromise = loadStripe(
-  "pk_test_51SAtWhKFPi4gMQQnl5IahKw9gDsuSYHUGgs3cFuFasveKQIu7TMbIe4fkwOGwzAYovd2DXAuGebBF1qVze0LSPhp00QjNbOjEf",
+  "pk_live_51SAtWhKFPi4gMQQnD1IAJpVSeEx9Hgzn0aslq1Q8IrXgtBkZMBx1Gki8ibAA5yMDJb81qc74jfcamZgNjDLKMIpG005doVUTWO",
 );
 
 const PLANS = {

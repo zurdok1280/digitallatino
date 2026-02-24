@@ -29,7 +29,7 @@ export const CheckoutForm = ({ priceId }: { priceId: string }) => {
 
     try {
       //const createSubResponse = await fetch("http://localhost:8085/api/subscriptions/create-subscription-trial", {
-      const createSubResponse = await fetch('https://security.digital-latino.com/api/subscriptions/create', {
+      const createSubResponse = await fetch('https://security.digital-latino.com/api/subscriptions/create-subscription-trial', {
 
           method: "POST",
           headers: {
@@ -46,13 +46,6 @@ export const CheckoutForm = ({ priceId }: { priceId: string }) => {
       const { clientSecret } = await createSubResponse.json();
 
       console.log("Clave recibida:", clientSecret);
-      if (clientSecret.startsWith("seti_")) {
-        alert(
-          "✅ CONFIRMADO: Stripe generó una PRUEBA GRATUITA. No se cobrará nada.",
-        );
-      } else {
-        alert("⚠️ CUIDADO: Stripe generó un COBRO INMEDIATO.");
-      }
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) {
         throw new Error("El campo de la tarjeta no se encontro");
