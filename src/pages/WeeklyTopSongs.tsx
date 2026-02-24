@@ -1183,41 +1183,22 @@ export default function Charts() {
                           <span className="text-sm">🌎</span>
                           <span className="truncate">País/Región</span>
                         </label>
-                        <div className="relative" ref={countryButtonRef}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (loadingCountries) return;
-                              setOpenDropdown(openDropdown === "country" ? null : "country");
-                              setDropdownSearch("");
-
-                              if (countryButtonRef.current) {
-                                const rect = countryButtonRef.current.getBoundingClientRect();
-                                setCountryDropdownPosition({
-                                  top: rect.bottom + window.scrollY,
-                                  left: rect.left + window.scrollX,
-                                  width: rect.width,
-                                });
-                              }
-                            }}
-                            className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={loadingCountries}
-                          >
-                            <span className="truncate pr-2">
-                              {loadingCountries ? (
-                                "Cargando países..."
-                              ) : (
-                                selectedCountry && countries.find(c => c.id.toString() === selectedCountry)
-                                  ? `${countries.find(c => c.id.toString() === selectedCountry)?.country_name}`
-                                  : "Selecciona un país"
-                              )}
-                            </span>
-                            <ChevronDown
-                              className={`w-3 h-3 transition-transform flex-shrink-0 ${openDropdown === "country" ? "rotate-180" : ""
-                                }`}
-                            />
-                          </button>
-                        </div>
+                        <select
+                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg"
+                          value={selectedCountry}
+                          onChange={(e) => {
+                            setSelectedCountry(e.target.value);
+                            setSelectedCity("0"); // Reset city when country changes
+                          }}
+                          disabled={loadingCountries}
+                        >
+                          <option value="">Selecciona un país</option>
+                          {countries.map((country) => (
+                            <option key={country.id} value={country.id.toString()}>
+                              {country.country_name || country.country || country.description}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       {/* Filtro por Género */}
@@ -1249,45 +1230,24 @@ export default function Charts() {
                       </div>
 
                       {/* Filtro por Ciudad */}
-                      <div className="space-y-1 relative">
+                      <div className="space-y-1">
                         <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1">
                           <span className="text-sm">🏙️</span>
                           <span className="truncate">Ciudad Target</span>
                         </label>
-                        <div className="relative" ref={cityButtonRef}>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setOpenDropdown(openDropdown === "city" ? null : "city");
-                              setDropdownSearch("");
-                              if (cityButtonRef.current) {
-                                const rect = cityButtonRef.current.getBoundingClientRect();
-                                setCityDropdownPosition({
-                                  top: rect.bottom + window.scrollY,
-                                  left: rect.left + window.scrollX,
-                                  width: rect.width,
-                                });
-                              }
-                            }}
-                            className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled={loadingCities || !selectedCountry}
-                          >
-                            <span className="truncate pr-2">
-                              {loadingCities
-                                ? "Cargando..."
-                                : !selectedCountry
-                                  ? "Selecciona país primero"
-                                  : selectedCity !== "0" && cities.length > 0
-                                    ? cities.find((c) => c.id.toString() === selectedCity)
-                                      ?.city_name || "Todas las ciudades"
-                                    : "Todas las ciudades"}
-                            </span>
-                            <ChevronDown
-                              className={`w-3 h-3 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
-                                }`}
-                            />
-                          </button>
-                        </div>
+                        <select
+                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-orange-400 transition-all hover:shadow-lg"
+                          value={selectedCity}
+                          onChange={(e) => setSelectedCity(e.target.value)}
+                          disabled={loadingCities || !selectedCountry || cities.length === 0}
+                        >
+                          <option value="0">Todas las ciudades</option>
+                          {cities.map((city) => (
+                            <option key={city.id} value={city.id.toString()}>
+                              {city.city_name}
+                            </option>
+                          ))}
+                        </select>
                       </div>
 
                       {/* Botón para cerrar filtros en móvil */}
@@ -1344,42 +1304,24 @@ export default function Charts() {
                         <span className="text-sm sm:text-base">🌎</span>
                         <span className="truncate">País/Región</span>
                       </label>
-                      <div className="relative" ref={countryButtonRef}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (loadingCountries) return;
-                            setOpenDropdown(openDropdown === "country" ? null : "country");
-                            setDropdownSearch("");
-
-                            if (countryButtonRef.current) {
-                              const rect = countryButtonRef.current.getBoundingClientRect();
-                              setCountryDropdownPosition({
-                                top: rect.bottom + window.scrollY,
-                                left: rect.left + window.scrollX,
-                                width: rect.width,
-                              });
-                            }
-                          }}
-                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                          disabled={loadingCountries}
-                        >
-                          <span className="truncate pr-2">
-                            {loadingCountries ? (
-                              "Cargando países..."
-                            ) : (
-                              selectedCountry && countries.find(c => c.id.toString() === selectedCountry)
-                                ? `${countries.find(c => c.id.toString() === selectedCountry)?.country_name}`
-                                : "Selecciona un país"
-                            )}
-                          </span>
-                          <ChevronDown
-                            className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "country" ? "rotate-180" : ""
-                              }`}
-                          />
-                        </button>
-                      </div>
+                      <select
+                        className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg"
+                        value={selectedCountry}
+                        onChange={(e) => {
+                          setSelectedCountry(e.target.value);
+                          setSelectedCity("0");
+                        }}
+                        disabled={loadingCountries}
+                      >
+                        <option value="">Selecciona un país</option>
+                        {countries.map((country) => (
+                          <option key={country.id} value={country.id.toString()}>
+                            {country.country_name || country.country || country.description}
+                          </option>
+                        ))}
+                      </select>
                     </div>
+
 
                     {/* Filtro por Género */}
                     <div className="space-y-1 sm:space-y-2">
@@ -1410,45 +1352,24 @@ export default function Charts() {
                     </div>
 
                     {/* Filtro por Ciudad */}
-                    <div className="space-y-1 sm:space-y-2 relative">
+                    <div className="space-y-1 sm:space-y-2">
                       <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
                         <span className="text-sm sm:text-base">🏙️</span>
                         <span className="truncate">Ciudad Target</span>
                       </label>
-                      <div className="relative" ref={cityButtonRef}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setOpenDropdown(openDropdown === "city" ? null : "city");
-                            setDropdownSearch("");
-                            if (cityButtonRef.current) {
-                              const rect = cityButtonRef.current.getBoundingClientRect();
-                              setCityDropdownPosition({
-                                top: rect.bottom + window.scrollY,
-                                left: rect.left + window.scrollX,
-                                width: rect.width,
-                              });
-                            }
-                          }}
-                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                          disabled={loadingCities || !selectedCountry}
-                        >
-                          <span className="truncate pr-2">
-                            {loadingCities
-                              ? "Cargando..."
-                              : !selectedCountry
-                                ? "Selecciona país primero"
-                                : selectedCity !== "0" && cities.length > 0
-                                  ? cities.find((c) => c.id.toString() === selectedCity)
-                                    ?.city_name || "Todas las ciudades"
-                                  : "Todas las ciudades"}
-                          </span>
-                          <ChevronDown
-                            className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
-                              }`}
-                          />
-                        </button>
-                      </div>
+                      <select
+                        className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-orange-400 transition-all hover:shadow-lg"
+                        value={selectedCity}
+                        onChange={(e) => setSelectedCity(e.target.value)}
+                        disabled={loadingCities || !selectedCountry || cities.length === 0}
+                      >
+                        <option value="0">Todas las ciudades</option>
+                        {cities.map((city) => (
+                          <option key={city.id} value={city.id.toString()}>
+                            {city.city_name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
