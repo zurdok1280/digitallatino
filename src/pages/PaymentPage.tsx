@@ -5,13 +5,17 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 
 const stripePromise = loadStripe(
-  "pk_live_51SAtWhKFPi4gMQQnD1IAJpVSeEx9Hgzn0aslq1Q8IrXgtBkZMBx1Gki8ibAA5yMDJb81qc74jfcamZgNjDLKMIpG005doVUTWO",
+  // Llave de producción ("pk_live_51SAtWhKFPi4gMQQnD1IAJpVSeEx9Hgzn0aslq1Q8IrXgtBkZMBx1Gki8ibAA5yMDJb81qc74jfcamZgNjDLKMIpG005doVUTWO",)
+  // Llave de prueba
+  "pk_test_51SAtWhKFPi4gMQQnl5IahKw9gDsuSYHUGgs3cFuFasveKQIu7TMbIe4fkwOGwzAYovd2DXAuGebBF1qVze0LSPhp00QjNbOjEf"
 );
 
 const PLANS = {
   // Monthly plan
   MONTHLY: {
-    id: "price_1SykYSKFPi4gMQQnCKGhsRYv",
+    //id: "price_1SykYSKFPi4gMQQnCKGhsRYv",
+    //Id test 
+    id: "price_1STRTuKFPi4gMQQnEZL9oIYo",
     name: "Plan Mensual",
     amount: 120,
     interval: "/mes",
@@ -23,7 +27,9 @@ const PLANS = {
   },
   //Yearly plan
   YEARLY: {
-    id: "price_1SykYSKFPi4gMQQnIfud8Ozk",
+    //id: "price_1SykYSKFPi4gMQQnIfud8Ozk",
+    //Id test
+    id: "price_1STRTuKFPi4gMQQnRrzC1aXX",
     name: "Plan Anual",
     amount: 1000,
     interval: "/año",
@@ -35,7 +41,9 @@ const PLANS = {
   },
   //Plan Artist
   ARTIST: {
-    id: "price_1Sykf4KFPi4gMQQnG3Je9Z83",
+    //id: "price_1Sykf4KFPi4gMQQnG3Je9Z83",
+    //Id test
+    id: "price_1SXXeBKFPi4gMQQn2cx9SPB1",
     name: "Plan Artista",
     amount: 10,
     interval: "/mes",
