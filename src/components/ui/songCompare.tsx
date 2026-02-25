@@ -131,6 +131,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
         try {
             setLoading(true);
             const response = await digitalLatinoApi.getVsSongs(song1.cs_song, song2.cs_song);
+            console.log(response.data)
             setComparisonData(response.data);
             setCurrentPage(1);
         } catch (error) {
@@ -181,94 +182,13 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
 
     // Sort functions for each tab
     const getSortedData = () => {
-        return [...comparisonData].sort((a, b) => {
-            if (sortConfig.key === 'winner') {
-                const aWins = a.first_streams > a.second_streams ? 1 : -1;
-                const bWins = b.first_streams > b.second_streams ? 1 : -1;
-                return sortConfig.direction === 'asc' ? aWins - bWins : bWins - aWins;
-            }
-
-            const aValue = a[sortConfig.key as keyof VsSongData];
-            const bValue = b[sortConfig.key as keyof VsSongData];
-
-            if (typeof aValue === 'number' && typeof bValue === 'number') {
-                return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
-            }
-
-            // String comparison
-            if (typeof aValue === 'string' && typeof bValue === 'string') {
-                return sortConfig.direction === 'asc'
-                    ? aValue.localeCompare(bValue)
-                    : bValue.localeCompare(aValue);
-            }
-            return 0;
-        });
+        return [...comparisonData]
     };
 
-    const getSortedPlaylistsData = () => {
-        return [...playlistsData].sort((a, b) => {
-            let aValue: any;
-            let bValue: any;
-
-            switch (playlistSortConfig.key) {
-                case 'song1_position':
-                    aValue = a.first_current_position;
-                    bValue = b.first_current_position;
-                    break;
-                case 'song2_position':
-                    aValue = a.second_current_position;
-                    bValue = b.second_current_position;
-                    break;
-                default:
-                    aValue = a[playlistSortConfig.key as keyof VsSongPlaylistsData];
-                    bValue = b[playlistSortConfig.key as keyof VsSongPlaylistsData];
-            }
-
-            if (typeof aValue === 'number' && typeof bValue === 'number') {
-                return playlistSortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
-            }
-
-            if (typeof aValue === 'string' && typeof bValue === 'string') {
-                return playlistSortConfig.direction === 'asc'
-                    ? aValue.localeCompare(bValue)
-                    : bValue.localeCompare(aValue);
-            }
-            return 0;
-        });
-    };
+    const getSortedPlaylistsData = () => [...playlistsData];
 
     const getSortedTiktoksData = () => {
-        return [...tiktoksData].sort((a, b) => {
-            let aValue: any;
-            let bValue: any;
-
-            switch (tiktokSortConfig.key) {
-                case 'song1_metrics':
-                    // Ordenar por suma de vistas + likes + comentarios de la canción 1
-                    aValue = (a.first_views_total || 0) + (a.first_likes_total || 0) + (a.first_comments_total || 0);
-                    bValue = (b.first_views_total || 0) + (b.first_likes_total || 0) + (b.first_comments_total || 0);
-                    break;
-                case 'song2_metrics':
-                    // Ordenar por suma de vistas + likes + comentarios de la canción 2
-                    aValue = (a.second_views_total || 0) + (a.second_likes_total || 0) + (a.second_comments_total || 0);
-                    bValue = (b.second_views_total || 0) + (b.second_likes_total || 0) + (b.second_comments_total || 0);
-                    break;
-                default:
-                    aValue = a[tiktokSortConfig.key as keyof VsSongTiktoksData];
-                    bValue = b[tiktokSortConfig.key as keyof VsSongTiktoksData];
-            }
-
-            if (typeof aValue === 'number' && typeof bValue === 'number') {
-                return tiktokSortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
-            }
-
-            if (typeof aValue === 'string' && typeof bValue === 'string') {
-                return tiktokSortConfig.direction === 'asc'
-                    ? aValue.localeCompare(bValue)
-                    : bValue.localeCompare(aValue);
-            }
-            return 0;
-        });
+        return [...tiktoksData]
     };
 
     const sortedData = getSortedData();
