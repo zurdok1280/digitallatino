@@ -226,18 +226,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
 
     const metrics = calculateMetrics();
 
-    const chartData = comparisonData
-        .sort((a, b) => Math.abs(b.dif_streams) - Math.abs(a.dif_streams))
-        .slice(0, isMobile ? 5 : 10)
-        .map(item => ({
-            name: isMobile ? item.city_name.substring(0, 10) + '...' : item.city_name,
-            city_name: item.city_name,
-            country: item.country_code,
-            [song1.song.substring(0, 15)]: Math.round(item.first_streams),
-            [song2.song.substring(0, 15)]: Math.round(item.second_streams),
-            dif: Math.round(item.dif_streams),
-            winner: item.first_streams > item.second_streams ? 'song1' : 'song2',
-        }));
+    const chartData = comparisonData;
 
     // Sort handlers
     const requestSort = (key: keyof VsSongData | 'winner') => {

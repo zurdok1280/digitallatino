@@ -375,6 +375,7 @@ export default function Charts() {
   const cityButtonRef = useRef<HTMLDivElement>(null);
   const [countryDropdownPosition, setCountryDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const countryButtonRef = useRef<HTMLDivElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
 
 
   // Función para manejar el click en el nombre de la canción/artista
@@ -539,6 +540,16 @@ export default function Charts() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openDropdown]);
+  const updateDropdownPosition = (ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  };
   // Función para manejar la selección
   const handleOptionSelect = (
     value: string,
@@ -1178,28 +1189,105 @@ export default function Charts() {
                   <div className="p-4 border-t border-white/30">
                     <div className="grid grid-cols-1 gap-3">
                       {/* Filtro por País/Región */}
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1">
-                          <span className="text-sm">🌎</span>
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                          <span className="text-sm sm:text-base">🌎</span>
                           <span className="truncate">País/Región</span>
                         </label>
-                        <select
-                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg"
-                          value={selectedCountry}
-                          onChange={(e) => {
-                            setSelectedCountry(e.target.value);
-                            setSelectedCity("0"); // Reset city when country changes
-                          }}
-                          disabled={loadingCountries}
-                        >
-                          <option value="">Selecciona un país</option>
-                          {countries.map((country) => (
-                            <option key={country.id} value={country.id.toString()}>
-                              {country.country_name || country.country || country.description}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="relative" ref={countryButtonRef}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (loadingCountries) return;
+                              setOpenDropdown(openDropdown === "country" ? null : "country");
+                              setDropdownSearch("");
+
+                              if (countryButtonRef.current) {
+                                const rect = countryButtonRef.current.getBoundingClientRect();
+                                setCountryDropdownPosition({
+                                  top: rect.bottom + window.scrollY,
+                                  left: rect.left + window.scrollX,
+                                  width: rect.width,
+                                });
+                              }
+                            }}
+                            className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={loadingCountries}
+                          >
+                            <span className="truncate pr-2">
+                              {loadingCountries ? (
+                                "Cargando países..."
+                              ) : selectedCountry && countries.find(c => c.id.toString() === selectedCountry) ? (
+                                countries.find(c => c.id.toString() === selectedCountry)?.country_name
+                              ) : (
+                                "Selecciona un país"
+                              )}
+                            </span>
+                            <ChevronDown
+                              className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "country" ? "rotate-180" : ""}`}
+                            />
+                          </button>
+                        </div>
                       </div>
+
+                      {/* DROPDOWN PAÍS */}
+                      {openDropdown === "country" && !loadingCountries && createPortal(
+                        <div
+                          data-country-portal="true"
+                          className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                          style={{
+                            top: countryDropdownPosition.top,
+                            left: countryDropdownPosition.left,
+                            width: countryDropdownPosition.width,
+                            maxHeight: '300px',
+                          }}
+                        >
+                          <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
+                            <div className="relative">
+                              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                              <input
+                                type="text"
+                                placeholder="Buscar país..."
+                                className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                value={dropdownSearch}
+                                onChange={(e) => setDropdownSearch(e.target.value)}
+                                autoFocus
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="max-h-60 overflow-y-auto">
+                            {getFilteredOptions(countries, dropdownSearch, "country").map((country) => (
+                              <button
+                                key={country.id}
+                                onClick={() => {
+                                  handleOptionSelect(country.id.toString(), "country");
+                                  setOpenDropdown(null);
+                                }}
+                                className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-pink-50 transition-colors ${selectedCountry === country.id.toString()
+                                  ? "bg-pink-100 text-pink-700 font-semibold"
+                                  : "text-gray-700"
+                                  }`}
+                              >
+                                <span className="flex items-center gap-2">
+                                  <span>🌍</span>
+                                  <span className="truncate">
+                                    {country.country_name || country.country || country.description}
+                                  </span>
+                                </span>
+                              </button>
+                            ))}
+
+                            {getFilteredOptions(countries, dropdownSearch, "country").length === 0 && (
+                              <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
+                                No se encontraron países
+                              </div>
+                            )}
+                          </div>
+                        </div>,
+                        document.body
+                      )}
 
                       {/* Filtro por Género */}
                       <div className="space-y-1">
@@ -1229,26 +1317,123 @@ export default function Charts() {
                         </select>
                       </div>
 
-                      {/* Filtro por Ciudad */}
-                      <div className="space-y-1">
-                        <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1">
-                          <span className="text-sm">🏙️</span>
+                      {/* Filtro por Ciudad - DESKTOP */}
+                      <div className="space-y-1 sm:space-y-2 relative">
+                        <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                          <span className="text-sm sm:text-base">🏙️</span>
                           <span className="truncate">Ciudad Target</span>
                         </label>
-                        <select
-                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-orange-400 transition-all hover:shadow-lg"
-                          value={selectedCity}
-                          onChange={(e) => setSelectedCity(e.target.value)}
-                          disabled={loadingCities || !selectedCountry || cities.length === 0}
-                        >
-                          <option value="0">Todas las ciudades</option>
-                          {cities.map((city) => (
-                            <option key={city.id} value={city.id.toString()}>
-                              {city.city_name}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="relative" ref={cityButtonRef}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (loadingCities || !selectedCountry || cities.length === 0) return;
+                              setOpenDropdown(openDropdown === "city" ? null : "city");
+                              setDropdownSearch("");
+                              if (cityButtonRef.current) {
+                                const rect = cityButtonRef.current.getBoundingClientRect();
+                                setCityDropdownPosition({
+                                  top: rect.bottom + window.scrollY,
+                                  left: rect.left + window.scrollX,
+                                  width: rect.width,
+                                });
+                              }
+                            }}
+                            className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-orange-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={loadingCities || !selectedCountry || cities.length === 0}
+                          >
+                            <span className="truncate pr-2">
+                              {loadingCities
+                                ? "Cargando..."
+                                : !selectedCountry
+                                  ? "Selecciona país primero"
+                                  : selectedCity !== "0" && cities.length > 0
+                                    ? cities.find((c) => c.id.toString() === selectedCity)
+                                      ?.city_name || "Todas las ciudades"
+                                    : "Todas las ciudades"}
+                            </span>
+                            <ChevronDown
+                              className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
+                                }`}
+                            />
+                          </button>
+                        </div>
                       </div>
+
+                      {/* Dropdown de ciudades renderizado con Portal - DESKTOP */}
+                      {openDropdown === "city" && cities.length > 0 && createPortal(
+                        <div
+                          data-city-portal="true"
+                          className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                          style={{
+                            top: cityDropdownPosition.top,
+                            left: cityDropdownPosition.left,
+                            width: cityDropdownPosition.width,
+                            maxHeight: '300px', // Un poco más alto en desktop
+                          }}
+                        >
+                          <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
+                            <div className="relative">
+                              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                              <input
+                                type="text"
+                                placeholder="Buscar ciudad..."
+                                className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                                value={dropdownSearch}
+                                onChange={(e) => setDropdownSearch(e.target.value)}
+                                autoFocus
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="max-h-60 overflow-y-auto">
+                            {/* Opción "Todas las ciudades" */}
+                            <button
+                              onClick={() => {
+                                handleOptionSelect("0", "city");
+                                setOpenDropdown(null);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
+                                ? "bg-orange-100 text-orange-700 font-semibold"
+                                : "text-gray-700"
+                                }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span>🌍</span>
+                                <span className="truncate">Todas las ciudades</span>
+                              </span>
+                            </button>
+
+                            {/* Opciones de ciudades filtradas */}
+                            {getFilteredOptions(cities, dropdownSearch, "city").map((city) => (
+                              <button
+                                key={city.id}
+                                onClick={() => {
+                                  handleOptionSelect(city.id.toString(), "city");
+                                  setOpenDropdown(null);
+                                }}
+                                className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                                  ? "bg-orange-100 text-orange-700 font-semibold"
+                                  : "text-gray-700"
+                                  }`}
+                              >
+                                <span className="flex items-center gap-2">
+                                  <span>🏙️</span>
+                                  <span className="truncate">{city.city_name}</span>
+                                </span>
+                              </button>
+                            ))}
+
+                            {getFilteredOptions(cities, dropdownSearch, "city").length === 0 && (
+                              <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
+                                No se encontraron ciudades
+                              </div>
+                            )}
+                          </div>
+                        </div>,
+                        document.body
+                      )}
 
                       {/* Botón para cerrar filtros en móvil */}
                       <Button
@@ -1304,23 +1489,100 @@ export default function Charts() {
                         <span className="text-sm sm:text-base">🌎</span>
                         <span className="truncate">País/Región</span>
                       </label>
-                      <select
-                        className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg"
-                        value={selectedCountry}
-                        onChange={(e) => {
-                          setSelectedCountry(e.target.value);
-                          setSelectedCity("0");
-                        }}
-                        disabled={loadingCountries}
-                      >
-                        <option value="">Selecciona un país</option>
-                        {countries.map((country) => (
-                          <option key={country.id} value={country.id.toString()}>
-                            {country.country_name || country.country || country.description}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative" ref={countryButtonRef}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (loadingCountries) return;
+                            setOpenDropdown(openDropdown === "country" ? null : "country");
+                            setDropdownSearch("");
+
+                            setTimeout(() => {
+                              if (countryButtonRef.current) {
+                                const rect = countryButtonRef.current.getBoundingClientRect();
+                                setCountryDropdownPosition({
+                                  top: rect.bottom + window.scrollY,
+                                  left: rect.left + window.scrollX,
+                                  width: rect.width,
+                                });
+                              }
+                            }, 10);
+                          }}
+                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={loadingCountries}
+                        >
+                          <span className="truncate pr-2">
+                            {loadingCountries ? (
+                              "Cargando países..."
+                            ) : selectedCountry && countries.find(c => c.id.toString() === selectedCountry) ? (
+                              countries.find(c => c.id.toString() === selectedCountry)?.country_name ||
+                              countries.find(c => c.id.toString() === selectedCountry)?.country ||
+                              countries.find(c => c.id.toString() === selectedCountry)?.description
+                            ) : (
+                              "Selecciona un país"
+                            )}
+                          </span>
+                          <ChevronDown
+                            className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "country" ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                      </div>
                     </div>
+                    {openDropdown === "country" && !loadingCountries && createPortal(
+                      <div
+                        data-country-portal="true"
+                        className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                        style={{
+                          top: Math.min(countryDropdownPosition.top, window.innerHeight - 400),
+                          left: countryDropdownPosition.left,
+                          width: countryDropdownPosition.width,
+                          maxHeight: '300px',
+                        }}
+                      >
+                        {/* Mismo contenido del dropdown de países */}
+                        <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
+                          <div className="relative">
+                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                            <input
+                              type="text"
+                              placeholder="Buscar país..."
+                              className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                              value={dropdownSearch}
+                              onChange={(e) => setDropdownSearch(e.target.value)}
+                              autoFocus
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="max-h-60 overflow-y-auto">
+                          {getFilteredOptions(countries, dropdownSearch, "country").map((country) => (
+                            <button
+                              key={country.id}
+                              onClick={() => handleOptionSelect(country.id.toString(), "country")}
+                              className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-pink-50 transition-colors ${selectedCountry === country.id.toString()
+                                ? "bg-pink-100 text-pink-700 font-semibold"
+                                : "text-gray-700"
+                                }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span>🌍</span>
+                                <span className="truncate">
+                                  {country.country_name || country.country || country.description}
+                                </span>
+                              </span>
+                            </button>
+                          ))}
+
+                          {getFilteredOptions(countries, dropdownSearch, "country").length === 0 && (
+                            <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
+                              No se encontraron países
+                            </div>
+                          )}
+                        </div>
+                      </div>,
+                      document.body
+                    )}
 
 
                     {/* Filtro por Género */}
@@ -1352,25 +1614,122 @@ export default function Charts() {
                     </div>
 
                     {/* Filtro por Ciudad */}
-                    <div className="space-y-1 sm:space-y-2">
-                      <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                        <span className="text-sm sm:text-base">🏙️</span>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1">
+                        <span className="text-sm">🏙️</span>
                         <span className="truncate">Ciudad Target</span>
                       </label>
-                      <select
-                        className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-orange-400 transition-all hover:shadow-lg"
-                        value={selectedCity}
-                        onChange={(e) => setSelectedCity(e.target.value)}
-                        disabled={loadingCities || !selectedCountry || cities.length === 0}
-                      >
-                        <option value="0">Todas las ciudades</option>
-                        {cities.map((city) => (
-                          <option key={city.id} value={city.id.toString()}>
-                            {city.city_name}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative" ref={cityButtonRef}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (loadingCities || !selectedCountry || cities.length === 0) return;
+                            setOpenDropdown(openDropdown === "city" ? null : "city");
+                            setDropdownSearch("");
+                            if (cityButtonRef.current) {
+                              const rect = cityButtonRef.current.getBoundingClientRect();
+                              setCityDropdownPosition({
+                                top: rect.bottom + window.scrollY,
+                                left: rect.left + window.scrollX,
+                                width: rect.width,
+                              });
+                            }
+                          }}
+                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-3 py-2.5 text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-orange-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={loadingCities || !selectedCountry || cities.length === 0}
+                        >
+                          <span className="truncate pr-2">
+                            {loadingCities
+                              ? "Cargando..."
+                              : !selectedCountry
+                                ? "Selecciona país primero"
+                                : selectedCity !== "0" && cities.length > 0
+                                  ? cities.find((c) => c.id.toString() === selectedCity)
+                                    ?.city_name || "Todas las ciudades"
+                                  : "Todas las ciudades"}
+                          </span>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
+                              }`}
+                          />
+                        </button>
+                      </div>
                     </div>
+
+                    {/* Dropdown de ciudades renderizado con Portal - MÓVIL */}
+                    {openDropdown === "city" && cities.length > 0 && createPortal(
+                      <div
+                        data-city-portal="true"
+                        className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                        style={{
+                          top: cityDropdownPosition.top,
+                          left: cityDropdownPosition.left,
+                          width: cityDropdownPosition.width,
+                          maxHeight: '240px',
+                        }}
+                      >
+                        <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
+                          <div className="relative">
+                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" />
+                            <input
+                              type="text"
+                              placeholder="Buscar ciudad..."
+                              className="w-full pl-7 pr-3 py-1.5 bg-white/80 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-orange-400"
+                              value={dropdownSearch}
+                              onChange={(e) => setDropdownSearch(e.target.value)}
+                              autoFocus
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="max-h-48 overflow-y-auto">
+                          {/* Opción "Todas las ciudades" */}
+                          <button
+                            onClick={() => {
+                              handleOptionSelect("0", "city");
+                              setOpenDropdown(null);
+                            }}
+                            className={`w-full px-3 py-2 text-left text-xs hover:bg-orange-50 transition-colors ${selectedCity === "0"
+                              ? "bg-orange-100 text-orange-700 font-semibold"
+                              : "text-gray-700"
+                              }`}
+                          >
+                            <span className="flex items-center gap-2">
+                              <span>🌍</span>
+                              <span className="truncate">Todas las ciudades</span>
+                            </span>
+                          </button>
+
+                          {/* Opciones de ciudades filtradas */}
+                          {getFilteredOptions(cities, dropdownSearch, "city").map((city) => (
+                            <button
+                              key={city.id}
+                              onClick={() => {
+                                handleOptionSelect(city.id.toString(), "city");
+                                setOpenDropdown(null);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-xs hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                                ? "bg-orange-100 text-orange-700 font-semibold"
+                                : "text-gray-700"
+                                }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span>🏙️</span>
+                                <span className="truncate">{city.city_name}</span>
+                              </span>
+                            </button>
+                          ))}
+
+                          {getFilteredOptions(cities, dropdownSearch, "city").length === 0 && (
+                            <div className="px-3 py-4 text-xs text-gray-500 text-center">
+                              No se encontraron ciudades
+                            </div>
+                          )}
+                        </div>
+                      </div>,
+                      document.body
+                    )}
                   </div>
                 </div>
               </div>
