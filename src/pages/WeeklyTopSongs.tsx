@@ -1,26 +1,8 @@
-import React, {
-  useState,
-  useCallback,
-  useEffect,
-  useRef,
-  useMemo,
-} from "react";
+import React, { useState, useCallback, useEffect, useRef, useMemo, } from "react";
+import { createPortal } from 'react-dom';
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import {
-  ChevronUp,
-  ChevronDown,
-  Star,
-  Plus,
-  Minus,
-  Search,
-  Music,
-  Crown,
-  Play,
-  Pause,
-  Trophy,
-  Zap,
-} from "lucide-react";
+import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Filter, Music, Crown, Play, Pause, Trophy, Zap, ArrowDown, ArrowUp, BarChart3, } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -35,6 +17,7 @@ import {
   City,
   Song,
   CityDataForSong,
+  SelectedSong,
 } from "@/lib/api";
 // Import album covers
 import { Backdrop, CircularProgress, Fab } from "@mui/material";
@@ -58,6 +41,8 @@ import {
 import FloatingScrollButtons from "@/components/FloatingScrollButtons";
 import { LoginButton } from "@/components/LoginButton";
 import ChartArtistDetails from "@/components/ui/ChartArtistDetails";
+import { SongCompare } from "@/components/ui/songCompare";
+import { ComparisonMode } from "@/components/ui/ComparisonMode";
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -348,7 +333,11 @@ export default function Charts() {
   const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
   const [chartSearchQuery, setChartSearchQuery] = useState("");
   const [showSearchBar, setShowSearchBar] = useState(false);
+  const [showMobileFilter, setShowMobileFilter] = useState(false);  //Ocultar filters in mobile
+  const [mobileView, setMobileView] = useState<'none' | 'search' | 'filter'>('none');
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  //last data update:
+  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
 
   // Dropdown state keyboard navigation
   const [openDropdown, setOpenDropdown] = useState<
@@ -366,13 +355,31 @@ export default function Charts() {
   const [artistDetailsModal, setArtistDetailsModal] = useState<{
     isOpen: boolean;
     artist: Song | null;
+    selectedCountry?: string;
   }>({
     isOpen: false,
-    artist: null
+    artist: null,
+    selectedCountry: selectedCountry
   });
+  //States para comparación de canciones
+  const [comparisonMode, setComparisonMode] = useState(false);
+  const [selectedSongs, setSelectedSongs] = useState<SelectedSong[]>([]);
+  const [showComparison, setShowComparison] = useState(false);
+  const [songForComparison, setSongForComparison] = useState<{
+    song1: SelectedSong | null;
+    song2: SelectedSong | null;
+  }>({ song1: null, song2: null });
+  //Desplegar Filtros
+  const [showFilters, setShowFilters] = useState(false);
+  const [cityDropdownPosition, setCityDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const cityButtonRef = useRef<HTMLDivElement>(null);
+  const [countryDropdownPosition, setCountryDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const countryButtonRef = useRef<HTMLDivElement>(null);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+
 
   // Función para manejar el click en el nombre de la canción/artista
-  const handleArtistDetailsClick = (row: Song) => {
+  const handleArtistDetailsClick = (row: Song, selectedCountry: string) => {
     if (!user) {
       setShowLoginDialog(true);
       return;
@@ -396,7 +403,8 @@ export default function Charts() {
 
     setArtistDetailsModal({
       isOpen: true,
-      artist: row
+      artist: row,
+      selectedCountry: selectedCountry
     });
   };
 
@@ -481,7 +489,6 @@ export default function Charts() {
 
   // Función para filtrar opciones basado en la búsqueda
   const getFilteredOptions = (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     options: any[],
     searchQuery: string,
     type: "country" | "format" | "city"
@@ -504,7 +511,45 @@ export default function Charts() {
       return false;
     });
   };
+  // cerrar dropdown al hacer click fuera
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node;
 
+      // Cerrar dropdown de países
+      if (openDropdown === "country") {
+        const countryPortal = document.querySelector('[data-country-portal="true"]');
+        if (countryButtonRef.current && !countryButtonRef.current.contains(target) &&
+          countryPortal && !countryPortal.contains(target)) {
+          setOpenDropdown(null);
+          setDropdownSearch("");
+        }
+      }
+
+      // Cerrar dropdown de ciudades
+      if (openDropdown === "city") {
+        const cityPortal = document.querySelector('[data-city-portal="true"]');
+        if (cityButtonRef.current && !cityButtonRef.current.contains(target) &&
+          cityPortal && !cityPortal.contains(target)) {
+          setOpenDropdown(null);
+          setDropdownSearch("");
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openDropdown]);
+  const updateDropdownPosition = (ref: React.RefObject<HTMLDivElement>) => {
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY,
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  };
   // Función para manejar la selección
   const handleOptionSelect = (
     value: string,
@@ -519,6 +564,11 @@ export default function Charts() {
     }
     setOpenDropdown(null);
     setDropdownSearch("");
+
+    // En móvil, cerrar el filtro después de seleccionar
+    if (window.innerWidth < 768) {
+      setShowMobileFilter(false);
+    }
   };
 
   // Efecto para manejar la tecla Escape
@@ -560,6 +610,16 @@ export default function Charts() {
       setIsConnected(true);
     }
   }, []);
+
+  const fetchLastUpdate = async () => {
+    try {
+      const response = await digitalLatinoApi.getLastUpdate();
+      setLastUpdate(response.data.message);
+      console.log("LastUpdate:", response.data);
+    } catch (error) {
+      console.error("Error fetching last update:", error);
+    }
+  };
 
   const fetchCountries = async () => {
     try {
@@ -694,6 +754,7 @@ export default function Charts() {
   // Fetch countries from API
   useEffect(() => {
     fetchCountries();
+    fetchLastUpdate();
   }, []);
 
   // Fetch formats when country changes
@@ -777,6 +838,18 @@ export default function Charts() {
 
       return () => clearTimeout(timer);
     }
+
+    const fetchCountries = async () => {
+      try {
+        const response = await digitalLatinoApi.getCountries();
+        setCountries(response.data);
+      } catch (error) {
+        console.error("Error fetching countries:", error);
+      }
+    };
+
+    fetchCountries();
+
   }, [selectedCountry, selectedFormat, selectedCity, selectedPeriod, toast]);
 
   // Handle Spotify OAuth callback
@@ -893,6 +966,101 @@ export default function Charts() {
     e.target.selectedIndex = 0;
   };
 
+  // Función para manejar la selección de canciones para comparación
+  const handleToggleComparisonMode = () => {
+    setComparisonMode(!comparisonMode);
+    if (!comparisonMode) {
+      setSelectedSongs([]);
+    }
+  };
+  const handleSelectSong = (song: Song) => {
+    if (!comparisonMode) return;
+
+    const selectedSong: SelectedSong = {
+      cs_song: song.cs_song,
+      spotifyid: song.spotifyid,
+      song: song.song,
+      artists: song.artists,
+      label: song.label,
+      avatar: song.avatar,
+      rk: song.rk,
+      score: song.score,
+    };
+
+    // Verificar si ya está seleccionada
+    const isAlreadySelected = selectedSongs.some(s => s.cs_song === song.cs_song);
+
+    if (isAlreadySelected) {
+      // Remover si ya está seleccionada
+      setSelectedSongs(prev => prev.filter(s => s.cs_song !== song.cs_song));
+    } else if (selectedSongs.length < 2) {
+      // Agregar si hay espacio
+      setSelectedSongs(prev => [...prev, selectedSong]);
+    } else {
+      // Reemplazar la primera selección si ya hay 2
+      toast({
+        title: 'Límite alcanzado',
+        description: 'Solo puedes comparar 2 canciones a la vez. Remueve una selección para agregar otra.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedSongs([]);
+  };
+
+  const handleCompareSelected = () => {
+    if (selectedSongs.length === 2) {
+      setSongForComparison({
+        song1: selectedSongs[0],
+        song2: selectedSongs[1],
+      });
+      setShowComparison(true);
+      setComparisonMode(false);
+      setSelectedSongs([]);
+    }
+  };
+
+  const handleCompareFromRow = (song: Song, secondSong?: Song) => {
+    const song1: SelectedSong = {
+      cs_song: song.cs_song,
+      spotifyid: song.spotifyid,
+      song: song.song,
+      artists: song.artists,
+      label: song.label,
+      avatar: song.avatar,
+      rk: song.rk,
+      score: song.score,
+    };
+
+    if (secondSong) {
+      // Comparar directamente con otra canción específica
+      const song2: SelectedSong = {
+        cs_song: secondSong.cs_song,
+        spotifyid: secondSong.spotifyid,
+        song: secondSong.song,
+        artists: secondSong.artists,
+        label: secondSong.label,
+        avatar: secondSong.avatar,
+        rk: secondSong.rk,
+        score: secondSong.score,
+      };
+      setSongForComparison({ song1, song2 });
+      setShowComparison(true);
+    } else {
+      // Iniciar modo comparación con esta canción como primera selección
+      setSelectedSongs([song1]);
+      setComparisonMode(true);
+      toast({
+        title: 'Modo comparación activado',
+        description: `Selecciona otra canción para comparar con "${song.song}"`,
+      });
+    }
+  };
+
+
+
   const handlePlayPreview = useCallback(
     (trackRank: number, audioUrl: string) => {
       console.log("handlePlayPreview called for:", trackRank, audioUrl);
@@ -979,7 +1147,7 @@ export default function Charts() {
 
       <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
         {/* Header */}
-        <div className="mb-4 flex flex-col gap-0 border-b border-white/20 pb-3 bg-white/60 backdrop-blur-lg rounded-2xl p-3 md:p-4 shadow-lg relative z-10">
+        <div className="">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 md:gap-4">
               <div className="relative flex-shrink-0">
@@ -1002,7 +1170,7 @@ export default function Charts() {
                 </p>
               </div>
 
-              {/* Badge con el nombre del artista  */}
+              {/* Badge con el nombre del artista */}
               {user.name && (
                 <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -1012,173 +1180,560 @@ export default function Charts() {
             </div>
           )}
 
-
           {/* Filtros */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 relative z-30 w-full max-w-6xl mx-auto px-2 sm:px-0">
-            {/* Filtro por País/Región */}
-            <div className="space-y-1 sm:space-y-2">
-              <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                <span className="text-sm sm:text-base">🌎</span>
-                <span className="truncate">País/Región</span>
-              </label>
-              <select
-                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
-                value={selectedCountry}
-                onChange={handleCountryChange}
-                disabled={loadingCountries}
-              >
-                {loadingCountries ? (
-                  <option value="">Cargando países...</option>
-                ) : (
-                  <>
-                    <option value="">Selecciona un país</option>
-                    {countries.map((country) => (
-                      <option key={country.id} value={country.id.toString()}>
-                        {country.country || country.description} ({country.country_name})
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
+          <div className="mb-4 bg-white/60 backdrop-blur-lg rounded-2xl shadow-lg border border-white/30 overflow-hidden">
+            {/* Versión móvil con filtro oculto */}
+            <div className="block md:hidden">
+              {showMobileFilter && (
+                <div className="animate-in slide-in-from-top duration-300">
+                  <div className="p-4 border-t border-white/30">
+                    <div className="grid grid-cols-1 gap-3">
+                      {/* Filtro por País/Región */}
+                      <div className="space-y-1 sm:space-y-2">
+                        <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                          <span className="text-sm sm:text-base">🌎</span>
+                          <span className="truncate">País/Región</span>
+                        </label>
+                        <div className="relative" ref={countryButtonRef}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (loadingCountries) return;
+                              setOpenDropdown(openDropdown === "country" ? null : "country");
+                              setDropdownSearch("");
+
+                              if (countryButtonRef.current) {
+                                const rect = countryButtonRef.current.getBoundingClientRect();
+                                setCountryDropdownPosition({
+                                  top: rect.bottom + window.scrollY,
+                                  left: rect.left + window.scrollX,
+                                  width: rect.width,
+                                });
+                              }
+                            }}
+                            className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={loadingCountries}
+                          >
+                            <span className="truncate pr-2">
+                              {loadingCountries ? (
+                                "Cargando países..."
+                              ) : selectedCountry && countries.find(c => c.id.toString() === selectedCountry) ? (
+                                countries.find(c => c.id.toString() === selectedCountry)?.country_name
+                              ) : (
+                                "Selecciona un país"
+                              )}
+                            </span>
+                            <ChevronDown
+                              className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "country" ? "rotate-180" : ""}`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* DROPDOWN PAÍS */}
+                      {openDropdown === "country" && !loadingCountries && createPortal(
+                        <div
+                          data-country-portal="true"
+                          className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                          style={{
+                            top: countryDropdownPosition.top,
+                            left: countryDropdownPosition.left,
+                            width: countryDropdownPosition.width,
+                            maxHeight: '300px',
+                          }}
+                        >
+                          <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
+                            <div className="relative">
+                              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                              <input
+                                type="text"
+                                placeholder="Buscar país..."
+                                className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                                value={dropdownSearch}
+                                onChange={(e) => setDropdownSearch(e.target.value)}
+                                autoFocus
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="max-h-60 overflow-y-auto">
+                            {getFilteredOptions(countries, dropdownSearch, "country").map((country) => (
+                              <button
+                                key={country.id}
+                                onClick={() => {
+                                  handleOptionSelect(country.id.toString(), "country");
+                                  setOpenDropdown(null);
+                                }}
+                                className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-pink-50 transition-colors ${selectedCountry === country.id.toString()
+                                  ? "bg-pink-100 text-pink-700 font-semibold"
+                                  : "text-gray-700"
+                                  }`}
+                              >
+                                <span className="flex items-center gap-2">
+                                  <span>🌍</span>
+                                  <span className="truncate">
+                                    {country.country_name || country.country || country.description}
+                                  </span>
+                                </span>
+                              </button>
+                            ))}
+
+                            {getFilteredOptions(countries, dropdownSearch, "country").length === 0 && (
+                              <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
+                                No se encontraron países
+                              </div>
+                            )}
+                          </div>
+                        </div>,
+                        document.body
+                      )}
+
+                      {/* Filtro por Género */}
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1">
+                          <span className="text-sm">📊</span>
+                          <span className="truncate">Género</span>
+                        </label>
+                        <select
+                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          value={selectedFormat}
+                          onChange={(e) => setSelectedFormat(e.target.value)}
+                          disabled={loadingFormats || !selectedCountry}
+                        >
+                          {loadingFormats ? (
+                            <option value="">Cargando géneros...</option>
+                          ) : !selectedCountry ? (
+                            <option value="">Selecciona un país primero</option>
+                          ) : (
+                            <>
+                              {formats.map((format) => (
+                                <option key={format.id} value={format.id.toString()}>
+                                  {format.format}
+                                </option>
+                              ))}
+                            </>
+                          )}
+                        </select>
+                      </div>
+
+                      {/* Filtro por Ciudad - DESKTOP */}
+                      <div className="space-y-1 sm:space-y-2 relative">
+                        <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                          <span className="text-sm sm:text-base">🏙️</span>
+                          <span className="truncate">Ciudad Target</span>
+                        </label>
+                        <div className="relative" ref={cityButtonRef}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (loadingCities || !selectedCountry || cities.length === 0) return;
+                              setOpenDropdown(openDropdown === "city" ? null : "city");
+                              setDropdownSearch("");
+                              if (cityButtonRef.current) {
+                                const rect = cityButtonRef.current.getBoundingClientRect();
+                                setCityDropdownPosition({
+                                  top: rect.bottom + window.scrollY,
+                                  left: rect.left + window.scrollX,
+                                  width: rect.width,
+                                });
+                              }
+                            }}
+                            className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-orange-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={loadingCities || !selectedCountry || cities.length === 0}
+                          >
+                            <span className="truncate pr-2">
+                              {loadingCities
+                                ? "Cargando..."
+                                : !selectedCountry
+                                  ? "Selecciona país primero"
+                                  : selectedCity !== "0" && cities.length > 0
+                                    ? cities.find((c) => c.id.toString() === selectedCity)
+                                      ?.city_name || "Todas las ciudades"
+                                    : "Todas las ciudades"}
+                            </span>
+                            <ChevronDown
+                              className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
+                                }`}
+                            />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Dropdown de ciudades renderizado con Portal - DESKTOP */}
+                      {openDropdown === "city" && cities.length > 0 && createPortal(
+                        <div
+                          data-city-portal="true"
+                          className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                          style={{
+                            top: cityDropdownPosition.top,
+                            left: cityDropdownPosition.left,
+                            width: cityDropdownPosition.width,
+                            maxHeight: '300px', // Un poco más alto en desktop
+                          }}
+                        >
+                          <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
+                            <div className="relative">
+                              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                              <input
+                                type="text"
+                                placeholder="Buscar ciudad..."
+                                className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                                value={dropdownSearch}
+                                onChange={(e) => setDropdownSearch(e.target.value)}
+                                autoFocus
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                            </div>
+                          </div>
+
+                          <div className="max-h-60 overflow-y-auto">
+                            {/* Opción "Todas las ciudades" */}
+                            <button
+                              onClick={() => {
+                                handleOptionSelect("0", "city");
+                                setOpenDropdown(null);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
+                                ? "bg-orange-100 text-orange-700 font-semibold"
+                                : "text-gray-700"
+                                }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span>🌍</span>
+                                <span className="truncate">Todas las ciudades</span>
+                              </span>
+                            </button>
+
+                            {/* Opciones de ciudades filtradas */}
+                            {getFilteredOptions(cities, dropdownSearch, "city").map((city) => (
+                              <button
+                                key={city.id}
+                                onClick={() => {
+                                  handleOptionSelect(city.id.toString(), "city");
+                                  setOpenDropdown(null);
+                                }}
+                                className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                                  ? "bg-orange-100 text-orange-700 font-semibold"
+                                  : "text-gray-700"
+                                  }`}
+                              >
+                                <span className="flex items-center gap-2">
+                                  <span>🏙️</span>
+                                  <span className="truncate">{city.city_name}</span>
+                                </span>
+                              </button>
+                            ))}
+
+                            {getFilteredOptions(cities, dropdownSearch, "city").length === 0 && (
+                              <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
+                                No se encontraron ciudades
+                              </div>
+                            )}
+                          </div>
+                        </div>,
+                        document.body
+                      )}
+
+                      {/* Botón para cerrar filtros en móvil */}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowMobileFilter(false)}
+                        className="w-full mt-2 text-xs text-gray-500 hover:text-gray-700"
+                      >
+                        Cerrar filtros
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* Filtro por Género */}
-            <div className="space-y-1 sm:space-y-2">
-              <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                <span className="text-sm sm:text-base">📊</span>
-                <span className="truncate">Género</span>
-              </label>
-              <select
-                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400"
-                value={selectedFormat}
-                onChange={(e) => setSelectedFormat(e.target.value)}
-                disabled={loadingFormats || !selectedCountry}
+            {/* Versión desktop con el toggle original */}
+            <div className="hidden md:block">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="w-full px-4 py-3 flex items-center justify-between bg-gradient-to-r from-purple-50/50 to-pink-50/50 hover:from-purple-100/50 hover:to-pink-100/50 transition-all duration-300"
               >
-                {loadingFormats ? (
-                  <option value="">Cargando géneros...</option>
-                ) : !selectedCountry ? (
-                  <option value="">Selecciona un país primero</option>
-                ) : (
-                  <>
-                    {formats.map((format) => (
-                      <option key={format.id} value={format.id.toString()}>
-                        {format.format}
-                      </option>
-                    ))}
-                  </>
-                )}
-              </select>
-            </div>
-
-            {/* Filtro por Ciudad */}
-            <div className="space-y-1 sm:space-y-2 relative">
-              <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                <span className="text-sm sm:text-base">🏙️</span>
-                <span className="truncate">Ciudad Target</span>
-              </label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpenDropdown(openDropdown === "city" ? null : "city");
-                    setDropdownSearch("");
-                  }}
-                  className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between"
-                  disabled={loadingCities || !selectedCountry}
-                >
-                  <span className="truncate pr-2">
-                    {loadingCities
-                      ? "Cargando..."
-                      : !selectedCountry
-                        ? "Selecciona país primero"
-                        : selectedCity !== "0" && cities.length > 0
-                          ? cities.find((c) => c.id.toString() === selectedCity)
-                            ?.city_name || "Todas las ciudades"
-                          : "Todas las ciudades"}
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                  </div>
+                  <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                    Filtros
                   </span>
+                </div>
+                <div className="flex items-center gap-2">
                   <ChevronDown
-                    className={`w-3 h-3 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
+                    className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${showFilters ? 'rotate-180' : ''
                       }`}
                   />
-                </button>
+                </div>
+              </button>
 
-                {openDropdown === "city" && cities.length > 0 && (
-                  <div className="absolute z-[9999] mt-1 w-full bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl max-h-48 sm:max-h-60 overflow-hidden transform translate-z-0 will-change-transform">
-                    <div className="p-2 border-b border-gray-100">
-                      <div className="relative">
-                        <Search className="absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                        <input
-                          type="text"
-                          placeholder="Buscar ciudad..."
-                          className="w-full pl-8 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg sm:rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-                          value={dropdownSearch}
-                          onChange={(e) => setDropdownSearch(e.target.value)}
-                          autoFocus
-                        />
+              {/* Filtros desktop */}
+              <div
+                className={`
+        transition-all duration-300 ease-in-out overflow-hidden
+        ${showFilters ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}
+      `}
+              >
+                <div className="p-4 border-t border-white/30">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                    {/* Filtro por País/Región */}
+                    <div className="space-y-1 sm:space-y-2">
+                      <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                        <span className="text-sm sm:text-base">🌎</span>
+                        <span className="truncate">País/Región</span>
+                      </label>
+                      <div className="relative" ref={countryButtonRef}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (loadingCountries) return;
+                            setOpenDropdown(openDropdown === "country" ? null : "country");
+                            setDropdownSearch("");
+
+                            setTimeout(() => {
+                              if (countryButtonRef.current) {
+                                const rect = countryButtonRef.current.getBoundingClientRect();
+                                setCountryDropdownPosition({
+                                  top: rect.bottom + window.scrollY,
+                                  left: rect.left + window.scrollX,
+                                  width: rect.width,
+                                });
+                              }
+                            }, 10);
+                          }}
+                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={loadingCountries}
+                        >
+                          <span className="truncate pr-2">
+                            {loadingCountries ? (
+                              "Cargando países..."
+                            ) : selectedCountry && countries.find(c => c.id.toString() === selectedCountry) ? (
+                              countries.find(c => c.id.toString() === selectedCountry)?.country_name ||
+                              countries.find(c => c.id.toString() === selectedCountry)?.country ||
+                              countries.find(c => c.id.toString() === selectedCountry)?.description
+                            ) : (
+                              "Selecciona un país"
+                            )}
+                          </span>
+                          <ChevronDown
+                            className={`w-3 h-3 sm:w-4 sm:h-4 transition-transform flex-shrink-0 ${openDropdown === "country" ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    {openDropdown === "country" && !loadingCountries && createPortal(
+                      <div
+                        data-country-portal="true"
+                        className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                        style={{
+                          top: Math.min(countryDropdownPosition.top, window.innerHeight - 400),
+                          left: countryDropdownPosition.left,
+                          width: countryDropdownPosition.width,
+                          maxHeight: '300px',
+                        }}
+                      >
+                        {/* Mismo contenido del dropdown de países */}
+                        <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
+                          <div className="relative">
+                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                            <input
+                              type="text"
+                              placeholder="Buscar país..."
+                              className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
+                              value={dropdownSearch}
+                              onChange={(e) => setDropdownSearch(e.target.value)}
+                              autoFocus
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="max-h-60 overflow-y-auto">
+                          {getFilteredOptions(countries, dropdownSearch, "country").map((country) => (
+                            <button
+                              key={country.id}
+                              onClick={() => handleOptionSelect(country.id.toString(), "country")}
+                              className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-pink-50 transition-colors ${selectedCountry === country.id.toString()
+                                ? "bg-pink-100 text-pink-700 font-semibold"
+                                : "text-gray-700"
+                                }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span>🌍</span>
+                                <span className="truncate">
+                                  {country.country_name || country.country || country.description}
+                                </span>
+                              </span>
+                            </button>
+                          ))}
+
+                          {getFilteredOptions(countries, dropdownSearch, "country").length === 0 && (
+                            <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
+                              No se encontraron países
+                            </div>
+                          )}
+                        </div>
+                      </div>,
+                      document.body
+                    )}
+
+
+                    {/* Filtro por Género */}
+                    <div className="space-y-1 sm:space-y-2">
+                      <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                        <span className="text-sm sm:text-base">📊</span>
+                        <span className="truncate">Género</span>
+                      </label>
+                      <select
+                        className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        value={selectedFormat}
+                        onChange={(e) => setSelectedFormat(e.target.value)}
+                        disabled={loadingFormats || !selectedCountry}
+                      >
+                        {loadingFormats ? (
+                          <option value="">Cargando géneros...</option>
+                        ) : !selectedCountry ? (
+                          <option value="">Selecciona un país primero</option>
+                        ) : (
+                          <>
+                            {formats.map((format) => (
+                              <option key={format.id} value={format.id.toString()}>
+                                {format.format}
+                              </option>
+                            ))}
+                          </>
+                        )}
+                      </select>
+                    </div>
+
+                    {/* Filtro por Ciudad */}
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1">
+                        <span className="text-sm">🏙️</span>
+                        <span className="truncate">Ciudad Target</span>
+                      </label>
+                      <div className="relative" ref={cityButtonRef}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (loadingCities || !selectedCountry || cities.length === 0) return;
+                            setOpenDropdown(openDropdown === "city" ? null : "city");
+                            setDropdownSearch("");
+                            if (cityButtonRef.current) {
+                              const rect = cityButtonRef.current.getBoundingClientRect();
+                              setCityDropdownPosition({
+                                top: rect.bottom + window.scrollY,
+                                left: rect.left + window.scrollX,
+                                width: rect.width,
+                              });
+                            }
+                          }}
+                          className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-3 py-2.5 text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-orange-400 flex items-center justify-between transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                          disabled={loadingCities || !selectedCountry || cities.length === 0}
+                        >
+                          <span className="truncate pr-2">
+                            {loadingCities
+                              ? "Cargando..."
+                              : !selectedCountry
+                                ? "Selecciona país primero"
+                                : selectedCity !== "0" && cities.length > 0
+                                  ? cities.find((c) => c.id.toString() === selectedCity)
+                                    ?.city_name || "Todas las ciudades"
+                                  : "Todas las ciudades"}
+                          </span>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform flex-shrink-0 ${openDropdown === "city" ? "rotate-180" : ""
+                              }`}
+                          />
+                        </button>
                       </div>
                     </div>
 
-                    <div className="max-h-36 sm:max-h-48 overflow-y-auto">
-                      {/* Opción "Todas las ciudades" */}
-                      <button
-                        onClick={() => handleOptionSelect("0", "city")}
-                        className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
-                          ? "bg-orange-100 text-orange-700 font-semibold"
-                          : "text-gray-700"
-                          }`}
+                    {/* Dropdown de ciudades renderizado con Portal - MÓVIL */}
+                    {openDropdown === "city" && cities.length > 0 && createPortal(
+                      <div
+                        data-city-portal="true"
+                        className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
+                        style={{
+                          top: cityDropdownPosition.top,
+                          left: cityDropdownPosition.left,
+                          width: cityDropdownPosition.width,
+                          maxHeight: '240px',
+                        }}
                       >
-                        🎯 Todas las ciudades
-                      </button>
+                        <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
+                          <div className="relative">
+                            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" />
+                            <input
+                              type="text"
+                              placeholder="Buscar ciudad..."
+                              className="w-full pl-7 pr-3 py-1.5 bg-white/80 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-orange-400"
+                              value={dropdownSearch}
+                              onChange={(e) => setDropdownSearch(e.target.value)}
+                              autoFocus
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                          </div>
+                        </div>
 
-                      {getFilteredOptions(cities, dropdownSearch, "city").map(
-                        (city) => (
+                        <div className="max-h-48 overflow-y-auto">
+                          {/* Opción "Todas las ciudades" */}
                           <button
-                            key={city.id}
-                            onClick={() =>
-                              handleOptionSelect(city.id.toString(), "city")
-                            }
-                            className={`w-full px-3 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                            onClick={() => {
+                              handleOptionSelect("0", "city");
+                              setOpenDropdown(null);
+                            }}
+                            className={`w-full px-3 py-2 text-left text-xs hover:bg-orange-50 transition-colors ${selectedCity === "0"
                               ? "bg-orange-100 text-orange-700 font-semibold"
                               : "text-gray-700"
                               }`}
                           >
-                            🎯 <span className="truncate">{city.city_name}</span>
+                            <span className="flex items-center gap-2">
+                              <span>🌍</span>
+                              <span className="truncate">Todas las ciudades</span>
+                            </span>
                           </button>
-                        )
-                      )}
 
-                      {getFilteredOptions(cities, dropdownSearch, "city")
-                        .length === 0 && (
-                          <div className="px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-gray-500 text-center">
-                            No se encontraron ciudades
-                          </div>
-                        )}
-                    </div>
+                          {/* Opciones de ciudades filtradas */}
+                          {getFilteredOptions(cities, dropdownSearch, "city").map((city) => (
+                            <button
+                              key={city.id}
+                              onClick={() => {
+                                handleOptionSelect(city.id.toString(), "city");
+                                setOpenDropdown(null);
+                              }}
+                              className={`w-full px-3 py-2 text-left text-xs hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                                ? "bg-orange-100 text-orange-700 font-semibold"
+                                : "text-gray-700"
+                                }`}
+                            >
+                              <span className="flex items-center gap-2">
+                                <span>🏙️</span>
+                                <span className="truncate">{city.city_name}</span>
+                              </span>
+                            </button>
+                          ))}
+
+                          {getFilteredOptions(cities, dropdownSearch, "city").length === 0 && (
+                            <div className="px-3 py-4 text-xs text-gray-500 text-center">
+                              No se encontraron ciudades
+                            </div>
+                          )}
+                        </div>
+                      </div>,
+                      document.body
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
-
-            {/* Filtro por Periodo Musical - Comentado
-  <div className="space-y-1 sm:space-y-2">
-    <label className="text-xs font-bold text-purple-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-      <span className="text-sm sm:text-base">⏰</span> 
-      <span className="truncate">Periodo Musical</span>
-    </label>
-    <div className="relative">
-      <select
-        value={selectedPeriod}
-        onChange={(e) => setSelectedPeriod(e.target.value)}
-        className="w-full rounded-xl sm:rounded-2xl border-0 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-medium text-gray-800 shadow-md sm:shadow-lg focus:ring-2 focus:ring-purple-400 focus:ring-offset-1 sm:focus:ring-offset-2 cursor-pointer"
-      >
-        <option value="N">🎵 Todos los periodos</option>
-        <option value="C">🟢 Current - Novedades</option>
-        <option value="R">🟡 Recurrent - 1-3 años</option>
-        <option value="G">🟠 Gold - Más de 3 años</option>
-      </select>
-    </div>
-  </div>
-  */}
           </div>
         </div>
 
@@ -1186,13 +1741,46 @@ export default function Charts() {
 
         {/* Lista de Charts */}
         <div className="mb-4 flex flex-col gap-0 border-b border-white/20 pb-2 bg-white/60 backdrop-blur-lg rounded-2xl p-2 md:p-3 shadow-lg relative">
+          {/* Botón flotante para activar modo comparación */}
+          <ComparisonMode
+            isActive={comparisonMode}
+            onToggle={handleToggleComparisonMode}
+            selectedCount={selectedSongs.length}
+            onCompare={handleCompareSelected}
+            onClear={handleClearSelection}
+          />
+          <div className="text-xs text-muted-foreground items-end justify-end flex pr-7 pb-2">
+            {`Última actualización: ${lastUpdate ? lastUpdate : "Cargando..."}`}
+          </div>
           {/* Fab button de MUI para buscar */}
           <div className="absolute -top-4 -right-4 z-20">
             <Fab
               size="medium"
               color="primary"
               aria-label="search"
-              onClick={toggleSearchBar}
+              onClick={() => {
+                if (window.innerWidth < 768) { // md breakpoint
+                  if (!showSearchBar && !showMobileFilter) {
+                    // Si nada está visible, mostrar búsqueda
+                    setShowSearchBar(true);
+                    setShowMobileFilter(false);
+                    setMobileView('search');
+                  } else if (showSearchBar && !showMobileFilter) {
+                    // Si búsqueda está visible, ocultarla y mostrar filtros
+                    setShowSearchBar(false);
+                    setShowMobileFilter(true);
+                    setMobileView('filter');
+                  } else if (!showSearchBar && showMobileFilter) {
+                    // Si filtros están visibles, ocultarlos
+                    setShowSearchBar(false);
+                    setShowMobileFilter(false);
+                    setMobileView('none');
+                  }
+                } else {
+                  // En desktop, solo alternar búsqueda
+                  toggleSearchBar();
+                }
+              }}
               sx={{
                 background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
                 "&:hover": {
@@ -1203,10 +1791,24 @@ export default function Charts() {
                 boxShadow: "0 4px 20px rgba(102, 126, 234, 0.3)",
               }}
             >
-              {showSearchBar ? (
-                <Minus className="w-6 h-6 text-white" />
+              {window.innerWidth < 768 ? (
+                // Iconos para móvil
+                !showSearchBar && !showMobileFilter ? (
+                  <Search className="w-6 h-6 text-white" />
+                ) : showSearchBar ? (
+                  <Filter className="w-6 h-6 text-white" /> // Mantener lupa cuando hay búsqueda
+                ) : showMobileFilter ? (
+                  <Minus className="w-6 h-6 text-white" /> // Mostrar menos cuando hay filtros
+                ) : (
+                  <Search className="w-6 h-6 text-white" />
+                )
               ) : (
-                <Search className="w-6 h-6 text-white" />
+                // Iconos para desktop
+                showSearchBar ? (
+                  <Minus className="w-6 h-6 text-white" />
+                ) : (
+                  <Search className="w-6 h-6 text-white" />
+                )
               )}
             </Fab>
           </div>
@@ -1286,19 +1888,66 @@ export default function Charts() {
               songsToDisplay.map((row, index) => (
                 <div
                   key={`${row.cs_song}-${index}`}
-                  className="group bg-white/50 backdrop-blur-lg rounded-xl shadow-sm border border-white/30 overflow-hidden hover:shadow-md hover:bg-white/60 transition-all duration-200 hover:scale-[1.002]"
+                  className={`group bg-white/50 backdrop-blur-lg rounded-xl shadow-sm border border-white/30 overflow-hidden hover:shadow-md hover:bg-white/60 transition-all duration-200 hover:scale-[1.002] ${selectedSongs.some(s => s.cs_song === row.cs_song)
+                    ? 'ring-2 ring-purple-500 ring-opacity-50'
+                    : ''
+                    }`}
                 >
                   <div className="grid grid-cols-9 items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-3 py-1.5">
-
-                    {/* Rank */}
-                    <div className="col-span-1 flex items-center justify-center">
-                      <div className="relative group/rank">
-                        <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
-                        <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center shadow-sm transition-all">
-                          <span className="text-xs sm:text-base font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
-                            {row.rk}
-                          </span>
+                    {/* Rank & movement */}
+                    <div className="col-span-1 flex items-center justify-start gap-1 min-w-0">
+                      {comparisonMode && (
+                        <button
+                          onClick={() => handleSelectSong(row)}
+                          className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 flex-shrink-0 ${selectedSongs.some(s => s.cs_song === row.cs_song)
+                            ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-transparent text-white'
+                            : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
+                            }`}
+                        >
+                          {selectedSongs.some(s => s.cs_song === row.cs_song) && (
+                            <span className="text-xs font-bold">✓</span>
+                          )}
+                        </button>
+                      )}
+                      <div className="flex items-center gap-1.5 sm:gap-2">
+                        {/* Rank */}
+                        <div className="relative group/rank">
+                          <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
+                          <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center shadow-sm transition-all">
+                            <span className="text-xs sm:text-base font-bold bg-gradient-to-br from-slate-700 to-gray-800 bg-clip-text text-transparent">
+                              {row.rk}
+                            </span>
+                          </div>
                         </div>
+
+                        {row.movement && (
+                          <div className={`flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-md transition-colors
+        ${row.movement === "up"
+                              ? "bg-green-100/70 hover:bg-green-200/70"
+                              : row.movement === "down"
+                                ? "bg-red-100/70 hover:bg-red-200/70"
+                                : "bg-gray-100/70 hover:bg-gray-200/70"}
+      `}>
+                            {row.movement === "up" && (
+                              <ArrowUp
+                                size={12}
+                                className="sm:w-3.5 sm:h-3.5 text-green-600"
+                              />
+                            )}
+                            {row.movement === "down" && (
+                              <ArrowDown
+                                size={12}
+                                className="sm:w-3.5 sm:h-3.5 text-red-600"
+                              />
+                            )}
+                            {row.movement === "equal" && (
+                              <Minus
+                                size={12}
+                                className="sm:w-3.5 sm:h-3.5 text-gray-500"
+                              />
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1351,12 +2000,12 @@ export default function Charts() {
                         </h3>
                         <p
                           className="text-[10px] sm:text-xs font-medium text-gray-600 truncate cursor-pointer hover:text-purple-600 transition-colors"
-                          onClick={() => handleArtistDetailsClick(row)}
+                          onClick={() => handleArtistDetailsClick(row, selectedCountry)}
                           title={`Ver detalles de ${row.artists}`}
                         >
                           {row.artists}
                         </p>
-                        <p className="text-xs sm:text-sm font-medium text-gray-400 truncate">
+                        <p className="hidden sm:block col-span-1 truncate text-xs text-gray-400">
                           {row.label}
                         </p>
                       </div>
@@ -1407,6 +2056,7 @@ export default function Charts() {
 
                   {isExpanded(index) && (
                     <div className="px-2 sm:px-6 pb-4">
+
                       <ExpandRow
                         row={row}
                         onPromote={() =>
@@ -1425,6 +2075,7 @@ export default function Charts() {
                         cityDataForSong={cityData}
                         loadingCityData={loadingCityData}
                       />
+
                     </div>
                   )}
                 </div>
@@ -1434,7 +2085,7 @@ export default function Charts() {
         </div>
         {/* Sección para mostrar más del Top 10 - Solo si NO está autenticado */}
         {!user && (
-          <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-3xl p-8 shadow-lg">
+          <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-xl sm:rounded-3xl p-4 sm:p-8 shadow-lg w-full overflow-hidden">
             <div className="text-center space-y-6">
               <div className="flex justify-center items-center gap-3">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
@@ -1610,131 +2261,154 @@ export default function Charts() {
 
 
 
-      {!user && (showGenreOverlay || showCrgOverlay) && (
-        <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
-            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-              <span className="text-3xl">🔒</span>
-            </div>
-            <h3 className="text-2xl font-bold mb-2 text-foreground">
-              {showGenreOverlay
-                ? "Filtros por Género"
-                : "Filtros por Plataforma"}
-            </h3>
-            <p className="text-muted-foreground mb-4">
-              Esta función es parte de las herramientas avanzadas. Activa una
-              campaña para desbloquearla.
-            </p>
-            <div className="grid md:grid-cols-2 gap-3">
-              <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
-                <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
-                  <Crown className="w-4 h-4 text-white" />
-                </div>
-                <div className="mb-3">
-                  <div className="text-sm font-bold text-foreground">
-                    Premium
-                  </div>
-                  <div className="text-xs text-muted-foreground mb-1">
-                    Solo Charts & Analytics
-                  </div>
-                  <div className="text-sm font-bold text-foreground">
-                    $14.99/mes
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => {
-                    // TODO: Integrar con Stripe cuando esté listo
-                    console.log("Redirect to premium subscription");
-                    setShowGenreOverlay(false);
-                    setShowCrgOverlay(false);
-                  }}
-                  className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                >
-                  Suscribirse
-                </button>
+      {
+        !user && (showGenreOverlay || showCrgOverlay) && (
+          <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
+              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                <span className="text-3xl">🔒</span>
               </div>
+              <h3 className="text-2xl font-bold mb-2 text-foreground">
+                {showGenreOverlay
+                  ? "Filtros por Género"
+                  : "Filtros por Plataforma"}
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Esta función es parte de las herramientas avanzadas. Activa una
+                campaña para desbloquearla.
+              </p>
+              <div className="grid md:grid-cols-2 gap-3">
+                <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
+                  <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                    <Crown className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="mb-3">
+                    <div className="text-sm font-bold text-foreground">
+                      Premium
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Solo Charts & Analytics
+                    </div>
+                    <div className="text-sm font-bold text-foreground">
+                      $14.99/mes
+                    </div>
+                  </div>
 
-              <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
-                    INCLUYE TODO
-                  </span>
+                  <button
+                    onClick={() => {
+                      // TODO: Integrar con Stripe cuando esté listo
+                      console.log("Redirect to premium subscription");
+                      setShowGenreOverlay(false);
+                      setShowCrgOverlay(false);
+                    }}
+                    className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                  >
+                    Suscribirse
+                  </button>
                 </div>
 
-                <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
-                  <span className="text-white font-bold text-sm">🚀</span>
-                </div>
-                <div className="mb-3">
-                  <div className="text-sm font-bold text-foreground">
-                    Campaña Completa
+                <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
+                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
+                      INCLUYE TODO
+                    </span>
                   </div>
-                  <div className="text-xs text-muted-foreground mb-1">
-                    Premium + Promoción
-                  </div>
-                  <div className="text-sm font-bold text-foreground">
-                    Desde $750
-                  </div>
-                </div>
 
-                <button
-                  onClick={() => {
-                    navigate("/campaign");
-                    setShowGenreOverlay(false);
-                    setShowCrgOverlay(false);
-                  }}
-                  className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                >
-                  Crear Campaña
-                </button>
+                  <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
+                    <span className="text-white font-bold text-sm">🚀</span>
+                  </div>
+                  <div className="mb-3">
+                    <div className="text-sm font-bold text-foreground">
+                      Campaña Completa
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-1">
+                      Premium + Promoción
+                    </div>
+                    <div className="text-sm font-bold text-foreground">
+                      Desde $750
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      navigate("/campaign");
+                      setShowGenreOverlay(false);
+                      setShowCrgOverlay(false);
+                    }}
+                    className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                  >
+                    Crear Campaña
+                  </button>
+                </div>
               </div>
+              <button
+                onClick={() => {
+                  setShowGenreOverlay(false);
+                  setShowCrgOverlay(false);
+                }}
+                className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm"
+              >
+                Cerrar
+              </button>
             </div>
-            <button
-              onClick={() => {
-                setShowGenreOverlay(false);
-                setShowCrgOverlay(false);
-              }}
-              className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm"
-            >
-              Cerrar
-            </button>
           </div>
-        </div>
-      )}
+        )
+      }
       {/* Overlay global mientras se carga */}
       <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
         <CircularProgress color="inherit" />
       </Backdrop>
-      {showScoreTooltip && (
-        <div
-          className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
-          style={{
-            left: tooltipPosition.x,
-            top: tooltipPosition.y - 20,
-          }}
-        >
-          El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
-          <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
-        </div>
-      )}
+      {
+        showScoreTooltip && (
+          <div
+            className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
+            style={{
+              left: tooltipPosition.x,
+              top: tooltipPosition.y - 20,
+            }}
+          >
+            El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
+            <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
+          </div>
+        )
+      }
       {/* Modal de detalles del artista */}
-      {artistDetailsModal.isOpen && artistDetailsModal.artist && (
-        <ChartArtistDetails
-          artist={{
-            artist: artistDetailsModal.artist.artists,
-            spotifyid: artistDetailsModal.artist.spotifyartistid || "",
-            img: artistDetailsModal.artist.avatar || "",
-            rk: artistDetailsModal.artist.rk || 0,
-            score: artistDetailsModal.artist.score || 0,
-            followers_total: 0,
-            monthly_listeners: 0,
-          }}
-          selectedCountry={selectedCountry}
-          countries={countries}
-          isOpen={artistDetailsModal.isOpen}
-          onClose={handleCloseArtistDetails}
-        />
-      )}
-    </div>
+      {
+        artistDetailsModal.isOpen && artistDetailsModal.artist && (
+          <ChartArtistDetails
+            artist={{
+              artist: artistDetailsModal.artist.artists,
+              spotifyid: artistDetailsModal.artist.spotifyartistid || "",
+              img: artistDetailsModal.artist.avatar || "",
+              rk: artistDetailsModal.artist.rk || 0,
+              score: artistDetailsModal.artist.score || 0,
+              followers_total: 0,
+              monthly_listeners: 0,
+            }}
+            selectedCountry={selectedCountry}
+            countries={countries}
+            isOpen={artistDetailsModal.isOpen}
+            onClose={handleCloseArtistDetails}
+          />
+        )
+      }
+      <>
+
+
+        {/* Modal de comparación */}
+        {showComparison && songForComparison.song1 && songForComparison.song2 && (
+          <SongCompare
+            isOpen={showComparison}
+            onClose={() => {
+              setShowComparison(false);
+              setSongForComparison({ song1: null, song2: null });
+            }}
+            song1={songForComparison.song1}
+            song2={songForComparison.song2}
+            countries={countries}
+          />
+        )}
+      </>
+    </div >
   );
 }

@@ -59,7 +59,7 @@ const ChartArtistDetails: React.FC<ChartArtistDetailsProps> = ({
     onClose
 }) => {
     const [countries, setCountries] = useState<Country[]>(initialCountries);
-    const [selectedCountry, setSelectedCountry] = useState<string>("1");
+    const [selectedCountry, setSelectedCountry] = useState<string>(initialSelectedCountry);
     const [loadingCountries, setLoadingCountries] = useState(false);
     const [openDropdown, setOpenDropdown] = useState(false);
     const [dropdownSearch, setDropdownSearch] = useState("");
@@ -198,7 +198,7 @@ const ChartArtistDetails: React.FC<ChartArtistDetailsProps> = ({
                     <button
                         onClick={onClose}
                         className="absolute top-4 right-4 z-10 bg-red-500 hover:bg-red-600 text-white w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 border-2 border-white"
-                        title="Cerrar detalles"
+                        title="Cerrar Métricas"
                     >
                         <X className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
@@ -250,7 +250,7 @@ const ChartArtistDetails: React.FC<ChartArtistDetailsProps> = ({
                                                         <span className="text-sm md:text-base text-white/90 font-semibold">
                                                             {formatNumber(artistInfo.followers_total)}
                                                         </span>
-                                                        <span className="text-xs md:text-sm text-white/80">seguidores</span>
+                                                        <span className="text-xs md:text-sm text-white/80">seguidores globales</span>
                                                     </div>
                                                 )}
                                                 {artistInfo?.monthly_listeners && (
@@ -258,7 +258,7 @@ const ChartArtistDetails: React.FC<ChartArtistDetailsProps> = ({
                                                         <span className="text-sm md:text-base text-white/90 font-semibold">
                                                             {formatNumber(artistInfo.playlist_reach)}
                                                         </span>
-                                                        <span className="text-xs md:text-sm text-white/80">apariciones</span>
+                                                        <span className="text-xs md:text-sm text-white/80">Aparicion global en playlists</span>
                                                     </div>
                                                 )}
                                             </div>
@@ -340,7 +340,7 @@ const ChartArtistDetails: React.FC<ChartArtistDetailsProps> = ({
                                         <div className="flex items-center gap-1 md:gap-2">
                                             <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-white rounded-full animate-pulse"></div>
                                             <span className="text-xs font-bold text-white uppercase tracking-wide">
-                                                Oyentes Mensuales
+                                                Oyentes Globales Mensuales
                                             </span>
                                         </div>
                                         <Star className="w-3 h-3 md:w-4 md:h-4 text-yellow-300 fill-current" />
@@ -348,9 +348,7 @@ const ChartArtistDetails: React.FC<ChartArtistDetailsProps> = ({
                                     <div className="text-2xl md:text-3xl font-black text-white">
                                         {formatNumber(artistInfo?.monthly_listeners) || 'N/A'}
                                     </div>
-                                    <div className="text-xs text-white/80 mt-0.5 md:mt-1 line-clamp-1">
-                                        {getSelectedCountryName()}
-                                    </div>
+
                                 </div>
                             </div>
                         </div>

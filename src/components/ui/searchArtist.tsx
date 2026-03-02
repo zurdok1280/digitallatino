@@ -51,14 +51,10 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
 
         setLoadingDetails(true);
         try {
-            // Paso 1: Obtener el csSong usando el spotifyId
-            const csSongResponse = await digitalLatinoApi.getSongBySpotifyId(track.spotify_id);
+            if (track.my_song_id) {
+                const csSong = track.my_song_id;
+                console.log('✅ cs_song encontrado directamente:', csSong);
 
-            if (csSongResponse.data && csSongResponse.data.cs_song) {
-                const csSong = csSongResponse.data.cs_song;
-                console.log('✅ cs_song encontrado:', csSong);
-
-                // Crear objeto Song con valores por defecto usando la información que tenemos
                 const defaultSongData: Song = {
                     cs_song: csSong,
                     spotify_streams_total: 0,
@@ -87,46 +83,31 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                     spotifyid: track.spotify_id || ''
                 };
 
-
                 setSongDetails(defaultSongData);
                 setIsDetailsOpen(true);
-
             } else {
                 try {
                     const logResponse = await digitalLatinoApi.setLogSong({
                         userid: user.id,
                         spotifyid: track.spotify_id,
                         isartist: false
-                    })
+                    });
                     if (logResponse.success) {
                         console.log("Log registrado exitosamente:", logResponse.data);
                     }
                 } catch (error) {
                     console.error("Error al registrar el log de la cancion:", error);
                 }
-                console.log(' No se encontró cs_song en la respuesta');
+
+                console.log(' No se encontró my_song_id en la respuesta');
                 toast({
-                    title: "",
-                    description: "No se encontró el ID de la canción",
+                    title: "Información no disponible",
+                    description: "Esta canción aún no tiene métricas disponibles en nuestro sistema",
                     variant: "destructive"
                 });
             }
         } catch (error) {
-            //Si no hay datos de la cancion:
-            try {
-                const logResponse = await digitalLatinoApi.setLogSong({
-                    userid: user.id,
-                    spotifyid: track.spotify_id,
-                    isartist: false
-                })
-                if (logResponse.success) {
-                    console.log("Log registrado exitosamente:", logResponse.data);
-                }
-            } catch (error) {
-                console.error("Error al registrar el log de la cancion:", error);
-            }
-
-            console.error(' Error obteniendo detalles de la canción:', error);
+            console.error(' Error obteniendo métricas de la canción:', error);
             toast({
                 title: "Error",
                 description: "No se pudo cargar la información detallada de la canción",
@@ -175,8 +156,8 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                                 onClick={handleDetailsClick}
                             >
                                 <Info className="w-2 h-2 sm:w-3 sm:h-3" />
-                                <span className="hidden sm:inline">{loadingDetails ? "Cargando..." : "Detalles"}</span>
-                                <span className="sm:hidden">{loadingDetails ? "..." : "Det."}</span>
+                                <span className="hidden sm:inline">{loadingDetails ? "Cargando..." : "Métricas"}</span>
+                                <span className="sm:hidden">{loadingDetails ? "..." : "Met."}</span>
                             </Button>
                         ) : (
                             <Button
@@ -186,8 +167,8 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                                 onClick={() => setShowLoginDialog(true)}
                             >
                                 <Lock className="w-2 h-2 sm:w-3 sm:h-3" />
-                                <span className="hidden sm:inline">Detalles</span>
-                                <span className="sm:hidden">Det.</span>
+                                <span className="hidden sm:inline">Métricas</span>
+                                <span className="sm:hidden">Met.</span>
                             </Button>
                         )}
                         <Button
@@ -203,7 +184,7 @@ function SearchResult({ track, onSelect }: SearchResultProps) {
                 </div>
             </Card>
 
-            {/* Modal de Detalles */}
+            {/* Modal de Detalles/Métricas */}
             {isDetailsOpen && songDetails && (
                 <ChartSongDetails
                     song={songDetails}
@@ -246,7 +227,6 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
 
         setLoadingDetails(true);
         try {
-            console.log('🔍 Obteniendo detalles del artista:', artist.id);
 
             // Crear objeto ArtistDetails con la información básica
             const artistData: ArtistDetails = {
@@ -269,7 +249,7 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                 isartist: true
             });
 
-            console.error('❌ Error obteniendo detalles del artista:', error);
+            console.error('Error obteniendo métricas del artista:', error);
             toast({
                 title: "Error",
                 description: "No se pudo cargar la información detallada del artista",
@@ -311,7 +291,7 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                     </div>
                     {/* Botones Songs */}
                     <div className="flex flex-row sm:flex-col gap-2 justify-end">
-                        {/* Botón de detalles */}
+                        {/* Botón de Métricas */}
                         {user ? (
                             <Button
                                 variant="outline"
@@ -321,8 +301,8 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                                 onClick={handleDetailsClick}
                             >
                                 <Info className="w-2 h-2 sm:w-3 sm:h-3" />
-                                <span className="hidden sm:inline">{loadingDetails ? "Cargando..." : "Detalles"}</span>
-                                <span className="sm:hidden">{loadingDetails ? "..." : "Det."}</span>
+                                <span className="hidden sm:inline">{loadingDetails ? "Cargando..." : "Métricas"}</span>
+                                <span className="sm:hidden">{loadingDetails ? "..." : "Met."}</span>
                             </Button>
                         ) : (
                             <Button
@@ -332,8 +312,8 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                                 onClick={() => setShowLoginDialog(true)}
                             >
                                 <Lock className="w-2 h-2 sm:w-3 sm:h-3" />
-                                <span className="hidden sm:inline">Detalles</span>
-                                <span className="sm:hidden">Det.</span>
+                                <span className="hidden sm:inline">Métricas</span>
+                                <span className="sm:hidden">Met.</span>
                             </Button>
                         )}
 
@@ -347,7 +327,7 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                             >
                                 <Play className="w-2 h-2 sm:w-3 sm:h-3" />
                                 <span className="hidden sm:inline">Ver Canciones</span>
-                                <span className="sm:hidden">Canciones</span>
+                                <span className="sm:hidden">Canci</span>
                             </Button>
                         ) : (
                             <Button
@@ -365,7 +345,7 @@ function ArtistResult({ artist, onShowTracks }: ArtistResultProps) {
                 </div>
             </Card>
 
-            {/* Modal de Detalles del Artista */}
+            {/* Modal de Métricas del Artista */}
             {isDetailsOpen && artistDetails && (
                 <ChartArtistDetails
                     artist={artistDetails}
@@ -427,7 +407,7 @@ export function SearchArtist() {
 
     // Search tracks y artists on Spotify
     const searchTracksAndArtists = useCallback(async (query: string) => {
-        console.log('🔍 Buscando en Spotify:', query);
+        console.log('🔍 Buscando:', query);
 
         if (!query.trim()) {
             setSearchResults({ tracks: [], artists: [] });
@@ -470,7 +450,7 @@ export function SearchArtist() {
             console.error('❌ Error buscando en Spotify:', error);
             toast({
                 title: "Error",
-                description: "No se pudo buscar en Spotify. Intenta de nuevo.",
+                description: "No se pudo buscar. Intenta de nuevo.",
                 variant: "destructive"
             });
             setSearchResults({ tracks: [], artists: [] });
@@ -543,7 +523,7 @@ export function SearchArtist() {
                     <div className="flex flex-row gap-3 items-center w-full lg:w-[500px] xl:w-[500px] 2xl:w-[800px] mx-auto">
                         <div className="flex-1 relative">
                             <Input
-                                placeholder="Buscar artista o canción en Spotify..."
+                                placeholder="Buscar artista o canción..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="w-full rounded-xl lg:rounded-2xl border-0 bg-white/90 backdrop-blur-sm px-4 lg:px-6 py-2 text-sm lg:text-base shadow-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 lg:focus:ring-offset-2 pr-12 h-10 lg:h-[44px] placeholder:text-gray-500 placeholder:text-sm lg:placeholder:text-base"
@@ -568,50 +548,52 @@ export function SearchArtist() {
 
                     {/* Search Results en tiempo real */}
                     {showSearchResults && (
-                        <div className="absolute z-50 mt-2 sm:mt-3 w-full max-w-7xl bg-gray-50 border border-gray-300 rounded-xl lg:rounded-2xl shadow-2xl max-h-80 lg:max-h-96 overflow-hidden top-full">
+                        <div className="absolute z-50 mt-2 sm:mt-3 w-full max-w-8xl bg-gray-50 border border-gray-300 rounded-xl lg:rounded-2xl shadow-2xl overflow-hidden top-full">
+                            {/* Cabecera fija con tabs */}
                             <div className="p-4 lg:p-5 border-b border-gray-300 bg-white">
-                                {/* Tabs para cambiar entre canciones y artistas */}
-                                {(hasTracks && hasArtists) && (
-                                    <div className="flex border-b border-gray-200">
-                                        <button
-                                            className={`flex-1 py-3 lg:py-4 text-sm lg:text-base font-medium ${activeTab === 'tracks'
-                                                ? 'text-blue-600 border-b-2 border-blue-600 font-semibold'
-                                                : 'text-gray-600 hover:text-gray-800'
-                                                }`}
-                                            onClick={() => setActiveTab('tracks')}
-                                        >
-                                            <span className="truncate hidden sm:inline">Canciones </span>
-                                            <span className="sm:hidden">Can. </span>
-                                        </button>
-                                        <button
-                                            className={`flex-1 py-3 lg:py-4 text-sm lg:text-base font-medium ${activeTab === 'artists'
-                                                ? 'text-purple-600 border-b-2 border-purple-600 font-semibold'
-                                                : 'text-gray-600 hover:text-gray-800'
-                                                }`}
-                                            onClick={() => setActiveTab('artists')}
-                                        >
-                                            <span className="truncate hidden sm:inline">Artistas</span>
-                                            <span className="sm:hidden">Art. </span>
-
-                                        </button>
-                                        <button
-                                            onClick={() => {
-                                                setShowSearchResults(false);
-                                                setSearchQuery('');
-                                                setSearchResults({ tracks: [], artists: [] });
-                                            }}
-                                            className="text-slate-600 hover:text-slate-800 transition-colors text-sm lg:text-base flex items-center gap-2 hover:bg-gray-200 rounded-lg px-3 py-2"
-                                        >
-                                            <X className="w-4 h-4 lg:w-4 lg:h-4" />
-                                        </button>
-                                    </div>
-                                )}
+                                <div className="flex items-center justify-between">
+                                    {(hasTracks && hasArtists) && (
+                                        <div className="flex border-b border-gray-200 flex-1">
+                                            <button
+                                                className={`flex-1 py-3 lg:py-4 text-sm lg:text-base font-medium ${activeTab === 'tracks'
+                                                    ? 'text-blue-600 border-b-2 border-blue-600 font-semibold'
+                                                    : 'text-gray-600 hover:text-gray-800'
+                                                    }`}
+                                                onClick={() => setActiveTab('tracks')}
+                                            >
+                                                <span className="truncate hidden sm:inline">Canciones ({searchResults.tracks.length})</span>
+                                                <span className="sm:hidden">Can. ({searchResults.tracks.length})</span>
+                                            </button>
+                                            <button
+                                                className={`flex-1 py-3 lg:py-4 text-sm lg:text-base font-medium ${activeTab === 'artists'
+                                                    ? 'text-purple-600 border-b-2 border-purple-600 font-semibold'
+                                                    : 'text-gray-600 hover:text-gray-800'
+                                                    }`}
+                                                onClick={() => setActiveTab('artists')}
+                                            >
+                                                <span className="truncate hidden sm:inline">Artistas ({searchResults.artists.length})</span>
+                                                <span className="sm:hidden">Art. ({searchResults.artists.length})</span>
+                                            </button>
+                                        </div>
+                                    )}
+                                    <button
+                                        onClick={() => {
+                                            setShowSearchResults(false);
+                                            setSearchQuery('');
+                                            setSearchResults({ tracks: [], artists: [] });
+                                        }}
+                                        className="text-slate-600 hover:text-slate-800 transition-colors text-sm lg:text-base flex items-center gap-2 hover:bg-gray-200 rounded-lg px-3 py-2 ml-2 shrink-0"
+                                    >
+                                        <X className="w-4 h-4 lg:w-4 lg:h-4" />
+                                    </button>
+                                </div>
                             </div>
 
-                            <div className="max-h-64 lg:max-h-80 overflow-y-auto bg-white">
+                            {/* Contenedor con altura máxima y scroll */}
+                            <div className="max-h-[70vh] sm:max-h-[60vh] md:max-h-[50vh] lg:max-h-[60vh] overflow-y-auto bg-white scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
                                 {activeTab === 'tracks' && hasTracks ? (
                                     searchResults.tracks.map((track) => (
-                                        <div key={track.spotify_id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors ">
+                                        <div key={track.spotify_id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50 transition-colors">
                                             <SearchResult
                                                 track={track}
                                                 onSelect={handleSearchResultSelect}
@@ -638,7 +620,6 @@ export function SearchArtist() {
                             </div>
                         </div>
                     )}
-
                 </div>
             </div>
             {/* Modal de canciones del artista */}
