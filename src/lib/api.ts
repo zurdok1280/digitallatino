@@ -18,7 +18,34 @@ export interface Country {
   country_name: string;
   description?: string;
 }
+// --- INTERFACES PARA EL ADMIN ---
+export interface AdminUser {
+  userId: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  emailVerified: boolean;
+  active: boolean;
+  createdAtUtc: string;
+}
 
+// --- LLAMADAS API DEL ADMIN ---
+export const adminApi = {
+  // Obtener todos los usuarios
+  getAllUsers: (): Promise<ApiResponse<AdminUser[]>> => 
+    api.get<AdminUser[]>("admin/users"),
+
+  // Cambiar rol
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  updateUserRole: (id: number, role: string): Promise<ApiResponse<any>> => 
+    api.put(`admin/users/${id}/role`, { role }),
+
+  // Eliminar usuario
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  deleteUser: (id: number): Promise<ApiResponse<any>> => 
+    api.delete(`admin/users/${id}`),
+};
 export interface Format {
   id: number;
   format: string;
