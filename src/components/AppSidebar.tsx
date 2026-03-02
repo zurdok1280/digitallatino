@@ -9,6 +9,7 @@ import {
   Crown,
   Mic2,
   DiscAlbum,
+  RadioTower,
 } from "lucide-react";
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { Link, NavLink, useLocation } from "react-router-dom";
@@ -50,6 +51,7 @@ const navigation: NavItem[] = [
   { title: "Heavy Hitters", url: "/debut", icon: Sparkles, requiresAuth: true },
   { title: "Curator Pics", url: "/curator-pics", icon: DiscAlbum, requiresAuth: true },
   { title: "Tiktoker Pics", url: "/tiktoker-pics", icon: AutoAwesomeIcon, requiresAuth: true },
+  { title: "Digital Hits for Radio", url: "/digital-hits-radio", icon: RadioTower, requiresAuth: true }
 ];
 
 export function AppSidebar() {

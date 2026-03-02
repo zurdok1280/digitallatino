@@ -846,6 +846,15 @@ export const digitalLatinoApi = {
   ///report/getTiktokPics/{formatId}
   getTiktokPics: (formatId: number): Promise<ApiResponse<TiktokPicsData[]>> =>
     api.get<TiktokPicsData[]>(`report/getTiktokPics/${formatId}`),
+  //
+  getChartDigitalHitsRadio: (
+    countryId: number,
+    city: number,
+    CRG: string,
+  ): Promise<ApiResponse<Song[]>> =>
+    api.get<Song[]>(
+      `report/getChartDigital/${countryId}/${city}/${CRG}//0?radiooff=1`,
+    ),
 };
 
 // Ejemplo de uso:

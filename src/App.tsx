@@ -29,6 +29,7 @@ const AccountPage = lazy(() => import("./pages/AccountPage"));
 const MyArtist = lazy(() => import("./pages/MyArtist"));
 const CuratorPics = lazy(() => import("./pages/CuratorPics"));
 const TiktokerPics = lazy(() => import("./pages/TiktokerPics"));
+const DigitalHitsRadio = lazy(() => import("./pages/DigitalHitsRadio"));
 
 // QueryClient optimizado para rendimiento
 const queryClient = new QueryClient({
@@ -116,6 +117,7 @@ const App = () => (
               <Route path="/debut" element={withLazy(Debut)} />
               <Route path="/curator-pics" element={withLazy(CuratorPics)} />
               <Route path="/tiktoker-pics" element={withLazy(TiktokerPics)} />
+              <Route path="/digital-hits-radio" element={withLazy(DigitalHitsRadio)} />
               <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -1020,7 +1020,7 @@ export default function TopArtists() {
     `}
             >
               <div className="p-4 border-t border-white/30">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4">
                   {/* Filtro por País/Región */}
                   <div className="space-y-1 sm:space-y-2">
                     <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
@@ -1156,6 +1156,7 @@ export default function TopArtists() {
                   </div>
 
                   {/* Filtro por Ciudad */}
+                  {/* 
                   <div className="space-y-1 sm:space-y-2 relative">
                     <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
                       <span className="text-sm sm:text-base">🏙️</span>
@@ -1196,8 +1197,9 @@ export default function TopArtists() {
                       </button>
                     </div>
                   </div>
-
+                    */}
                   {/* Dropdown de ciudades renderizado con Portal */}
+                  {/*
                   {openDropdown === "city" && cities.length > 0 && createPortal(
                     <div
                       data-city-portal="true"
@@ -1226,7 +1228,6 @@ export default function TopArtists() {
                       <div className="max-h-48 overflow-y-auto">
 
 
-                        {/* Opciones de ciudades */}
                         {getFilteredOptions(cities, dropdownSearch, "city").map(
                           (city) => (
                             <button
@@ -1257,6 +1258,7 @@ export default function TopArtists() {
                     </div>,
                     document.body
                   )}
+                  */}
                 </div>
 
               </div>

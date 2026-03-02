@@ -452,8 +452,10 @@ export default function CuratorPics() {
             ${showFilters ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}
           `}>
                         <div className="p-4 border-t border-white/30">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-3 sm:gap-4">
+
                                 {/* Country Filter */}
+                                {/*
                                 <div className="space-y-1 sm:space-y-2">
                                     <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
                                         <span className="text-sm sm:text-base">🌎</span>
@@ -493,7 +495,7 @@ export default function CuratorPics() {
                                         </button>
                                     </div>
                                 </div>
-
+                                    */}
                                 {/* Format Filter */}
                                 <div className="space-y-1 sm:space-y-2">
                                     <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
