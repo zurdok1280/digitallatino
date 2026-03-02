@@ -8,9 +8,9 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { AuthProvider } from "./hooks/useAuth";
 import { lazy, Suspense } from "react";
 import { RequireSubscription } from "./components/RequireSubscription";
-import { ForgotPassword } from './pages/ForgotPassword';
-import ResetPassword from './pages/ResetPassword';
-
+import { ForgotPassword } from './pages/ForgotPassword'; 
+import ResetPassword from './pages/ResetPassword'; 
+import { RequireAdmin } from "./components/RequireAdmin";
 
 // Lazy loading de páginas para optimizar tiempo de carga inicial
 const Index = lazy(() => import("./pages/Index"));
@@ -27,6 +27,7 @@ const Payment = lazy(() => import("./pages/PaymentPage"));
 const AuthCallback = lazy(() => import("./pages/AuthCallbackPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const MyArtist = lazy(() => import("./pages/MyArtist"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel")); 
 const CuratorPics = lazy(() => import("./pages/CuratorPics"));
 const TiktokerPics = lazy(() => import("./pages/TiktokerPics"));
 const DigitalHitsRadio = lazy(() => import("./pages/DigitalHitsRadio"));
@@ -119,6 +120,9 @@ const App = () => (
               <Route path="/tiktoker-pics" element={withLazy(TiktokerPics)} />
               <Route path="/digital-hits-radio" element={withLazy(DigitalHitsRadio)} />
               <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
+            </Route>
+            <Route element={<RequireAdmin />}>
+              <Route path="/admin" element={withLazy(AdminPanel)} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route
