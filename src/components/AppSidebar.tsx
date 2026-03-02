@@ -174,6 +174,33 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                   );
                 })}
+                {/* --- BOTÓN SOLO PARA ADMIN --- */}
+                {user?.role === "ADMIN" && (
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    className={`
+                    group transition-all duration-200 rounded-lg mb-1
+                    ${isActive("/admin")
+                        ? "bg-white/20 text-white shadow-glass border border-white/20"
+                        : "text-white/70 hover:text-white hover:bg-white/10"
+                      }
+                `}
+                  >
+                    <NavLink to="/admin">
+                      <Settings
+                        className={`${isCollapsed ? "mx-auto" : "mr-3"
+                          }  h-5 w-5 transition-colors`}
+                      />
+                      {!isCollapsed && (
+                        <span className="font-medium truncate max-w-[160px]">
+                          Panel Admin
+                        </span>
+                      )}
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

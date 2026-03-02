@@ -6,6 +6,7 @@ import { ArtistSelectionModal } from "@/components/ArtistSelectionModal";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import { useLocation } from "react-router-dom";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,8 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const { user, token, login } = useAuth();
   const [showArtistModal, setShowArtistModal] = useState(false);
+  const location = useLocation();
+  const isAdminRoute = location.pathname.includes('/admin');
   useEffect(() => {
     if (user?.role === 'ARTIST' && !user.allowedArtistId) {
       setShowArtistModal(true);
@@ -68,7 +71,7 @@ export function Layout({ children }: LayoutProps) {
                 <SidebarTrigger />
               </div>
               <div className="absolute left-1/2 transform -translate-x-1/2">
-                {user?.role !== 'ARTIST' && <SearchArtist />}
+                {user?.role !== 'ARTIST' && !isAdminRoute && <SearchArtist />}
               </div>
               <div className="ml-auto">
                 <LoginButton />
