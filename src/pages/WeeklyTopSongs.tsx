@@ -43,6 +43,7 @@ import { LoginButton } from "@/components/LoginButton";
 import ChartArtistDetails from "@/components/ui/ChartArtistDetails";
 import { SongCompare } from "@/components/ui/songCompare";
 import { ComparisonMode } from "@/components/ui/ComparisonMode";
+import { RequireSubscription } from "@/components/RequireSubscription";
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -1289,7 +1290,7 @@ export default function Charts() {
                         document.body
                       )}
 
-                      {/* Filtro por Género */}
+                      {/* Filtro por Género D*/}
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1">
                           <span className="text-sm">📊</span>
@@ -1298,8 +1299,20 @@ export default function Charts() {
                         <select
                           className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                           value={selectedFormat}
-                          onChange={(e) => setSelectedFormat(e.target.value)}
+                          onChange={(e) => {
+                            if (!user) {
+                              setShowLoginDialog(true);
+                              return;
+                            }
+                            setSelectedFormat(e.target.value);
+                          }}
                           disabled={loadingFormats || !selectedCountry}
+                          onClick={(e) => {
+                            if (!user) {
+                              e.preventDefault();
+                              setShowLoginDialog(true);
+                            }
+                          }}
                         >
                           {loadingFormats ? (
                             <option value="">Cargando géneros...</option>
@@ -1317,7 +1330,7 @@ export default function Charts() {
                         </select>
                       </div>
 
-                      {/* Filtro por Ciudad - DESKTOP */}
+                      {/* Filtro por Ciudad D*/}
                       <div className="space-y-1 sm:space-y-2 relative">
                         <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
                           <span className="text-sm sm:text-base">🏙️</span>
@@ -1327,6 +1340,10 @@ export default function Charts() {
                           <button
                             type="button"
                             onClick={() => {
+                              if (!user) {
+                                setShowLoginDialog(true);
+                                return;
+                              }
                               if (loadingCities || !selectedCountry || cities.length === 0) return;
                               setOpenDropdown(openDropdown === "city" ? null : "city");
                               setDropdownSearch("");
@@ -1360,80 +1377,7 @@ export default function Charts() {
                         </div>
                       </div>
 
-                      {/* Dropdown de ciudades renderizado con Portal - DESKTOP */}
-                      {openDropdown === "city" && cities.length > 0 && createPortal(
-                        <div
-                          data-city-portal="true"
-                          className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
-                          style={{
-                            top: cityDropdownPosition.top,
-                            left: cityDropdownPosition.left,
-                            width: cityDropdownPosition.width,
-                            maxHeight: '300px', // Un poco más alto en desktop
-                          }}
-                        >
-                          <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
-                            <div className="relative">
-                              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                              <input
-                                type="text"
-                                placeholder="Buscar ciudad..."
-                                className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-                                value={dropdownSearch}
-                                onChange={(e) => setDropdownSearch(e.target.value)}
-                                autoFocus
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </div>
-                          </div>
 
-                          <div className="max-h-60 overflow-y-auto">
-                            {/* Opción "Todas las ciudades" */}
-                            <button
-                              onClick={() => {
-                                handleOptionSelect("0", "city");
-                                setOpenDropdown(null);
-                              }}
-                              className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
-                                ? "bg-orange-100 text-orange-700 font-semibold"
-                                : "text-gray-700"
-                                }`}
-                            >
-                              <span className="flex items-center gap-2">
-                                <span>🌍</span>
-                                <span className="truncate">Todas las ciudades</span>
-                              </span>
-                            </button>
-
-                            {/* Opciones de ciudades filtradas */}
-                            {getFilteredOptions(cities, dropdownSearch, "city").map((city) => (
-                              <button
-                                key={city.id}
-                                onClick={() => {
-                                  handleOptionSelect(city.id.toString(), "city");
-                                  setOpenDropdown(null);
-                                }}
-                                className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
-                                  ? "bg-orange-100 text-orange-700 font-semibold"
-                                  : "text-gray-700"
-                                  }`}
-                              >
-                                <span className="flex items-center gap-2">
-                                  <span>🏙️</span>
-                                  <span className="truncate">{city.city_name}</span>
-                                </span>
-                              </button>
-                            ))}
-
-                            {getFilteredOptions(cities, dropdownSearch, "city").length === 0 && (
-                              <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
-                                No se encontraron ciudades
-                              </div>
-                            )}
-                          </div>
-                        </div>,
-                        document.body
-                      )}
 
                       {/* Botón para cerrar filtros en móvil */}
                       <Button
@@ -1585,7 +1529,7 @@ export default function Charts() {
                     )}
 
 
-                    {/* Filtro por Género */}
+                    {/* Filtro por Género M */}
                     <div className="space-y-1 sm:space-y-2">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
                         <span className="text-sm sm:text-base">📊</span>
@@ -1594,7 +1538,19 @@ export default function Charts() {
                       <select
                         className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                         value={selectedFormat}
-                        onChange={(e) => setSelectedFormat(e.target.value)}
+                        onChange={(e) => {
+                          if (!user) {
+                            setShowLoginDialog(true);
+                            return;
+                          }
+                          setSelectedFormat(e.target.value);
+                        }}
+                        onClick={(e) => {
+                          if (!user) {
+                            e.preventDefault();
+                            setShowLoginDialog(true);
+                          }
+                        }}
                         disabled={loadingFormats || !selectedCountry}
                       >
                         {loadingFormats ? (
@@ -1613,8 +1569,8 @@ export default function Charts() {
                       </select>
                     </div>
 
-                    {/* Filtro por Ciudad */}
-                    <div className="space-y-1">
+                    {/* Filtro por Ciudad  M*/}
+                    <div className="hidden md:block space-y-1">
                       <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1">
                         <span className="text-sm">🏙️</span>
                         <span className="truncate">Ciudad Target</span>
@@ -1623,6 +1579,10 @@ export default function Charts() {
                         <button
                           type="button"
                           onClick={() => {
+                            if (!user) {
+                              setShowLoginDialog(true);
+                              return;
+                            }
                             if (loadingCities || !selectedCountry || cities.length === 0) return;
                             setOpenDropdown(openDropdown === "city" ? null : "city");
                             setDropdownSearch("");
