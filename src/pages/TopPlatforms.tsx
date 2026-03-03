@@ -752,6 +752,7 @@ export default function TopPlatforms() {
       const countryId = selectedCountry ? parseInt(selectedCountry) : 0;
       const platformValue = selectedPlatform || "";
 
+
       // Validar que los IDs sean números válidos
       if (isNaN(countryId) || isNaN(formatId)) {
         console.error("Invalid IDs:", {
@@ -835,6 +836,7 @@ export default function TopPlatforms() {
   // Fetch Songs when country changes
   useEffect(() => {
     fetchSongs();
+
   }, [selectedCountry, selectedFormat, selectedPlatform, toast]);
 
   // Handle Spotify OAuth callback
@@ -1435,7 +1437,7 @@ export default function TopPlatforms() {
 
                           {/* ButtonBigNumber solo en desktop */}
                           <div className="hidden sm:block">
-                            <ButtonBigNumber name=" Reproducciones " quantity={row.data_res} />
+                            <ButtonBigNumber name={selectedPlatform === 'shazam' ? `Búsquedas` : `Reproducciones`} quantity={row.data_res} />
                           </div>
 
                           {/* ButtonInfoSong */}
