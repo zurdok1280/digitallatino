@@ -4,19 +4,9 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PeopleIcon from '@mui/icons-material/People';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import { digitalLatinoApi, TopPlaylists } from "@/lib/api";
+import { digitalLatinoApi, TopPlaylists, PlaylistType } from "@/lib/api";
 
 export interface BoxPlaylistsDisplayProps { csSong: number; }
-
-const playlistTypes = [
-    { id: 0, name: "Todas las Playlists", value: "General" },
-    { id: 1, name: "Editorial", value: "Editorial" },
-    { id: 2, name: "Chart", value: "Chart" },
-    { id: 4, name: "Listener", value: "Listener" },
-    { id: 5, name: "Personalized", value: "Personalized" },
-    { id: 6, name: "Artist Radio", value: "Artist Radio" },
-    { id: 7, name: "Artist Mix", value: "Artist-mix-reader" },
-];
 
 const formatFollowers = (followers: number): string => {
     if (followers >= 1000000) return (followers / 1000000).toFixed(1) + 'M';
@@ -37,12 +27,41 @@ export default function BoxPlaylistsDisplay({ csSong }: BoxPlaylistsDisplayProps
     const [playlists, setPlaylists] = useState<TopPlaylists[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedType, setSelectedType] = useState<number>(0);
+    const [selectedType, setSelectedType] = useState<number>(1);
+    const [playlistTypes, setPlaylistTypes] = useState<PlaylistType[]>([]);
+    const [loadingTypes, setLoadingTypes] = useState(true);
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const isTablet = useMediaQuery(theme.breakpoints.between('sm', 'md'));
     const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
+
+    // Cargar tipos de playlist
+    useEffect(() => {
+        const fetchPlaylistTypes = async () => {
+            try {
+                setLoadingTypes(true);
+                const response = await digitalLatinoApi.getPlaylistType();
+                setPlaylistTypes(response.data);
+            } catch (err) {
+                console.error('Error fetching playlist types:', err);
+                // Fallback a tipos por defecto en caso de error
+                setPlaylistTypes([
+                    { id: 0, name: "General" },
+                    { id: 1, name: "Editorial" },
+                    { id: 2, name: "Chart" },
+                    { id: 4, name: "Listener" },
+                    { id: 5, name: "Personalized" },
+                    { id: 6, name: "Artist Radio" },
+                    { id: 7, name: "Artist Mix" },
+                ]);
+            } finally {
+                setLoadingTypes(false);
+            }
+        };
+
+        fetchPlaylistTypes();
+    }, []);
 
     const fetchPlaylists = async (typeId: number) => {
         if (!csSong) { setLoading(false); return; }
@@ -71,6 +90,23 @@ export default function BoxPlaylistsDisplay({ csSong }: BoxPlaylistsDisplayProps
         border: "1px solid #E0E0E0", borderRadius: "12px", padding: isMobile ? "16px" : "24px",
         boxShadow: "0 2px 12px rgba(0,0,0,0.06)", backgroundColor: "white", marginBottom: isMobile ? "16px" : "24px", width: "100%",
     };
+
+    // Mostrar loading mientras se cargan los tipos de playlist
+    if (loadingTypes) {
+        return (
+            <Box sx={containerStyles}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                    <EmojiEventsIcon sx={{ color: "#6C63FF", fontSize: isMobile ? '1.2rem' : 'inherit' }} />
+                    <Typography variant="subtitle2" sx={{ color: "#6C63FF", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", fontSize: isMobile ? '0.8rem' : '0.875rem' }}>
+                        Top Playlists
+                    </Typography>
+                </Box>
+                <Box sx={{ display: "flex", justifyContent: "center", py: isMobile ? 3 : 4 }}>
+                    <CircularProgress size={isMobile ? 20 : 24} sx={{ color: "#6C63FF" }} />
+                </Box>
+            </Box>
+        );
+    }
 
     if (loading) {
         return (
@@ -114,7 +150,57 @@ export default function BoxPlaylistsDisplay({ csSong }: BoxPlaylistsDisplayProps
                     </Box>
 
                     <FormControl size="small" sx={{ minWidth: isMobile ? '100%' : 200, maxWidth: isMobile ? '100%' : 'auto' }}>
-                        <Select value={selectedType} onChange={handleTypeChange} sx={{ fontSize: isMobile ? '0.8rem' : '0.85rem', borderRadius: "8px", width: '100%' }}>
+                        <Select
+                            value={selectedType}
+                            onChange={handleTypeChange}
+                            sx={{ fontSize: isMobile ? '0.8rem' : '0.85rem', borderRadius: "8px", width: '100%' }}
+                            disabled={loadingTypes}
+                            MenuProps={{
+                                disablePortal: false,
+                                anchorOrigin: {
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                },
+                                transformOrigin: {
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                },
+                                getContentAnchorEl: null,
+                                PaperProps: {
+                                    style: {
+                                        maxHeight: 300,
+                                        position: 'fixed',
+                                        zIndex: 9999,
+                                    },
+                                },
+                                disableScrollLock: false,
+                                modifiers: [
+                                    {
+                                        name: 'preventOverflow',
+                                        enabled: true,
+                                        options: {
+                                            rootBoundary: 'viewport',
+                                            tether: true,
+                                        },
+                                    },
+                                    {
+                                        name: 'flip',
+                                        enabled: true,
+                                        options: {
+                                            rootBoundary: 'viewport',
+                                        },
+                                    },
+                                    {
+                                        name: 'fixed',
+                                        enabled: true,
+                                        phase: 'main',
+                                        fn: ({ state }) => {
+                                            state.styles.popper.position = 'fixed';
+                                        },
+                                    },
+                                ],
+                            }}
+                        >
                             {playlistTypes.map((type) => (
                                 <MenuItem key={type.id} value={type.id} sx={{ fontSize: isMobile ? '0.8rem' : '0.85rem' }}>
                                     {isMobile && type.name.length > 20 ? `${type.name.substring(0, 20)}...` : type.name}
