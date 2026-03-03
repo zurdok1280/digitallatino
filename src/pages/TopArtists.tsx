@@ -663,7 +663,7 @@ export default function TopArtists() {
 
       try {
         setLoadingFormats(true);
-        const response = await digitalLatinoApi.getFormatsByCountry(
+        const response = await digitalLatinoApi.getFormatsByCountryArtist(
           parseInt(selectedCountry)
         );
         setFormats(response.data);

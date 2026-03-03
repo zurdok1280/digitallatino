@@ -308,7 +308,7 @@ export default function DigitalHitsRadio() {
     // Countries API state
     const [countries, setCountries] = useState<Country[]>([]);
     const [loadingCountries, setLoadingCountries] = useState(true);
-    const [selectedCountry, setSelectedCountry] = useState("2"); // USA ID = 2 por defecto
+    const [selectedCountry, setSelectedCountry] = useState("0"); // Global ID = 0 por defecto
 
     // Formats API state - siempre será "C" para este reporte
     const selectedFormat = "C"; // Formato fijo

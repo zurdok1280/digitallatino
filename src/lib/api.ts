@@ -33,17 +33,17 @@ export interface AdminUser {
 // --- LLAMADAS API DEL ADMIN ---
 export const adminApi = {
   // Obtener todos los usuarios
-  getAllUsers: (): Promise<ApiResponse<AdminUser[]>> => 
+  getAllUsers: (): Promise<ApiResponse<AdminUser[]>> =>
     api.get<AdminUser[]>("admin/users"),
 
   // Cambiar rol
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateUserRole: (id: number, role: string): Promise<ApiResponse<any>> => 
+  updateUserRole: (id: number, role: string): Promise<ApiResponse<any>> =>
     api.put(`admin/users/${id}/role`, { role }),
 
   // Eliminar usuario
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  deleteUser: (id: number): Promise<ApiResponse<any>> => 
+  deleteUser: (id: number): Promise<ApiResponse<any>> =>
     api.delete(`admin/users/${id}`),
 };
 export interface Format {
@@ -873,6 +873,11 @@ export const digitalLatinoApi = {
   ///report/getTiktokPics/{formatId}
   getTiktokPics: (formatId: number): Promise<ApiResponse<TiktokPicsData[]>> =>
     api.get<TiktokPicsData[]>(`report/getTiktokPics/${formatId}`),
+  // Obtener formatos por país
+  getFormatsByCountryArtist: (
+    countryId: number,
+  ): Promise<ApiResponse<Format[]>> =>
+    api.get<Format[]>(`report/getFormatbyCountryArtist/${countryId}`),
   //
   getChartDigitalHitsRadio: (
     countryId: number,

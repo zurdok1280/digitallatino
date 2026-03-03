@@ -49,8 +49,8 @@ const navigation: NavItem[] = [
     requiresAuth: true,
   },
   { title: "Heavy Hitters", url: "/debut", icon: Sparkles, requiresAuth: true },
-  { title: "Curator Pics", url: "/curator-pics", icon: DiscAlbum, requiresAuth: true },
-  { title: "Tiktoker Pics", url: "/tiktoker-pics", icon: AutoAwesomeIcon, requiresAuth: true },
+  { title: "Curator Picks", url: "/curator-pics", icon: DiscAlbum, requiresAuth: true },
+  { title: "Tiktoker Picks", url: "/tiktoker-pics", icon: AutoAwesomeIcon, requiresAuth: true },
   { title: "Digital Hits for Radio", url: "/digital-hits-radio", icon: RadioTower, requiresAuth: true }
 ];
 
@@ -177,8 +177,8 @@ export function AppSidebar() {
                     </SidebarMenuItem>
                   );
                 })}
-                {/* --- BOTÓN SOLO PARA ADMIN --- */}
-                {user?.role === "ADMIN" && (
+              {/* --- BOTÓN SOLO PARA ADMIN --- */}
+              {user?.role === "ADMIN" && (
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
