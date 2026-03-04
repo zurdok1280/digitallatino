@@ -878,14 +878,15 @@ export const digitalLatinoApi = {
     countryId: number,
   ): Promise<ApiResponse<Format[]>> =>
     api.get<Format[]>(`report/getFormatbyCountryArtist/${countryId}`),
-  //
+  // Obtener datos de Chart Digital Hits for Radio, muy similar al de weeklyTopSong //getChartDigital/{format}/{country}/{CRG}/{city}?radiooff=1
   getChartDigitalHitsRadio: (
+    formatId: number,
     countryId: number,
-    city: number,
     CRG: string,
+    city: number,
   ): Promise<ApiResponse<Song[]>> =>
     api.get<Song[]>(
-      `report/getChartDigital/${countryId}/${city}/${CRG}//0?radiooff=1`,
+      `report/getChartDigital/${formatId}/${countryId}/${CRG}/${city}?radiooff=1`,
     ),
 };
 

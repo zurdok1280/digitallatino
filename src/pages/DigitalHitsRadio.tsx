@@ -155,10 +155,8 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
                 <span className="text-lg">📊</span> {title}
             </h4>
             <div className="relative overflow-hidden rounded-xl">
-                {/* Contenido específico y tentador */}
                 <div className="relative z-0 py-2">
                     {children}
-                    {/* Datos específicos que generan curiosidad */}
                     <div className="mt-2 space-y-2">
                         <div className="flex justify-between items-center p-2 bg-green-100/60 rounded">
                             <span className="text-xs text-gray-700">Artista Similar:</span>
@@ -179,10 +177,7 @@ function BlurBlock({ title, children, onNavigate }: BlurBlockProps) {
                     </div>
                 </div>
 
-                {/* Sin blur para mostrar el dashboard hermoso */}
                 <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-br from-transparent to-background/5" />
-
-                {/* Unlock overlay compacto con colores Digital Latino */}
             </div>
         </div>
     );
@@ -297,21 +292,22 @@ export default function DigitalHitsRadio() {
     const navigate = useNavigate();
     const { toast } = useToast();
     const { user, setShowLoginDialog } = useAuth();
-    //const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
     const { expandedRows, toggleRow, isExpanded } = useExpandableRows();
 
     // Spotify search state
-    const [searchQuery, setSearchQuery] = useState(""); //Aislar
-    const [accessToken, setAccessToken] = useState<string | null>(null); //Aislar
-    const [isConnected, setIsConnected] = useState(false); //Aislar
+    const [searchQuery, setSearchQuery] = useState("");
+    const [accessToken, setAccessToken] = useState<string | null>(null);
+    const [isConnected, setIsConnected] = useState(false);
 
     // Countries API state
     const [countries, setCountries] = useState<Country[]>([]);
     const [loadingCountries, setLoadingCountries] = useState(true);
-    const [selectedCountry, setSelectedCountry] = useState("0"); // Global ID = 0 por defecto
+    const [selectedCountry, setSelectedCountry] = useState("2"); // USA ID = 2 por defecto
 
-    // Formats API state - siempre será "C" para este reporte
-    const selectedFormat = "C"; // Formato fijo
+    // Formats API state
+    const [formats, setFormats] = useState<Format[]>([]);
+    const [loadingFormats, setLoadingFormats] = useState(false);
+    const [selectedFormat, setSelectedFormat] = useState("0"); // General ID = 0 por defecto
 
     // Cities API state
     const [cities, setCities] = useState<City[]>([]);
@@ -322,23 +318,22 @@ export default function DigitalHitsRadio() {
     const [songs, setSongs] = useState<Song[]>([]);
     const [loadingSongs, setLoadingSongs] = useState(true);
 
-    // Period API state - no se usa en este reporte, pero lo mantenemos por compatibilidad
-    const [selectedPeriod, setSelectedPeriod] = useState("C"); // Current por defecto
+    // Period API state - CRG siempre será "C" para este reporte
+    const CRG = "C";
 
     const [showGenreOverlay, setShowGenreOverlay] = useState(false);
     const [showCrgOverlay, setShowCrgOverlay] = useState(false);
     const [currentlyPlaying, setCurrentlyPlaying] = useState<number | null>(null);
     const [chartSearchQuery, setChartSearchQuery] = useState("");
     const [showSearchBar, setShowSearchBar] = useState(false);
-    const [showMobileFilter, setShowMobileFilter] = useState(false);  //Ocultar filters in mobile
+    const [showMobileFilter, setShowMobileFilter] = useState(false);
     const [mobileView, setMobileView] = useState<'none' | 'search' | 'filter'>('none');
     const audioRef = useRef<HTMLAudioElement | null>(null);
-    //last data update:
     const [lastUpdate, setLastUpdate] = useState<string | null>(null);
 
     // Dropdown state keyboard navigation
     const [openDropdown, setOpenDropdown] = useState<
-        "country" | "city" | null
+        "country" | "format" | "city" | null
     >(null);
     const [dropdownSearch, setDropdownSearch] = useState("");
 
@@ -348,6 +343,7 @@ export default function DigitalHitsRadio() {
 
     const [showScoreTooltip, setShowScoreTooltip] = useState(false);
     const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
+
     //States para artist details
     const [artistDetailsModal, setArtistDetailsModal] = useState<{
         isOpen: boolean;
@@ -358,6 +354,7 @@ export default function DigitalHitsRadio() {
         artist: null,
         selectedCountry: selectedCountry
     });
+
     //States para comparación de canciones
     const [comparisonMode, setComparisonMode] = useState(false);
     const [selectedSongs, setSelectedSongs] = useState<SelectedSong[]>([]);
@@ -366,14 +363,16 @@ export default function DigitalHitsRadio() {
         song1: SelectedSong | null;
         song2: SelectedSong | null;
     }>({ song1: null, song2: null });
+
     //Desplegar Filtros
     const [showFilters, setShowFilters] = useState(false);
     const [cityDropdownPosition, setCityDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
     const cityButtonRef = useRef<HTMLDivElement>(null);
     const [countryDropdownPosition, setCountryDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
     const countryButtonRef = useRef<HTMLDivElement>(null);
+    const [formatDropdownPosition, setFormatDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+    const formatButtonRef = useRef<HTMLDivElement>(null);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
-
 
     // Función para manejar el click en el nombre de la canción/artista
     const handleArtistDetailsClick = (row: Song, selectedCountry: string) => {
@@ -382,7 +381,6 @@ export default function DigitalHitsRadio() {
             return;
         }
 
-        // Si es artista y no pertenece a su catálogo
         if (user?.role === 'ARTIST') {
             const normalize = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
             const myArtistName = normalize(user.allowedArtistName || "");
@@ -405,7 +403,6 @@ export default function DigitalHitsRadio() {
         });
     };
 
-    // Función para cerrar el modal
     const handleCloseArtistDetails = () => {
         setArtistDetailsModal({
             isOpen: false,
@@ -427,7 +424,6 @@ export default function DigitalHitsRadio() {
     };
 
     const filteredSongs = useMemo(() => {
-        // Función para normalizar texto
         const normalizeText = (text: string) => {
             return text
                 .normalize("NFD")
@@ -436,12 +432,10 @@ export default function DigitalHitsRadio() {
                 .trim();
         };
 
-        // Si no hay texto en la barra de búsqueda, devolvemos TODAS las canciones
         if (!chartSearchQuery.trim()) {
             return songs;
         }
 
-        // Si hay búsqueda, filtramos por texto
         const query = normalizeText(chartSearchQuery);
         return songs.filter((song) => {
             const songName = normalizeText(song.song || "");
@@ -452,7 +446,6 @@ export default function DigitalHitsRadio() {
         });
     }, [songs, chartSearchQuery]);
 
-    //Limitar top 20
     const songsToDisplay = useMemo(() => {
         if (user) {
             return filteredSongs;
@@ -460,7 +453,6 @@ export default function DigitalHitsRadio() {
         return filteredSongs.slice(0, 20);
     }, [filteredSongs, user]);
 
-    // Función para alternar la visibilidad de la barra de búsqueda
     const toggleSearchBar = () => {
         setShowSearchBar(!showSearchBar);
         if (showSearchBar) {
@@ -468,7 +460,6 @@ export default function DigitalHitsRadio() {
         }
     };
 
-    // Enfocar el input cuando se muestra la barra
     useEffect(() => {
         if (showSearchBar) {
             const searchInput = document.querySelector(
@@ -480,11 +471,10 @@ export default function DigitalHitsRadio() {
         }
     }, [showSearchBar]);
 
-    // Función para filtrar opciones basado en la búsqueda
     const getFilteredOptions = (
         options: any[],
         searchQuery: string,
-        type: "country" | "city"
+        type: "country" | "format" | "city"
     ) => {
         if (!searchQuery.trim()) return options;
 
@@ -496,18 +486,19 @@ export default function DigitalHitsRadio() {
                     option.country?.toLowerCase().includes(query) ||
                     option.description?.toLowerCase().includes(query)
                 );
+            } else if (type === "format") {
+                return option.format?.toLowerCase().includes(query);
             } else if (type === "city") {
                 return option.city_name?.toLowerCase().includes(query);
             }
             return false;
         });
     };
-    // cerrar dropdown al hacer click fuera
+
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             const target = event.target as Node;
 
-            // Cerrar dropdown de países
             if (openDropdown === "country") {
                 const countryPortal = document.querySelector('[data-country-portal="true"]');
                 if (countryButtonRef.current && !countryButtonRef.current.contains(target) &&
@@ -517,7 +508,15 @@ export default function DigitalHitsRadio() {
                 }
             }
 
-            // Cerrar dropdown de ciudades
+            if (openDropdown === "format") {
+                const formatPortal = document.querySelector('[data-format-portal="true"]');
+                if (formatButtonRef.current && !formatButtonRef.current.contains(target) &&
+                    formatPortal && !formatPortal.contains(target)) {
+                    setOpenDropdown(null);
+                    setDropdownSearch("");
+                }
+            }
+
             if (openDropdown === "city") {
                 const cityPortal = document.querySelector('[data-city-portal="true"]');
                 if (cityButtonRef.current && !cityButtonRef.current.contains(target) &&
@@ -532,36 +531,25 @@ export default function DigitalHitsRadio() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [openDropdown]);
 
-    const updateDropdownPosition = (ref: React.RefObject<HTMLDivElement>) => {
-        if (ref.current) {
-            const rect = ref.current.getBoundingClientRect();
-            setDropdownPosition({
-                top: rect.bottom + window.scrollY,
-                left: rect.left + window.scrollX,
-                width: rect.width,
-            });
-        }
-    };
-    // Función para manejar la selección
     const handleOptionSelect = (
         value: string,
-        type: "country" | "city"
+        type: "country" | "format" | "city"
     ) => {
         if (type === "country") {
             setSelectedCountry(value);
+        } else if (type === "format") {
+            setSelectedFormat(value);
         } else if (type === "city") {
             setSelectedCity(value);
         }
         setOpenDropdown(null);
         setDropdownSearch("");
 
-        // En móvil, cerrar el filtro después de seleccionar
         if (window.innerWidth < 768) {
             setShowMobileFilter(false);
         }
     };
 
-    // Efecto para manejar la tecla Escape
     useEffect(() => {
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
@@ -573,7 +561,6 @@ export default function DigitalHitsRadio() {
         return () => document.removeEventListener("keydown", handleEscape);
     }, []);
 
-    //Debouncing para limitar las busquedas por API al usuario
     const useDebounce = (value: string, delay: number) => {
         const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -587,10 +574,9 @@ export default function DigitalHitsRadio() {
         }, [value, delay]);
         return debouncedValue;
     };
-    // Usar el hook de debounce con 300ms de delay
+
     const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-    // Check for existing Spotify connection
     useEffect(() => {
         const savedToken = window.localStorage.getItem("spotify_access_token");
         const tokenExpiry = window.localStorage.getItem("spotify_token_expiry");
@@ -628,20 +614,17 @@ export default function DigitalHitsRadio() {
         }
     };
 
-    //Fetch para obtener canciones del chart digital hits radio con useCallback 
     const fetchSongs = useCallback(async () => {
         try {
             setLoadingSongs(true);
 
-            // Validar que selectedCountry tenga un valor válido
             if (!selectedCountry || selectedCountry === "") {
                 setSongs([]);
                 return;
             }
 
-            // Validar y parsear valores
-            const formatId = 0; // No se usa, pero lo dejamos por compatibilidad
-            const countryId = selectedCountry ? parseInt(selectedCountry) : 2; // valor por defecto
+            const formatId = selectedFormat ? parseInt(selectedFormat) : 0;
+            const countryId = selectedCountry ? parseInt(selectedCountry) : 2;
             const cityId = selectedCity ? parseInt(selectedCity) : 0;
 
             if (isNaN(countryId)) {
@@ -649,15 +632,13 @@ export default function DigitalHitsRadio() {
                 return;
             }
 
-            // Usar el nuevo endpoint getChartDigitalHitsRadio
             const response = await digitalLatinoApi.getChartDigitalHitsRadio(
+                formatId,
                 countryId,
+                CRG,
                 cityId,
-                selectedPeriod,
             );
             setSongs(response.data);
-            //console.log(`report/getChartDigital/${countryId}/${cityId}/${selectedPeriod}/0?radiooff=1`)
-            //console.log(response.data)
         } catch (error) {
             console.error("Error fetching songs:", error);
             toast({
@@ -669,11 +650,8 @@ export default function DigitalHitsRadio() {
         } finally {
             setLoadingSongs(false);
         }
-    }, [selectedCountry, selectedCity, selectedPeriod, toast]);
+    }, [selectedCountry, selectedFormat, selectedCity, toast]);
 
-
-
-    //Fetch para obtener datos de ciudades para una canción específica
     const fetchCityData = async (csSong: string, countryId: string) => {
         if (!csSong || !countryId) {
             setCityData([]);
@@ -703,9 +681,8 @@ export default function DigitalHitsRadio() {
             setLoadingCityData(false);
         }
     };
-    // Función para manejar la expansión de filas
-    const handleToggleRow = (index: number, row: Song) => {
 
+    const handleToggleRow = (index: number, row: Song) => {
         if (!user) {
             setShowLoginDialog(true);
             return;
@@ -713,44 +690,55 @@ export default function DigitalHitsRadio() {
 
         toggleRow(index);
 
-        // Si la fila se está expandiendo, cargar datos de ciudades
         if (!isExpanded(index)) {
             fetchCityData(row.cs_song.toString(), selectedCountry);
         }
     };
-    //Tooltip para mostrar datos
-    const [tooltipState, setTooltipState] = useState<{
-        isVisible: boolean;
-        position: { x: number; y: number };
-    }>({
-        isVisible: false,
-        position: { x: 0, y: 0 },
-    });
 
-    // Función para mostrar el tooltip
-    const showTooltip = (event: React.MouseEvent) => {
-        const rect = event.currentTarget.getBoundingClientRect();
-        setTooltipState({
-            isVisible: true,
-            position: {
-                x: rect.right + window.scrollX + 8, // 8px de margen
-                y: rect.top + window.scrollY + rect.height / 2,
-            },
-        });
-    };
-
-    // Función para ocultar el tooltip
-    const hideTooltip = () => {
-        setTooltipState((prev) => ({ ...prev, isVisible: false }));
-    };
-
-    // Fetch countries from API
     useEffect(() => {
         fetchCountries();
         fetchLastUpdate();
     }, []);
 
-    // Fetch cities when country changes
+    // Fetch formats when country changes
+    useEffect(() => {
+        const fetchFormats = async () => {
+            if (!selectedFormat) {
+                setFormats([]);
+                return;
+            }
+
+            try {
+                setLoadingFormats(true);
+                const response = await digitalLatinoApi.getFormatsByCountry(
+                    parseInt(selectedCountry)
+                );
+                setFormats(response.data);
+
+                const generalFormat = response.data.find(
+                    (format) => format.format.toLowerCase() === "general"
+                );
+                if (generalFormat) {
+                    setSelectedFormat(generalFormat.id.toString());
+                } else if (response.data.length > 0) {
+                    setSelectedFormat(response.data[0].id.toString());
+                }
+            } catch (error) {
+                console.error("Error fetching formats:", error);
+                toast({
+                    title: "Error",
+                    description: "No se pudieron cargar los géneros. Intenta de nuevo.",
+                    variant: "destructive",
+                });
+                setFormats([]);
+            } finally {
+                setLoadingFormats(false);
+            }
+        };
+
+        fetchFormats();
+    }, [selectedCountry, toast]);
+
     useEffect(() => {
         const fetchCities = async () => {
             if (!selectedCountry) {
@@ -765,7 +753,7 @@ export default function DigitalHitsRadio() {
                     parseInt(selectedCountry)
                 );
                 setCities(response.data);
-                setSelectedCity("0"); // Reset to "All" when country changes
+                setSelectedCity("0");
             } catch (error) {
                 console.error("Error fetching cities:", error);
                 toast({
@@ -782,18 +770,16 @@ export default function DigitalHitsRadio() {
         fetchCities();
     }, [selectedCountry, toast]);
 
-    // Fetch Songs when country changes
     useEffect(() => {
         if (selectedCountry && selectedCountry !== "") {
             const timer = setTimeout(() => {
                 fetchSongs();
-            }, 300); // Delay para comprobar cambio de pais
+            }, 300);
 
             return () => clearTimeout(timer);
         }
-    }, [selectedCountry, selectedCity, selectedPeriod, fetchSongs]);
+    }, [selectedCountry, selectedFormat, selectedCity, fetchSongs]);
 
-    // Handle Spotify OAuth callback
     useEffect(() => {
         const handleSpotifyCallback = () => {
             const hash = window.location.hash.substring(1);
@@ -816,7 +802,6 @@ export default function DigitalHitsRadio() {
                 setAccessToken(token);
                 setIsConnected(true);
                 console.log("Spotify connected, token saved.", token);
-                // Clean up URL
                 window.history.replaceState(
                     {},
                     document.title,
@@ -833,10 +818,8 @@ export default function DigitalHitsRadio() {
         handleSpotifyCallback();
     }, [toast]);
 
-    // Connect to Spotify with OAuth
     const connectToSpotify = () => {
         console.log("connectToSpotify called");
-        // Generate a random state for security
         const state = Math.random().toString(36).substring(2, 15);
         window.localStorage.setItem("spotify_auth_state", state);
 
@@ -848,7 +831,6 @@ export default function DigitalHitsRadio() {
         authUrl.searchParams.append("state", state);
 
         console.log("Redirecting to Spotify auth:", authUrl.toString());
-        // Open Spotify auth in the same window
         window.location.href = authUrl.toString();
     };
 
@@ -870,32 +852,13 @@ export default function DigitalHitsRadio() {
         navigate(`/campaign?${params.toString()}`);
     };
 
-    const handleCountryChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedCountry(e.target.value);
-        setSelectedCity(""); // Reset city when country changes
-    };
-
-    const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const cityId = e.target.value;
-        setSelectedCity(cityId);
-
-        if (cityId && cityId !== "0") {
-            // Find the selected city object
-            const selectedCityObj = cities.find(
-                (city) => city.id.toString() === cityId
-            );
-            const cityName = selectedCityObj?.city_name || "";
-            setSelectedCity(cityId);
-        }
-    };
-
-    // Función para manejar la selección de canciones para comparación
     const handleToggleComparisonMode = () => {
         setComparisonMode(!comparisonMode);
         if (!comparisonMode) {
             setSelectedSongs([]);
         }
     };
+
     const handleSelectSong = (song: Song) => {
         if (!comparisonMode) return;
 
@@ -910,17 +873,13 @@ export default function DigitalHitsRadio() {
             score: song.score,
         };
 
-        // Verificar si ya está seleccionada
         const isAlreadySelected = selectedSongs.some(s => s.cs_song === song.cs_song);
 
         if (isAlreadySelected) {
-            // Remover si ya está seleccionada
             setSelectedSongs(prev => prev.filter(s => s.cs_song !== song.cs_song));
         } else if (selectedSongs.length < 2) {
-            // Agregar si hay espacio
             setSelectedSongs(prev => [...prev, selectedSong]);
         } else {
-            // Reemplazar la primera selección si ya hay 2
             toast({
                 title: 'Límite alcanzado',
                 description: 'Solo puedes comparar 2 canciones a la vez. Remueve una selección para agregar otra.',
@@ -945,77 +904,33 @@ export default function DigitalHitsRadio() {
         }
     };
 
-    const handleCompareFromRow = (song: Song, secondSong?: Song) => {
-        const song1: SelectedSong = {
-            cs_song: song.cs_song,
-            spotifyid: song.spotifyid,
-            song: song.song,
-            artists: song.artists,
-            label: song.label,
-            avatar: song.avatar,
-            rk: song.rk,
-            score: song.score,
-        };
-
-        if (secondSong) {
-            // Comparar directamente con otra canción específica
-            const song2: SelectedSong = {
-                cs_song: secondSong.cs_song,
-                spotifyid: secondSong.spotifyid,
-                song: secondSong.song,
-                artists: secondSong.artists,
-                label: secondSong.label,
-                avatar: secondSong.avatar,
-                rk: secondSong.rk,
-                score: secondSong.score,
-            };
-            setSongForComparison({ song1, song2 });
-            setShowComparison(true);
-        } else {
-            // Iniciar modo comparación con esta canción como primera selección
-            setSelectedSongs([song1]);
-            setComparisonMode(true);
-            toast({
-                title: 'Modo comparación activado',
-                description: `Selecciona otra canción para comparar con "${song.song}"`,
-            });
-        }
-    };
-
-
-
     const handlePlayPreview = useCallback(
         (trackRank: number, audioUrl: string) => {
             console.log("handlePlayPreview called for:", trackRank, audioUrl);
 
-            // Si la misma canción está sonando, pausar y limpiar
             if (currentlyPlaying === trackRank) {
                 if (audioRef.current) {
                     audioRef.current.pause();
-                    audioRef.current.currentTime = 0; // reinicia a inicio
+                    audioRef.current.currentTime = 0;
                     audioRef.current = null;
                 }
                 setCurrentlyPlaying(null);
                 return;
             }
 
-            // Si hay una canción sonando, detenerla
             if (audioRef.current) {
                 audioRef.current.pause();
                 audioRef.current.currentTime = 0;
             }
 
-            // Crear y reproducir nueva canción
-            const audio = new Audio(audioUrl); // aquí se asigna la URL real del MP3
+            const audio = new Audio(audioUrl);
             audioRef.current = audio;
 
-            // Cuando termine el audio, limpiar estado
             audio.addEventListener("ended", () => {
                 setCurrentlyPlaying(null);
                 audioRef.current = null;
             });
 
-            // Intentar reproducir (algunos navegadores requieren interacción de usuario)
             audio
                 .play()
                 .then(() => {
@@ -1029,6 +944,7 @@ export default function DigitalHitsRadio() {
         },
         [currentlyPlaying]
     );
+
     const handleRestrictedToggle = (index: number, row: Song) => {
         if (!user) {
             setShowLoginDialog(true);
@@ -1047,12 +963,12 @@ export default function DigitalHitsRadio() {
                 });
                 return;
             }
-        } handleToggleRow(index, row);
+        }
+        handleToggleRow(index, row);
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
-            {/* Componente de navegación flotante */}
             <FloatingScrollButtons
                 rightOffset={24}
                 topOffset={100}
@@ -1061,7 +977,6 @@ export default function DigitalHitsRadio() {
                 hideBottomThreshold={100}
                 className="your-custom-classes"
             />
-            {/* Decorative background elements */}
             <div className="fixed inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-slate-300/15 to-gray-400/15 rounded-full blur-3xl"></div>
                 <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-blue-400/15 to-slate-400/15 rounded-full blur-3xl"></div>
@@ -1069,7 +984,6 @@ export default function DigitalHitsRadio() {
             </div>
 
             <div className="relative z-10 mx-auto max-w-6xl px-4 py-2">
-                {/* Header */}
                 <div className="">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 md:gap-4">
@@ -1079,9 +993,7 @@ export default function DigitalHitsRadio() {
                         </div>
                     </div>
 
-                    {/* Filtros Profesionales */}
                     {user?.role === 'ARTIST' && (
-                        // --- VISTA PARA ARTISTA 
                         <div className="w-full bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-100 rounded-xl p-3 mb-3 shadow-sm flex items-center justify-between">
                             <div>
                                 <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
@@ -1093,7 +1005,6 @@ export default function DigitalHitsRadio() {
                                 </p>
                             </div>
 
-                            {/* Badge con el nombre del artista */}
                             {user.name && (
                                 <div className="bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -1212,7 +1123,47 @@ export default function DigitalHitsRadio() {
                                                 document.body
                                             )}
 
-                                            {/* Filtro por Ciudad - MÓVIL */}
+                                            {/* Filtro por Género */}
+                                            <div className="space-y-1">
+                                                <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1">
+                                                    <span className="text-sm">📊</span>
+                                                    <span className="truncate">Género</span>
+                                                </label>
+                                                <select
+                                                    className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 text-xs font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                                    value={selectedFormat}
+                                                    onChange={(e) => {
+                                                        if (!user) {
+                                                            setShowLoginDialog(true);
+                                                            return;
+                                                        }
+                                                        setSelectedFormat(e.target.value);
+                                                    }}
+                                                    disabled={loadingFormats || !selectedCountry}
+                                                    onClick={(e) => {
+                                                        if (!user) {
+                                                            e.preventDefault();
+                                                            setShowLoginDialog(true);
+                                                        }
+                                                    }}
+                                                >
+                                                    {loadingFormats ? (
+                                                        <option value="">Cargando géneros...</option>
+                                                    ) : !selectedCountry ? (
+                                                        <option value="">Selecciona un país primero</option>
+                                                    ) : (
+                                                        <>
+                                                            {formats.map((format) => (
+                                                                <option key={format.id} value={format.id.toString()}>
+                                                                    {format.format}
+                                                                </option>
+                                                            ))}
+                                                        </>
+                                                    )}
+                                                </select>
+                                            </div>
+
+                                            {/* Filtro por Ciudad */}
                                             <div className="space-y-1 sm:space-y-2 relative">
                                                 <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
                                                     <span className="text-sm sm:text-base">🏙️</span>
@@ -1222,6 +1173,10 @@ export default function DigitalHitsRadio() {
                                                     <button
                                                         type="button"
                                                         onClick={() => {
+                                                            if (!user) {
+                                                                setShowLoginDialog(true);
+                                                                return;
+                                                            }
                                                             if (loadingCities || !selectedCountry || cities.length === 0) return;
                                                             setOpenDropdown(openDropdown === "city" ? null : "city");
                                                             setDropdownSearch("");
@@ -1255,7 +1210,7 @@ export default function DigitalHitsRadio() {
                                                 </div>
                                             </div>
 
-                                            {/* Dropdown de ciudades renderizado con Portal - MÓVIL */}
+                                            {/* Dropdown de ciudades */}
                                             {openDropdown === "city" && cities.length > 0 && createPortal(
                                                 <div
                                                     data-city-portal="true"
@@ -1283,7 +1238,6 @@ export default function DigitalHitsRadio() {
                                                     </div>
 
                                                     <div className="max-h-48 overflow-y-auto">
-                                                        {/* Opción "Todas las ciudades" */}
                                                         <button
                                                             onClick={() => {
                                                                 handleOptionSelect("0", "city");
@@ -1300,7 +1254,6 @@ export default function DigitalHitsRadio() {
                                                             </span>
                                                         </button>
 
-                                                        {/* Opciones de ciudades filtradas */}
                                                         {getFilteredOptions(cities, dropdownSearch, "city").map((city) => (
                                                             <button
                                                                 key={city.id}
@@ -1330,7 +1283,6 @@ export default function DigitalHitsRadio() {
                                                 document.body
                                             )}
 
-                                            {/* Botón para cerrar filtros en móvil */}
                                             <Button
                                                 variant="ghost"
                                                 size="sm"
@@ -1345,7 +1297,7 @@ export default function DigitalHitsRadio() {
                             )}
                         </div>
 
-                        {/* Versión desktop con el toggle original */}
+                        {/* Versión desktop */}
                         <div className="hidden md:block">
                             <button
                                 onClick={() => setShowFilters(!showFilters)}
@@ -1357,7 +1309,9 @@ export default function DigitalHitsRadio() {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                                         </svg>
                                     </div>
-
+                                    <span className="font-semibold text-gray-800 text-sm sm:text-base">
+                                        Filtros
+                                    </span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <ChevronDown
@@ -1367,15 +1321,14 @@ export default function DigitalHitsRadio() {
                                 </div>
                             </button>
 
-                            {/* Filtros desktop */}
                             <div
                                 className={`
-        transition-all duration-300 ease-in-out overflow-hidden
-        ${showFilters ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}
-      `}
+                                    transition-all duration-300 ease-in-out overflow-hidden
+                                    ${showFilters ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}
+                                `}
                             >
                                 <div className="p-4 border-t border-white/30">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                                         {/* Filtro por País/Región */}
                                         <div className="space-y-1 sm:space-y-2">
                                             <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
@@ -1421,6 +1374,7 @@ export default function DigitalHitsRadio() {
                                                 </button>
                                             </div>
                                         </div>
+
                                         {openDropdown === "country" && !loadingCountries && createPortal(
                                             <div
                                                 data-country-portal="true"
@@ -1432,7 +1386,6 @@ export default function DigitalHitsRadio() {
                                                     maxHeight: '300px',
                                                 }}
                                             >
-                                                {/* Mismo contenido del dropdown de países */}
                                                 <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
                                                     <div className="relative">
                                                         <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
@@ -1477,6 +1430,46 @@ export default function DigitalHitsRadio() {
                                             document.body
                                         )}
 
+                                        {/* Filtro por Género */}
+                                        <div className="space-y-1 sm:space-y-2">
+                                            <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                                                <span className="text-sm sm:text-base">📊</span>
+                                                <span className="truncate">Género</span>
+                                            </label>
+                                            <select
+                                                className="w-full rounded-lg border-0 bg-white/80 backdrop-blur-sm px-2 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-gray-800 shadow-md focus:ring-2 focus:ring-pink-400 transition-all hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                                value={selectedFormat}
+                                                onChange={(e) => {
+                                                    if (!user) {
+                                                        setShowLoginDialog(true);
+                                                        return;
+                                                    }
+                                                    setSelectedFormat(e.target.value);
+                                                }}
+                                                onClick={(e) => {
+                                                    if (!user) {
+                                                        e.preventDefault();
+                                                        setShowLoginDialog(true);
+                                                    }
+                                                }}
+                                                disabled={loadingFormats || !selectedCountry}
+                                            >
+                                                {loadingFormats ? (
+                                                    <option value="">Cargando géneros...</option>
+                                                ) : !selectedCountry ? (
+                                                    <option value="">Selecciona un país primero</option>
+                                                ) : (
+                                                    <>
+                                                        {formats.map((format) => (
+                                                            <option key={format.id} value={format.id.toString()}>
+                                                                {format.format}
+                                                            </option>
+                                                        ))}
+                                                    </>
+                                                )}
+                                            </select>
+                                        </div>
+
                                         {/* Filtro por Ciudad */}
                                         <div className="space-y-1">
                                             <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1">
@@ -1487,6 +1480,10 @@ export default function DigitalHitsRadio() {
                                                 <button
                                                     type="button"
                                                     onClick={() => {
+                                                        if (!user) {
+                                                            setShowLoginDialog(true);
+                                                            return;
+                                                        }
                                                         if (loadingCities || !selectedCountry || cities.length === 0) return;
                                                         setOpenDropdown(openDropdown === "city" ? null : "city");
                                                         setDropdownSearch("");
@@ -1520,7 +1517,7 @@ export default function DigitalHitsRadio() {
                                             </div>
                                         </div>
 
-                                        {/* Dropdown de ciudades renderizado con Portal - DESKTOP */}
+                                        {/* Dropdown de ciudades */}
                                         {openDropdown === "city" && cities.length > 0 && createPortal(
                                             <div
                                                 data-city-portal="true"
@@ -1529,16 +1526,16 @@ export default function DigitalHitsRadio() {
                                                     top: cityDropdownPosition.top,
                                                     left: cityDropdownPosition.left,
                                                     width: cityDropdownPosition.width,
-                                                    maxHeight: '300px', // Un poco más alto en desktop
+                                                    maxHeight: '240px',
                                                 }}
                                             >
                                                 <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
                                                     <div className="relative">
-                                                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
+                                                        <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" />
                                                         <input
                                                             type="text"
                                                             placeholder="Buscar ciudad..."
-                                                            className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+                                                            className="w-full pl-7 pr-3 py-1.5 bg-white/80 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-orange-400"
                                                             value={dropdownSearch}
                                                             onChange={(e) => setDropdownSearch(e.target.value)}
                                                             autoFocus
@@ -1547,14 +1544,13 @@ export default function DigitalHitsRadio() {
                                                     </div>
                                                 </div>
 
-                                                <div className="max-h-60 overflow-y-auto">
-                                                    {/* Opción "Todas las ciudades" */}
+                                                <div className="max-h-48 overflow-y-auto">
                                                     <button
                                                         onClick={() => {
                                                             handleOptionSelect("0", "city");
                                                             setOpenDropdown(null);
                                                         }}
-                                                        className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === "0"
+                                                        className={`w-full px-3 py-2 text-left text-xs hover:bg-orange-50 transition-colors ${selectedCity === "0"
                                                             ? "bg-orange-100 text-orange-700 font-semibold"
                                                             : "text-gray-700"
                                                             }`}
@@ -1565,7 +1561,6 @@ export default function DigitalHitsRadio() {
                                                         </span>
                                                     </button>
 
-                                                    {/* Opciones de ciudades filtradas */}
                                                     {getFilteredOptions(cities, dropdownSearch, "city").map((city) => (
                                                         <button
                                                             key={city.id}
@@ -1573,7 +1568,7 @@ export default function DigitalHitsRadio() {
                                                                 handleOptionSelect(city.id.toString(), "city");
                                                                 setOpenDropdown(null);
                                                             }}
-                                                            className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
+                                                            className={`w-full px-3 py-2 text-left text-xs hover:bg-orange-50 transition-colors ${selectedCity === city.id.toString()
                                                                 ? "bg-orange-100 text-orange-700 font-semibold"
                                                                 : "text-gray-700"
                                                                 }`}
@@ -1586,7 +1581,7 @@ export default function DigitalHitsRadio() {
                                                     ))}
 
                                                     {getFilteredOptions(cities, dropdownSearch, "city").length === 0 && (
-                                                        <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
+                                                        <div className="px-3 py-4 text-xs text-gray-500 text-center">
                                                             No se encontraron ciudades
                                                         </div>
                                                     )}
@@ -1601,11 +1596,8 @@ export default function DigitalHitsRadio() {
                     </div>
                 </div>
 
-
-
                 {/* Lista de Charts */}
                 <div className="mb-4 flex flex-col gap-0 border-b border-white/20 pb-2 bg-white/60 backdrop-blur-lg rounded-2xl p-2 md:p-3 shadow-lg relative">
-                    {/* Botón flotante para activar modo comparación */}
                     <ComparisonMode
                         isActive={comparisonMode}
                         onToggle={handleToggleComparisonMode}
@@ -1616,32 +1608,28 @@ export default function DigitalHitsRadio() {
                     <div className="text-xs text-muted-foreground items-end justify-end flex pr-7 pb-2">
                         {`Última actualización: ${lastUpdate ? lastUpdate : "Cargando..."}`}
                     </div>
-                    {/* Fab button de MUI para buscar */}
+
                     <div className="absolute -top-4 -right-4 z-20">
                         <Fab
                             size="medium"
                             color="primary"
                             aria-label="search"
                             onClick={() => {
-                                if (window.innerWidth < 768) { // md breakpoint
+                                if (window.innerWidth < 768) {
                                     if (!showSearchBar && !showMobileFilter) {
-                                        // Si nada está visible, mostrar búsqueda
                                         setShowSearchBar(true);
                                         setShowMobileFilter(false);
                                         setMobileView('search');
                                     } else if (showSearchBar && !showMobileFilter) {
-                                        // Si búsqueda está visible, ocultarla y mostrar filtros
                                         setShowSearchBar(false);
                                         setShowMobileFilter(true);
                                         setMobileView('filter');
                                     } else if (!showSearchBar && showMobileFilter) {
-                                        // Si filtros están visibles, ocultarlos
                                         setShowSearchBar(false);
                                         setShowMobileFilter(false);
                                         setMobileView('none');
                                     }
                                 } else {
-                                    // En desktop, solo alternar búsqueda
                                     toggleSearchBar();
                                 }
                             }}
@@ -1656,18 +1644,16 @@ export default function DigitalHitsRadio() {
                             }}
                         >
                             {window.innerWidth < 768 ? (
-                                // Iconos para móvil
                                 !showSearchBar && !showMobileFilter ? (
                                     <Search className="w-6 h-6 text-white" />
                                 ) : showSearchBar ? (
-                                    <Filter className="w-6 h-6 text-white" /> // Mantener lupa cuando hay búsqueda
+                                    <Filter className="w-6 h-6 text-white" />
                                 ) : showMobileFilter ? (
-                                    <Minus className="w-6 h-6 text-white" /> // Mostrar menos cuando hay filtros
+                                    <Minus className="w-6 h-6 text-white" />
                                 ) : (
                                     <Search className="w-6 h-6 text-white" />
                                 )
                             ) : (
-                                // Iconos para desktop
                                 showSearchBar ? (
                                     <Minus className="w-6 h-6 text-white" />
                                 ) : (
@@ -1678,7 +1664,6 @@ export default function DigitalHitsRadio() {
                     </div>
 
                     <div className="space-y-0">
-                        {/* Buscador dentro de charts funcional */}
                         {showSearchBar && (
                             <div className="mb-6 animate-in fade-in duration-300">
                                 <div className="bg-white/60 backdrop-blur-sm border border-blue-200 rounded-2xl p-4 shadow-lg">
@@ -1703,7 +1688,6 @@ export default function DigitalHitsRadio() {
                                         )}
                                     </div>
 
-                                    {/* Contador de resultados */}
                                     {chartSearchQuery && (
                                         <div className="mt-2 text-xs text-slate-600 flex justify-between items-center px-1">
                                             <span className="font-medium">
@@ -1721,7 +1705,6 @@ export default function DigitalHitsRadio() {
                             </div>
                         )}
 
-                        {/* Lista de canciones filtradas */}
                         {loadingSongs ? (
                             <div className="text-center py-8">
                                 <div className="inline-flex items-center gap-2 text-slate-600">
@@ -1758,7 +1741,6 @@ export default function DigitalHitsRadio() {
                                         }`}
                                 >
                                     <div className="grid grid-cols-9 items-center gap-1 sm:gap-2 pl-2 sm:pl-3 pr-2 sm:pr-3 py-1.5">
-                                        {/* Rank & movement */}
                                         <div className="col-span-1 flex items-center justify-start gap-1 min-w-0">
                                             {comparisonMode && (
                                                 <button
@@ -1774,7 +1756,6 @@ export default function DigitalHitsRadio() {
                                                 </button>
                                             )}
                                             <div className="flex items-center gap-1.5 sm:gap-2">
-                                                {/* Rank */}
                                                 <div className="relative group/rank">
                                                     <div className="absolute inset-0 bg-gradient-to-br from-slate-200/40 to-gray-300/40 rounded-lg blur-sm group-hover/rank:blur-md transition-all"></div>
                                                     <div className="relative bg-white/95 backdrop-blur-sm border border-white/70 rounded-lg w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center shadow-sm transition-all">
@@ -1786,12 +1767,12 @@ export default function DigitalHitsRadio() {
 
                                                 {row.movement && (
                                                     <div className={`flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-md transition-colors
-        ${row.movement === "up"
+                                                        ${row.movement === "up"
                                                             ? "bg-green-100/70 hover:bg-green-200/70"
                                                             : row.movement === "down"
                                                                 ? "bg-red-100/70 hover:bg-red-200/70"
                                                                 : "bg-gray-100/70 hover:bg-gray-200/70"}
-      `}>
+                                                    `}>
                                                         {row.movement === "up" && (
                                                             <ArrowUp
                                                                 size={12}
@@ -1815,14 +1796,13 @@ export default function DigitalHitsRadio() {
                                             </div>
                                         </div>
 
-                                        {/* Track Info */}
                                         <div className="col-span-6 flex items-center gap-2 sm:gap-3">
                                             <div className="relative group-hover:scale-105 transition-transform">
                                                 <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-400/30 to-blue-400/30 rounded-lg opacity-0 group-hover:opacity-100 blur-sm transition-opacity"></div>
                                                 <div className="relative">
                                                     <Avatar className="relative h-8 w-8 sm:h-10 sm:w-10 rounded-lg shadow-sm transition-shadow">
                                                         <AvatarImage
-                                                            src={row.avatar}
+                                                            src={row.spotifyid}
                                                             alt={row.song}
                                                             className="rounded-lg object-cover"
                                                         />
@@ -1835,7 +1815,6 @@ export default function DigitalHitsRadio() {
                                                                 .toUpperCase()}
                                                         </AvatarFallback>
                                                     </Avatar>
-                                                    {/* Play Button Overlay */}
                                                     <div className="absolute inset-0 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200">
                                                         <button
                                                             onClick={(e) => {
@@ -1875,7 +1854,6 @@ export default function DigitalHitsRadio() {
                                             </div>
                                         </div>
 
-                                        {/* Digital Score */}
                                         <div className="col-span-2">
                                             <div className="relative bg-white/80 backdrop-blur-sm border border-white/60 rounded-lg p-1 sm:p-1.5 shadow-sm group-hover:shadow-md group-hover:bg-white/90 transition-all">
                                                 <div className="flex flex-col sm:block">
@@ -1885,7 +1863,6 @@ export default function DigitalHitsRadio() {
                                                             <span className="text-[8px] sm:text-[9px] font-semibold text-slate-600 uppercase tracking-wide">
                                                                 Score
                                                             </span>
-                                                            {/* Botón de información de score digital */}
                                                             <div className="relative group/info">
                                                                 <button
                                                                     className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-gray-200 hover:bg-purple-500 flex items-center justify-center transition-all duration-200 text-[6px] sm:text-[8px] font-bold text-gray-400 hover:text-white hover:scale-110"
@@ -1902,7 +1879,6 @@ export default function DigitalHitsRadio() {
                                                         <div className="text-sm sm:text-lg font-bold bg-gradient-to-br from-slate-800 to-gray-900 bg-clip-text text-transparent">
                                                             {row.score}
                                                         </div>
-                                                        {/* ButtonInfoSong */}
                                                         <ButtonInfoSong
                                                             index={index}
                                                             row={row}
@@ -1920,7 +1896,6 @@ export default function DigitalHitsRadio() {
 
                                     {isExpanded(index) && (
                                         <div className="px-2 sm:px-6 pb-4">
-
                                             <ExpandRow
                                                 row={row}
                                                 onPromote={() =>
@@ -1939,7 +1914,6 @@ export default function DigitalHitsRadio() {
                                                 cityDataForSong={cityData}
                                                 loadingCityData={loadingCityData}
                                             />
-
                                         </div>
                                     )}
                                 </div>
@@ -1947,7 +1921,7 @@ export default function DigitalHitsRadio() {
                         )}
                     </div>
                 </div>
-                {/* Sección para mostrar más del Top 10 - Solo si NO está autenticado */}
+
                 {!user && (
                     <div className="mt-8 bg-gradient-to-r from-purple-50/80 via-blue-50/80 to-indigo-50/80 backdrop-blur-sm border border-purple-200/50 rounded-xl sm:rounded-3xl p-4 sm:p-8 shadow-lg w-full overflow-hidden">
                         <div className="text-center space-y-6">
@@ -1965,7 +1939,6 @@ export default function DigitalHitsRadio() {
                                 </div>
                             </div>
 
-                            {/* Canciones borrosas simulando contenido bloqueado */}
                             <div className="grid gap-2 opacity-50 pointer-events-none">
                                 {[
                                     {
@@ -2004,7 +1977,6 @@ export default function DigitalHitsRadio() {
                                             <div className="text-sm text-gray-500">
                                                 {song.artist}
                                             </div>
-
                                         </div>
                                         <div className="text-sm font-medium text-gray-600">
                                             {song.streams}
@@ -2027,156 +1999,144 @@ export default function DigitalHitsRadio() {
                 )}
             </div>
 
-
-
-            {
-                !user && (showGenreOverlay || showCrgOverlay) && (
-                    <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
-                        <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
-                            <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
-                                <span className="text-3xl">🔒</span>
-                            </div>
-                            <h3 className="text-2xl font-bold mb-2 text-foreground">
-                                {showGenreOverlay
-                                    ? "Filtros por Género"
-                                    : "Filtros por Plataforma"}
-                            </h3>
-                            <p className="text-muted-foreground mb-4">
-                                Esta función es parte de las herramientas avanzadas. Activa una
-                                campaña para desbloquearla.
-                            </p>
-                            <div className="grid md:grid-cols-2 gap-3">
-                                <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
-                                    <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
-                                        <Crown className="w-4 h-4 text-white" />
-                                    </div>
-                                    <div className="mb-3">
-                                        <div className="text-sm font-bold text-foreground">
-                                            Premium
-                                        </div>
-                                        <div className="text-xs text-muted-foreground mb-1">
-                                            Solo Charts & Analytics
-                                        </div>
-                                        <div className="text-sm font-bold text-foreground">
-                                            $14.99/mes
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={() => {
-                                            // TODO: Integrar con Stripe cuando esté listo
-                                            console.log("Redirect to premium subscription");
-                                            setShowGenreOverlay(false);
-                                            setShowCrgOverlay(false);
-                                        }}
-                                        className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                                    >
-                                        Suscribirse
-                                    </button>
-                                </div>
-
-                                <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
-                                    <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                                        <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
-                                            INCLUYE TODO
-                                        </span>
-                                    </div>
-
-                                    <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
-                                        <span className="text-white font-bold text-sm">🚀</span>
-                                    </div>
-                                    <div className="mb-3">
-                                        <div className="text-sm font-bold text-foreground">
-                                            Campaña Completa
-                                        </div>
-                                        <div className="text-xs text-muted-foreground mb-1">
-                                            Premium + Promoción
-                                        </div>
-                                        <div className="text-sm font-bold text-foreground">
-                                            Desde $750
-                                        </div>
-                                    </div>
-
-                                    <button
-                                        onClick={() => {
-                                            navigate("/campaign");
-                                            setShowGenreOverlay(false);
-                                            setShowCrgOverlay(false);
-                                        }}
-                                        className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
-                                    >
-                                        Crear Campaña
-                                    </button>
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => {
-                                    setShowGenreOverlay(false);
-                                    setShowCrgOverlay(false);
-                                }}
-                                className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm"
-                            >
-                                Cerrar
-                            </button>
+            {!user && (showGenreOverlay || showCrgOverlay) && (
+                <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-md flex items-center justify-center p-4">
+                    <div className="bg-white/95 backdrop-blur-sm rounded-2xl p-8 max-w-md w-full shadow-2xl border border-white/20 text-center">
+                        <div className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4">
+                            <span className="text-3xl">🔒</span>
                         </div>
+                        <h3 className="text-2xl font-bold mb-2 text-foreground">
+                            {showGenreOverlay
+                                ? "Filtros por Género"
+                                : "Filtros por Plataforma"}
+                        </h3>
+                        <p className="text-muted-foreground mb-4">
+                            Esta función es parte de las herramientas avanzadas. Activa una
+                            campaña para desbloquearla.
+                        </p>
+                        <div className="grid md:grid-cols-2 gap-3">
+                            <div className="bg-gradient-to-br from-primary/10 to-accent/5 border border-primary/20 rounded-xl p-4 text-center">
+                                <div className="w-8 h-8 mx-auto bg-gradient-primary rounded-full flex items-center justify-center mb-2">
+                                    <Crown className="w-4 h-4 text-white" />
+                                </div>
+                                <div className="mb-3">
+                                    <div className="text-sm font-bold text-foreground">
+                                        Premium
+                                    </div>
+                                    <div className="text-xs text-muted-foreground mb-1">
+                                        Solo Charts & Analytics
+                                    </div>
+                                    <div className="text-sm font-bold text-foreground">
+                                        $14.99/mes
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        console.log("Redirect to premium subscription");
+                                        setShowGenreOverlay(false);
+                                        setShowCrgOverlay(false);
+                                    }}
+                                    className="w-full bg-gradient-primary text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                                >
+                                    Suscribirse
+                                </button>
+                            </div>
+
+                            <div className="bg-gradient-to-br from-orange-50 to-red-50 border-2 border-cta-primary/30 rounded-xl p-4 text-center relative">
+                                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                                    <span className="bg-gradient-to-r from-cta-primary to-orange-500 text-white px-2 py-0.5 rounded-full text-[10px] font-bold">
+                                        INCLUYE TODO
+                                    </span>
+                                </div>
+
+                                <div className="w-8 h-8 mx-auto bg-gradient-to-r from-cta-primary to-orange-500 rounded-full flex items-center justify-center mb-2 mt-1">
+                                    <span className="text-white font-bold text-sm">🚀</span>
+                                </div>
+                                <div className="mb-3">
+                                    <div className="text-sm font-bold text-foreground">
+                                        Campaña Completa
+                                    </div>
+                                    <div className="text-xs text-muted-foreground mb-1">
+                                        Premium + Promoción
+                                    </div>
+                                    <div className="text-sm font-bold text-foreground">
+                                        Desde $750
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={() => {
+                                        navigate("/campaign");
+                                        setShowGenreOverlay(false);
+                                        setShowCrgOverlay(false);
+                                    }}
+                                    className="w-full bg-gradient-to-r from-cta-primary to-orange-500 text-white px-4 py-2 rounded-xl font-semibold hover:shadow-glow transition-all duration-300 text-sm"
+                                >
+                                    Crear Campaña
+                                </button>
+                            </div>
+                        </div>
+                        <button
+                            onClick={() => {
+                                setShowGenreOverlay(false);
+                                setShowCrgOverlay(false);
+                            }}
+                            className="w-full px-6 py-2 rounded-xl border border-gray-200 text-gray-600 hover:bg-gray-50 transition-all text-sm"
+                        >
+                            Cerrar
+                        </button>
                     </div>
-                )
-            }
-            {/* Overlay global mientras se carga */}
+                </div>
+            )}
+
             <Backdrop open={loading} sx={{ color: "#fff", zIndex: 9999 }}>
                 <CircularProgress color="inherit" />
             </Backdrop>
-            {
-                showScoreTooltip && (
-                    <div
-                        className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
-                        style={{
-                            left: tooltipPosition.x,
-                            top: tooltipPosition.y - 20,
-                        }}
-                    >
-                        El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
-                        <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
-                    </div>
-                )
-            }
-            {/* Modal de detalles del artista */}
-            {
-                artistDetailsModal.isOpen && artistDetailsModal.artist && (
-                    <ChartArtistDetails
-                        artist={{
-                            artist: artistDetailsModal.artist.artists,
-                            spotifyid: artistDetailsModal.artist.spotifyartistid || "",
-                            img: artistDetailsModal.artist.avatar || "",
-                            rk: artistDetailsModal.artist.rk || 0,
-                            score: artistDetailsModal.artist.score || 0,
-                            followers_total: 0,
-                            monthly_listeners: 0,
-                        }}
-                        selectedCountry={selectedCountry}
-                        countries={countries}
-                        isOpen={artistDetailsModal.isOpen}
-                        onClose={handleCloseArtistDetails}
-                    />
-                )
-            }
-            <>
 
+            {showScoreTooltip && (
+                <div
+                    className="fixed bg-white text-gray-800 text-xs rounded-lg py-2 px-3 shadow-2xl border border-gray-200 whitespace-normal w-48 z-[99999]"
+                    style={{
+                        left: tooltipPosition.x,
+                        top: tooltipPosition.y - 20,
+                    }}
+                >
+                    El <strong>Score Digital</strong> es una métrica del 1 al 100 que evalúa el nivel de exposición de una canción basado en streams, playlists, engagement social y distribución geográfica.
+                    <div className="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-white"></div>
+                </div>
+            )}
 
-                {/* Modal de comparación */}
-                {showComparison && songForComparison.song1 && songForComparison.song2 && (
-                    <SongCompare
-                        isOpen={showComparison}
-                        onClose={() => {
-                            setShowComparison(false);
-                            setSongForComparison({ song1: null, song2: null });
-                        }}
-                        song1={songForComparison.song1}
-                        song2={songForComparison.song2}
-                        countries={countries}
-                    />
-                )}
-            </>
-        </div >
+            {artistDetailsModal.isOpen && artistDetailsModal.artist && (
+                <ChartArtistDetails
+                    artist={{
+                        artist: artistDetailsModal.artist.artists,
+                        spotifyid: artistDetailsModal.artist.spotifyartistid || "",
+                        img: artistDetailsModal.artist.avatar || "",
+                        rk: artistDetailsModal.artist.rk || 0,
+                        score: artistDetailsModal.artist.score || 0,
+                        followers_total: 0,
+                        monthly_listeners: 0,
+                    }}
+                    selectedCountry={selectedCountry}
+                    countries={countries}
+                    isOpen={artistDetailsModal.isOpen}
+                    onClose={handleCloseArtistDetails}
+                />
+            )}
+
+            {showComparison && songForComparison.song1 && songForComparison.song2 && (
+                <SongCompare
+                    isOpen={showComparison}
+                    onClose={() => {
+                        setShowComparison(false);
+                        setSongForComparison({ song1: null, song2: null });
+                    }}
+                    song1={songForComparison.song1}
+                    song2={songForComparison.song2}
+                    countries={countries}
+                />
+            )}
+        </div>
     );
 }

@@ -226,7 +226,17 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
 
     const metrics = calculateMetrics();
 
-    const chartData = comparisonData;
+    const chartData = comparisonData
+        .slice(0, isMobile ? 5 : 15)
+        .map(item => ({
+            name: isMobile ? item.city_name.substring(0, 10) + '...' : item.city_name,
+            city_name: item.city_name,
+            country: item.country_code,
+            [song1.song.substring(0, 15)]: Math.round(item.first_streams),
+            [song2.song.substring(0, 15)]: Math.round(item.second_streams),
+            dif: Math.round(item.dif_streams),
+            winner: item.first_streams > item.second_streams ? 'song1' : 'song2',
+        }));
 
     // Sort handlers
     const requestSort = (key: keyof VsSongData | 'winner') => {
@@ -511,11 +521,11 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                             <span className="text-gray-400">-</span>
                                         ) : (
                                             <>
-                                                {metrics.streamDifference < 0 ? '' : ''}
-                                                {metrics.streamDifference <= -1000000
-                                                    ? `${(metrics.streamDifference / -1000000).toFixed(1)} M`
-                                                    : metrics.streamDifference <= -1000
-                                                        ? `${(metrics.streamDifference / -1000).toFixed(1)} K`
+                                                {metrics.streamDifference > 0 ? '' : ''}
+                                                {metrics.streamDifference >= 1000000
+                                                    ? `${(metrics.streamDifference / 1000000).toFixed(1)} M`
+                                                    : metrics.streamDifference >= 1000
+                                                        ? `${(metrics.streamDifference / 1000).toFixed(1)} K`
                                                         : metrics.streamDifference.toLocaleString()}
                                             </>
                                         )}
@@ -1208,7 +1218,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
 
                                         <div className="mt-2 md:mt-4 text-center">
                                             <p className="text-[10px] md:text-xs text-gray-500">
-                                                * Mostrando las {isMobile ? '5' : '10'} ciudades con mayor diferencia
+                                                * Mostrando las {isMobile ? '5' : '15'} ciudades con mayor diferencia
                                             </p>
                                         </div>
                                     </div>
