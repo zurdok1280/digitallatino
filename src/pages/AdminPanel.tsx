@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Pencil } from "lucide-react";
+import { Pencil, Search, ChevronUp, ChevronDown, ArrowUpDown } from "lucide-react";
 export interface AdminUser {
   id: number;
   userId?: number;
@@ -25,6 +25,13 @@ const AdminPanel = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Estados para búsqueda y ordenamiento
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState<{
+    key: keyof AdminUser | null;
+    direction: "asc" | "desc";
+  }>({ key: null, direction: "asc" });
 
   // Estados para los modales de confirmación
   const [userToDelete, setUserToDelete] = useState<number | null>(null);
@@ -89,6 +96,62 @@ const AdminPanel = () => {
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Lógica de filtrado y ordenamiento
+  const filteredAndSortedUsers = useMemo(() => {
+    let result = [...users];
+
+    // Búsqueda global
+    if (searchTerm) {
+      const lowercasedSearch = searchTerm.toLowerCase();
+      result = result.filter(
+        (user) =>
+          user.firstName?.toLowerCase().includes(lowercasedSearch) ||
+          user.lastName?.toLowerCase().includes(lowercasedSearch) ||
+          user.email?.toLowerCase().includes(lowercasedSearch) ||
+          user.role?.toLowerCase().includes(lowercasedSearch) ||
+          String(user.id).includes(lowercasedSearch) ||
+          String(user.userId).includes(lowercasedSearch)
+      );
+    }
+
+    // Ordenamiento
+    if (sortConfig.key) {
+      result.sort((a, b) => {
+        const aValue = a[sortConfig.key as keyof AdminUser] || "";
+        const bValue = b[sortConfig.key as keyof AdminUser] || "";
+
+        if (aValue < bValue) {
+          return sortConfig.direction === "asc" ? -1 : 1;
+        }
+        if (aValue > bValue) {
+          return sortConfig.direction === "asc" ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+
+    return result;
+  }, [users, searchTerm, sortConfig]);
+
+  const requestSort = (key: keyof AdminUser) => {
+    let direction: "asc" | "desc" = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (columnName: keyof AdminUser) => {
+    if (sortConfig.key !== columnName) {
+      return <ArrowUpDown className="w-4 h-4 text-gray-400 ml-1 inline-block" />;
+    }
+    return sortConfig.direction === "asc" ? (
+      <ChevronUp className="w-4 h-4 text-purple-600 ml-1 inline-block" />
+    ) : (
+      <ChevronDown className="w-4 h-4 text-purple-600 ml-1 inline-block" />
+    );
+  };
 
   // CAMBIAR ROL
   const confirmRoleChange = async () => {
@@ -270,7 +333,7 @@ const AdminPanel = () => {
     setIsSendingReset(true);
     try {
       const response = await fetch(
-       // "http://localhost:8085/api/auth/forgot-password",
+        // "http://localhost:8085/api/auth/forgot-password",
         "https://security.digital-latino.com/api/auth/forgot-password",
         {
           method: "POST",
@@ -338,23 +401,65 @@ const AdminPanel = () => {
         </button>
       </div>
 
+      {/* Buscador */}
+      <div className="mb-6 relative">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-gray-400" />
+        </div>
+        <input
+          type="text"
+          className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-purple-500 focus:border-purple-500 sm:text-sm transition duration-150 ease-in-out"
+          placeholder="Buscar usuarios por ID, nombre, email o rol..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       {/* Tabla de usuarios */}
       <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-100 border-b border-gray-200 text-gray-700">
-                <th className="p-4 font-semibold text-sm">ID</th>
-                <th className="p-4 font-semibold text-sm">Nombre</th>
-                <th className="p-4 font-semibold text-sm">Email</th>
-                <th className="p-4 font-semibold text-sm">Rol Actual</th>
+                <th
+                  className="p-4 font-semibold text-sm cursor-pointer hover:bg-gray-200 transition-colors select-none group"
+                  onClick={() => requestSort('id')}
+                >
+                  <div className="flex items-center">
+                    ID {getSortIcon('id')}
+                  </div>
+                </th>
+                <th
+                  className="p-4 font-semibold text-sm cursor-pointer hover:bg-gray-200 transition-colors select-none group"
+                  onClick={() => requestSort('firstName')}
+                >
+                  <div className="flex items-center">
+                    Nombre {getSortIcon('firstName')}
+                  </div>
+                </th>
+                <th
+                  className="p-4 font-semibold text-sm cursor-pointer hover:bg-gray-200 transition-colors select-none group"
+                  onClick={() => requestSort('email')}
+                >
+                  <div className="flex items-center">
+                    Email {getSortIcon('email')}
+                  </div>
+                </th>
+                <th
+                  className="p-4 font-semibold text-sm cursor-pointer hover:bg-gray-200 transition-colors select-none group"
+                  onClick={() => requestSort('role')}
+                >
+                  <div className="flex items-center">
+                    Rol Actual {getSortIcon('role')}
+                  </div>
+                </th>
                 <th className="p-4 font-semibold text-sm text-center">
                   Acciones
                 </th>
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => {
+              {filteredAndSortedUsers.map((u) => {
                 const realId = u.id || u.userId;
 
                 return (
@@ -370,15 +475,14 @@ const AdminPanel = () => {
                     <td className="p-4">
                       <span
                         className={`px-3 py-1 text-xs rounded-full inline-block
-                      ${
-                        u.role === "ADMIN"
-                          ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold"
-                          : u.role === "PREMIUM"
-                            ? "bg-purple-600 text-white font-bold"
-                            : u.role === "ARTIST"
-                              ? "bg-pink-500 text-white font-bold"
-                              : "bg-gray-200 text-gray-700 font-normal"
-                      }`}
+                      ${u.role === "ADMIN"
+                            ? "bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold"
+                            : u.role === "PREMIUM"
+                              ? "bg-purple-600 text-white font-bold"
+                              : u.role === "ARTIST"
+                                ? "bg-pink-500 text-white font-bold"
+                                : "bg-gray-200 text-gray-700 font-normal"
+                          }`}
                       >
                         {u.role}
                       </span>
@@ -420,9 +524,11 @@ const AdminPanel = () => {
               })}
             </tbody>
           </table>
-          {users.length === 0 && (
+          {filteredAndSortedUsers.length === 0 && (
             <div className="text-center p-8 text-gray-500">
-              No se encontraron usuarios en la base de datos.
+              {searchTerm
+                ? "No se encontraron usuarios que coincidan con la búsqueda."
+                : "No se encontraron usuarios en la base de datos."}
             </div>
           )}
         </div>
@@ -592,16 +698,16 @@ const AdminPanel = () => {
                     setEditFormData({ ...editFormData, email: e.target.value })
                   }
                 />
-                                  <div className="mt-2 text-right">
-                    <button
-                      type="button"
-                      onClick={handleSendPasswordReset}
-                      disabled={isSendingReset}
-                      className="text-sm text-purple-600 hover:text-purple-800 font-medium hover:underline focus:outline-none transition-colors"
-                    >
-                      {isSendingReset ? 'Enviando...' : 'Enviar enlace para cambiar contraseña'}
-                    </button>
-                  </div>
+                <div className="mt-2 text-right">
+                  <button
+                    type="button"
+                    onClick={handleSendPasswordReset}
+                    disabled={isSendingReset}
+                    className="text-sm text-purple-600 hover:text-purple-800 font-medium hover:underline focus:outline-none transition-colors"
+                  >
+                    {isSendingReset ? 'Enviando...' : 'Enviar enlace para cambiar contraseña'}
+                  </button>
+                </div>
               </div>
 
               <div className="flex justify-end gap-3 mt-6">
