@@ -105,6 +105,8 @@ export interface Song {
   url: string;
   spotifyid: string;
   spotifyartistid?: string;
+  movement?: string;
+  lw_score?: number;
 }
 //Interface para Ids de canciones
 export interface idSongs {
@@ -339,11 +341,16 @@ export interface SpotifyArtist {
 }
 
 export interface SpotifyTrackResult {
-  type: string;
-  song_name: string;
+  duration_ms?: number;
+  my_song_id?: number;
+  tocadas?: number;
   artist_name: string;
   spotify_id: string;
   image_url: string;
+  exist_in_db?: boolean;
+  match_type?: string;
+  song_name: string;
+  type: string;
   url: string;
 }
 export interface SpotifyArtistResult {
@@ -423,6 +430,87 @@ export interface SetLogSongResponse {
   timestamp?: string;
   text?: string;
   [key: string]: any;
+}
+//Interface para datos comparativos de dos canciones o artistas
+export interface VsSongData {
+  country_code: string;
+  city_name: string;
+  first_score: number;
+  second_streams: number;
+  dif_streams: number;
+  first_streams: number;
+  second_score: number;
+}
+//VsSongPlaylistsData
+export interface VsSongPlaylistsData {
+  first_top_position: number;
+  playlist_name: string;
+  owner_name: string;
+  first_current_position: number;
+  first_added_at: string;
+  followers_count: number;
+  playlist_type: string;
+  second_current_position: number;
+  second_added_at: string;
+  second_top_position: number;
+}
+//VsSongPlaylistsData
+export interface VsSongTiktoksData {
+  first_comments_total: number;
+  first_likes_total: number;
+  first_shares_total: number;
+  sum_views_videos: number;
+  user_name: string;
+  user_handle: string;
+  second_no_videos: number;
+  second_shares_total: number;
+  second_likes_total: number;
+  tiktok_user_followers: number;
+  first_views_total: number;
+  second_views_total: number;
+  first_no_videos: number;
+  second_comments_total: number;
+}
+// Interface para canción seleccionada para comparar
+export interface SelectedSong {
+  cs_song: number;
+  spotifyid: string;
+  song: string;
+  artists: string;
+  label: string;
+  avatar?: string;
+  rk: number;
+  score: number;
+}
+//Intwerface para Curator Pics
+export interface CuratorPicsData {
+  song: string;
+  cs_song: number;
+  sum_followers: number;
+  artists: string;
+  image_url: string;
+  avg_position: number;
+  rk: number;
+  label: string;
+}
+// Interface para tipos de playlist en Curator Pics
+export interface PlaylistTypeData {
+  name: string;
+  id: number;
+}
+// Interface para datos de Tiktok Pics
+export interface TiktokPicsData {
+  song: string;
+  shares_total: number;
+  cs_song: number;
+  artists: string;
+  image_url: string;
+  views_total: number;
+  comments_total: number;
+  rk: number;
+  no_videos: number;
+  likes_total: number;
+  label: string;
 }
 
 // Clase principal para manejar las conexiones API
@@ -746,7 +834,54 @@ export const digitalLatinoApi = {
     data: SetLogSongRequest,
   ): Promise<ApiResponse<SetLogSongResponse>> =>
     api.post<SetLogSongResponse>("report/setLogSong", data),
-
+  //Obtener ultima acrualización de datos dd-mm-yyyy
+  getLastUpdate: (): Promise<ApiResponse<{ message: string }>> =>
+    api.get<{ message: string }>("report/getLastUpdate"),
+  //Obtener datos comparativos de dos artistas
+  getVsSongs: (
+    csSong1: number,
+    csSong2: number,
+  ): Promise<ApiResponse<VsSongData[]>> =>
+    api.get<VsSongData[]>(`report/getVsSong/${csSong1}/${csSong2}`),
+  //Obtener comparativos para pestana vsPlaylist
+  //api/report/getVsSongPlaylists/cs_song1/cs_song2
+  getVsSongPlaylists: (
+    csSong1: number,
+    csSong2: number,
+  ): Promise<ApiResponse<VsSongPlaylistsData[]>> =>
+    api.get<VsSongPlaylistsData[]>(
+      `report/getVsSongPlaylists/${csSong1}/${csSong2}`,
+    ),
+  //Obtener comparativos para pestana vsPlaylist
+  //api/report/getVsSongTiktoks/cs_song1/cs_song2
+  getVsSongTiktoks: (
+    csSong1: number,
+    csSong2: number,
+  ): Promise<ApiResponse<VsSongTiktoksData[]>> =>
+    api.get<VsSongTiktoksData[]>(
+      `report/getVsSongTiktoks/${csSong1}/${csSong2}`,
+    ),
+  //Obtener datos de curator pics con formato y tipo de playlist
+  getCuratorPics: (
+    formatId: number,
+    type: number,
+  ): Promise<ApiResponse<CuratorPicsData[]>> =>
+    api.get<CuratorPicsData[]>(`report/getCuratorPics/${formatId}/${type}`),
+  //Obtener los tipos de playlist disponibles para curator pics
+  getPlaylistType: (): Promise<ApiResponse<PlaylistTypeData[]>> =>
+    api.get<PlaylistTypeData[]>(`report/getPlaylistType`),
+  ///report/getTiktokPics/{formatId}
+  getTiktokPics: (formatId: number): Promise<ApiResponse<TiktokPicsData[]>> =>
+    api.get<TiktokPicsData[]>(`report/getTiktokPics/${formatId}`),
+  //
+  getChartDigitalHitsRadio: (
+    countryId: number,
+    city: number,
+    CRG: string,
+  ): Promise<ApiResponse<Song[]>> =>
+    api.get<Song[]>(
+      `report/getChartDigital/${countryId}/${city}/${CRG}//0?radiooff=1`,
+    ),
 };
 
 // Ejemplo de uso:

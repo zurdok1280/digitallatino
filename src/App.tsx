@@ -28,6 +28,9 @@ const AuthCallback = lazy(() => import("./pages/AuthCallbackPage"));
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const MyArtist = lazy(() => import("./pages/MyArtist"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel")); 
+const CuratorPics = lazy(() => import("./pages/CuratorPics"));
+const TiktokerPics = lazy(() => import("./pages/TiktokerPics"));
+const DigitalHitsRadio = lazy(() => import("./pages/DigitalHitsRadio"));
 
 // QueryClient optimizado para rendimiento
 const queryClient = new QueryClient({
@@ -89,12 +92,12 @@ const App = () => (
               }
             />
             <Route
-             path="/forgot-password" 
-             element={
-             <ForgotPassword />
-             }
-              />
-              <Route path="/reset-password" element={<ResetPassword />} />
+              path="/forgot-password"
+              element={
+                <ForgotPassword />
+              }
+            />
+            <Route path="/reset-password" element={<ResetPassword />} />
             {/* --- Only premium  with thw component RequireSubscription --- */}
             <Route element={<RequireSubscription />}>
               <Route path="/" element={withLazy(WeeklyTopSongs)} />
@@ -113,6 +116,9 @@ const App = () => (
               <Route path="/top-platforms" element={withLazy(TopPlatforms)} />
               <Route path="/top-artists" element={withLazy(TopArtists)} />
               <Route path="/debut" element={withLazy(Debut)} />
+              <Route path="/curator-pics" element={withLazy(CuratorPics)} />
+              <Route path="/tiktoker-pics" element={withLazy(TiktokerPics)} />
+              <Route path="/digital-hits-radio" element={withLazy(DigitalHitsRadio)} />
               <Route path="/mi-cuenta" element={withLazy(AccountPage)} />
             </Route>
             <Route element={<RequireAdmin />}>
