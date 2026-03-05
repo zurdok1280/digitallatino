@@ -53,6 +53,8 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
     const [isMobile, setIsMobile] = useState(false);
     const itemsPerPage = 1000;
 
+    const handleOpenPlaylist = (url: string) => { window.open(url, '_blank', 'noopener,noreferrer'); };
+
     useEffect(() => {
         const checkMobile = () => {
             setIsMobile(window.innerWidth < 768);
@@ -860,7 +862,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                             </thead>
                                             <tbody className="divide-y divide-gray-200">
                                                 {sortedPlaylistsData.map((item, index) => (
-                                                    <tr key={index} className="hover:bg-gray-50 transition-colors">
+                                                    <tr key={index} className="hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => handleOpenPlaylist(item.external_url)}>
                                                         <td className="py-2 md:py-3 px-2 md:px-4">
                                                             <span className="text-xs md:text-sm font-medium text-gray-900 truncate block max-w-[150px]">
                                                                 {item.playlist_name}

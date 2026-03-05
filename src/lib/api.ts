@@ -445,6 +445,7 @@ export interface VsSongData {
 export interface VsSongPlaylistsData {
   first_top_position: number;
   playlist_name: string;
+  external_url: string;
   owner_name: string;
   first_current_position: number;
   first_added_at: string;
