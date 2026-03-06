@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, BarChart3, MapPin, TrendingUp, TrendingDown, Music, Globe, ChevronLeft, ChevronRight, ListMusic, Video, ArrowUp, ArrowDown } from 'lucide-react';
+import { X, BarChart3, MapPin, TrendingUp, TrendingDown, Music, Globe, ChevronLeft, ChevronRight, ListMusic, Video, ArrowUp, ArrowDown, Filter, ChevronDown } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { digitalLatinoApi, VsSongData, SelectedSong, VsSongPlaylistsData, VsSongTiktoksData } from '@/lib/api';
+import { digitalLatinoApi, VsSongData, SelectedSong, VsSongPlaylistsData, VsSongTiktoksData, PlaylistTypeData } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Backdrop, CircularProgress } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
@@ -26,10 +26,14 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
     const [comparisonData, setComparisonData] = useState<VsSongData[]>([]);
     const [playlistsData, setPlaylistsData] = useState<VsSongPlaylistsData[]>([]);
     const [tiktoksData, setTiktoksData] = useState<VsSongTiktoksData[]>([]);
+    const [playlistTypes, setPlaylistTypes] = useState<PlaylistTypeData[]>([]);
+    const [selectedPlaylistType, setSelectedPlaylistType] = useState<string>('todos');
+    const [showTypeDropdown, setShowTypeDropdown] = useState(false);
     const [activeTab, setActiveTab] = useState('table');
 
     // Referencia para el contenido con scroll
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const typeDropdownRef = useRef<HTMLDivElement>(null);
 
     // Sort config for main table
     const [sortConfig, setSortConfig] = useState<{
@@ -62,6 +66,17 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
+    // Cerrar dropdown al hacer clic fuera
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (typeDropdownRef.current && !typeDropdownRef.current.contains(event.target as Node)) {
+                setShowTypeDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
     // Bloquear scroll del body y eventos de fondo
@@ -126,6 +141,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
             fetchComparisonData();
             fetchPlaylistsData();
             fetchTiktoksData();
+            fetchPlaylistTypes();
         }
     }, [isOpen, song1, song2]);
 
@@ -182,12 +198,32 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
         }
     };
 
+    const fetchPlaylistTypes = async () => {
+        try {
+            const response = await digitalLatinoApi.getPlaylistType();
+            setPlaylistTypes(response.data);
+        } catch (error) {
+            console.error('Error fetching playlist types:', error);
+        }
+    };
+
+    // Filtrar playlists por tipo seleccionado
+    const getFilteredPlaylistsData = () => {
+        if (selectedPlaylistType === 'todos') {
+            return playlistsData;
+        }
+        return playlistsData.filter(item => item.playlist_type === selectedPlaylistType);
+    };
+
     // Sort functions for each tab
     const getSortedData = () => {
         return [...comparisonData]
     };
 
-    const getSortedPlaylistsData = () => [...playlistsData];
+    const getSortedPlaylistsData = () => {
+        const filtered = getFilteredPlaylistsData();
+        return [...filtered];
+    };
 
     const getSortedTiktoksData = () => {
         return [...tiktoksData]
@@ -749,7 +785,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                 )}
                             </TabsContent>
 
-                            {/* TABLA DE PLAYLISTS */}
+                            {/* TABLA DE PLAYLISTS CON FILTRO INTEGRADO EN EL ENCABEZADO */}
                             <TabsContent value="playlists" className="h-full m-0">
                                 {loadingPlaylists ? (
                                     <div className="h-full flex items-center justify-center">
@@ -792,13 +828,49 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                             {renderSortIcon(playlistSortConfig.key, 'owner_name', playlistSortConfig.direction)}
                                                         </div>
                                                     </th>
-                                                    <th
-                                                        className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-                                                        onClick={() => requestPlaylistSort('playlist_type')}
-                                                    >
-                                                        <div className="flex items-center gap-1">
-                                                            Tipo
-                                                            {renderSortIcon(playlistSortConfig.key, 'playlist_type', playlistSortConfig.direction)}
+                                                    <th className="py-2 md:py-3 px-2 md:px-4 text-left text-[10px] md:text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                                        <div className="relative" ref={typeDropdownRef}>
+                                                            <div
+                                                                className="flex items-center gap-1 cursor-pointer hover:text-purple-600 transition-colors"
+                                                                onClick={() => setShowTypeDropdown(!showTypeDropdown)}
+                                                            >
+                                                                <span>Tipo</span>
+                                                                {renderSortIcon(playlistSortConfig.key, 'playlist_type', playlistSortConfig.direction)}
+                                                                <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${showTypeDropdown ? 'rotate-180' : ''}`} />
+                                                                {selectedPlaylistType !== 'todos' && (
+                                                                    <span className="ml-1 text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">
+                                                                        {selectedPlaylistType}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+
+                                                            {showTypeDropdown && (
+                                                                <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1 max-h-60 overflow-y-auto">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setSelectedPlaylistType('todos');
+                                                                            setShowTypeDropdown(false);
+                                                                        }}
+                                                                        className={`w-full px-3 py-2 text-left text-xs hover:bg-purple-50 transition-colors ${selectedPlaylistType === 'todos' ? 'bg-purple-100 text-purple-700 font-semibold' : 'text-gray-700'
+                                                                            }`}
+                                                                    >
+                                                                        Todos
+                                                                    </button>
+                                                                    {playlistTypes.map((type) => (
+                                                                        <button
+                                                                            key={type.id}
+                                                                            onClick={() => {
+                                                                                setSelectedPlaylistType(type.name);
+                                                                                setShowTypeDropdown(false);
+                                                                            }}
+                                                                            className={`w-full px-3 py-2 text-left text-xs hover:bg-purple-50 transition-colors ${selectedPlaylistType === type.name ? 'bg-purple-100 text-purple-700 font-semibold' : 'text-gray-700'
+                                                                                }`}
+                                                                        >
+                                                                            {type.name}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </th>
                                                     <th
