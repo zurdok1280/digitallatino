@@ -44,6 +44,7 @@ import ChartArtistDetails from "@/components/ui/ChartArtistDetails";
 import { SongCompare } from "@/components/ui/songCompare";
 import { ComparisonMode } from "@/components/ui/ComparisonMode";
 import { RequireSubscription } from "@/components/RequireSubscription";
+import { SongSearchModal } from "@/components/ui/SongSearchModal";
 
 // Datos actualizados con artistas reales de 2024
 const demoRows = [
@@ -377,8 +378,31 @@ export default function Charts() {
   const [countryDropdownPosition, setCountryDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const countryButtonRef = useRef<HTMLDivElement>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  //
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
+  const handleSelectExternalSong = (song: SelectedSong) => {
+    if (selectedSongs.length === 0) {
+      setSelectedSongs([song]);
+      toast({
+        title: 'Canción seleccionada',
+        description: `"${song.song}" agregada para comparar`,
+      });
+    } else if (selectedSongs.length === 1) {
+      // Segunda selección - comparar inmediatamente
+      const newSelectedSongs = [...selectedSongs, song];
+      setSelectedSongs(newSelectedSongs);
 
-
+      if (newSelectedSongs.length === 2) {
+        setSongForComparison({
+          song1: newSelectedSongs[0],
+          song2: newSelectedSongs[1],
+        });
+        setShowComparison(true);
+        setComparisonMode(false);
+        setSelectedSongs([]);
+      }
+    }
+  };
   // Función para manejar el click en el nombre de la canción/artista
   const handleArtistDetailsClick = (row: Song, selectedCountry: string) => {
     if (!user) {
@@ -1708,6 +1732,13 @@ export default function Charts() {
             selectedCount={selectedSongs.length}
             onCompare={handleCompareSelected}
             onClear={handleClearSelection}
+            onSearchClick={() => setSearchModalOpen(true)}
+          />
+          <SongSearchModal
+            isOpen={searchModalOpen}
+            onClose={() => setSearchModalOpen(false)}
+            onSelectSong={handleSelectExternalSong}
+            excludeSongIds={selectedSongs.map(s => s.cs_song)}
           />
           <div className="text-xs text-muted-foreground items-end justify-end flex pr-7 pb-2">
             {`Última actualización: ${lastUpdate ? lastUpdate : "Cargando..."}`}

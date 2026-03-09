@@ -68,7 +68,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Cerrar dropdown al hacer clic fuera
+    // Cerrar dropdown al hacer click fuera
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (typeDropdownRef.current && !typeDropdownRef.current.contains(event.target as Node)) {
@@ -785,7 +785,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                 )}
                             </TabsContent>
 
-                            {/* TABLA DE PLAYLISTS CON FILTRO INTEGRADO EN EL ENCABEZADO */}
+                            {/* TABLA DE PLAYLISTS */}
                             <TabsContent value="playlists" className="h-full m-0">
                                 {loadingPlaylists ? (
                                     <div className="h-full flex items-center justify-center">

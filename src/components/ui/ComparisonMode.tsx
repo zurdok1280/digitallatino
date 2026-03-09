@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BarChart3, Check, X, ChevronRight, SquareArrowLeft, } from 'lucide-react';
+import { BarChart3, Check, X, ChevronRight, SquareArrowLeft, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { createPortal } from 'react-dom';
@@ -10,6 +10,7 @@ interface ComparisonModeProps {
     selectedCount: number;
     onCompare: () => void;
     onClear: () => void;
+    onSearchClick?: () => void;
 }
 
 export function ComparisonMode({
@@ -18,6 +19,7 @@ export function ComparisonMode({
     selectedCount,
     onCompare,
     onClear,
+    onSearchClick,
 }: ComparisonModeProps) {
     const { toast } = useToast();
     const [isHovered, setIsHovered] = useState(false);
@@ -101,7 +103,7 @@ export function ComparisonMode({
                 </div>
             )}
 
-            {/* Contador flotante - SIN FILTRO DE CIUDADES, solo muestra el contador en el orden original */}
+            {/* Contador flotante */}
             {mounted && isActive && selectedCount > 0 && createPortal(
                 <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-[99999]">
                     <div className="bg-white/95 backdrop-blur-md rounded-full shadow-2xl border border-purple-200 px-4 py-2 flex items-center gap-3 animate-in slide-in-from-bottom-5 duration-300">
@@ -117,6 +119,15 @@ export function ComparisonMode({
                         <div className="w-px h-5 bg-gray-200" />
 
                         <div className="flex gap-1.5">
+                            {selectedCount < 2 && onSearchClick && (
+                                <button
+                                    onClick={onSearchClick}
+                                    className="text-xs px-2.5 py-1.5 rounded-full bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors flex items-center gap-1"
+                                >
+                                    <Search className="w-3 h-3" />
+                                    <span className="hidden sm:inline">Buscar</span>
+                                </button>
+                            )}
                             <button
                                 onClick={onClear}
                                 className="text-xs px-2.5 py-1.5 rounded-full text-gray-600 hover:bg-gray-100 transition-colors"
