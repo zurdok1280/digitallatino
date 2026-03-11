@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { createPortal } from 'react-dom';
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap } from "lucide-react";
+import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap, ListMusic, ListMusicIcon, AudioWaveform } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { digitalLatinoApi, Country, Format, CuratorPicsData, PlaylistTypeData, Song } from "@/lib/api";
@@ -499,7 +499,10 @@ export default function CuratorPics() {
                                 {/* Format Filter */}
                                 <div className="space-y-1 sm:space-y-2">
                                     <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                                        {/*
                                         <span className="text-sm sm:text-base">📊</span>
+                                        */}
+                                        <ListMusic className="size-4 lg:size-6" />
                                         <span className="truncate">Género</span>
                                     </label>
                                     <div className="relative" ref={formatButtonRef}>
@@ -540,7 +543,10 @@ export default function CuratorPics() {
                                 {/* Playlist Type Filter */}
                                 <div className="space-y-1 sm:space-y-2">
                                     <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                                        {/*
                                         <span className="text-sm sm:text-base">🎵</span>
+                                        */}
+                                        <AudioWaveform className="size-4 lg:size-6" />
                                         <span className="truncate">Tipo de Playlist</span>
                                     </label>
                                     <div className="relative" ref={playlistTypeButtonRef}>

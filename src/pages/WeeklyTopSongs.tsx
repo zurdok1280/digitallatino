@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef, useMemo, } from "react
 import { createPortal } from 'react-dom';
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Filter, Music, Crown, Play, Pause, Trophy, Zap, ArrowDown, ArrowUp, BarChart3, } from "lucide-react";
+import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Filter, Music, Crown, Play, Pause, Trophy, Zap, ArrowDown, ArrowUp, BarChart3, Globe, ListMusic, MapPin, } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -382,6 +382,7 @@ export default function Charts() {
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const handleSelectExternalSong = (song: SelectedSong) => {
     if (selectedSongs.length === 0) {
+
       setSelectedSongs([song]);
       toast({
         title: 'Canción seleccionada',
@@ -1216,7 +1217,10 @@ export default function Charts() {
                       {/* Filtro por País/Región */}
                       <div className="space-y-1 sm:space-y-2">
                         <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
-                          <span className="text-sm sm:text-base">🌎</span>
+                          {/*
+                            <span className="text-sm sm:text-base">🌎</span>
+                          */}
+                          <Globe size={16} />
                           <span className="truncate">País/Región</span>
                         </label>
                         <div className="relative" ref={countryButtonRef}>
@@ -1255,69 +1259,14 @@ export default function Charts() {
                         </div>
                       </div>
 
-                      {/* DROPDOWN PAÍS */}
-                      {openDropdown === "country" && !loadingCountries && createPortal(
-                        <div
-                          data-country-portal="true"
-                          className="fixed z-[999999] bg-white/95 backdrop-blur-sm border border-gray-200 rounded-xl shadow-2xl overflow-hidden"
-                          style={{
-                            top: countryDropdownPosition.top,
-                            left: countryDropdownPosition.left,
-                            width: countryDropdownPosition.width,
-                            maxHeight: '300px',
-                          }}
-                        >
-                          <div className="p-2 border-b border-gray-100 sticky top-0 bg-white/95">
-                            <div className="relative">
-                              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-4 sm:h-4 text-gray-400" />
-                              <input
-                                type="text"
-                                placeholder="Buscar país..."
-                                className="w-full pl-7 sm:pl-9 pr-3 py-1.5 sm:py-2 bg-white/80 border border-gray-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"
-                                value={dropdownSearch}
-                                onChange={(e) => setDropdownSearch(e.target.value)}
-                                autoFocus
-                                onClick={(e) => e.stopPropagation()}
-                              />
-                            </div>
-                          </div>
-
-                          <div className="max-h-60 overflow-y-auto">
-                            {getFilteredOptions(countries, dropdownSearch, "country").map((country) => (
-                              <button
-                                key={country.id}
-                                onClick={() => {
-                                  handleOptionSelect(country.id.toString(), "country");
-                                  setOpenDropdown(null);
-                                }}
-                                className={`w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-pink-50 transition-colors ${selectedCountry === country.id.toString()
-                                  ? "bg-pink-100 text-pink-700 font-semibold"
-                                  : "text-gray-700"
-                                  }`}
-                              >
-                                <span className="flex items-center gap-2">
-                                  <span>🌍</span>
-                                  <span className="truncate">
-                                    {country.country_name || country.country || country.description}
-                                  </span>
-                                </span>
-                              </button>
-                            ))}
-
-                            {getFilteredOptions(countries, dropdownSearch, "country").length === 0 && (
-                              <div className="px-3 py-4 text-xs sm:text-sm text-gray-500 text-center">
-                                No se encontraron países
-                              </div>
-                            )}
-                          </div>
-                        </div>,
-                        document.body
-                      )}
 
                       {/* Filtro por Género D*/}
                       <div className="space-y-1">
                         <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1">
+                          {/*
                           <span className="text-sm">📊</span>
+                          */}
+                          <ListMusic size={16} />
                           <span className="truncate">Género</span>
                         </label>
                         <select
@@ -1357,7 +1306,10 @@ export default function Charts() {
                       {/* Filtro por Ciudad D*/}
                       <div className="space-y-1 sm:space-y-2 relative">
                         <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                          {/*
                           <span className="text-sm sm:text-base">🏙️</span>
+                          */}
+                          <MapPin size={16} />
                           <span className="truncate">Ciudad Target</span>
                         </label>
                         <div className="relative" ref={cityButtonRef}>
@@ -1454,7 +1406,10 @@ export default function Charts() {
                     {/* Filtro por País/Región */}
                     <div className="space-y-1 sm:space-y-2">
                       <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                        {/*
                         <span className="text-sm sm:text-base">🌎</span>
+                        */}
+                        <Globe />
                         <span className="truncate">País/Región</span>
                       </label>
                       <div className="relative" ref={countryButtonRef}>
@@ -1556,7 +1511,10 @@ export default function Charts() {
                     {/* Filtro por Género M */}
                     <div className="space-y-1 sm:space-y-2">
                       <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                        {/*
                         <span className="text-sm sm:text-base">📊</span>
+                        */}
+                        <ListMusic />
                         <span className="truncate">Género</span>
                       </label>
                       <select
@@ -1596,7 +1554,10 @@ export default function Charts() {
                     {/* Filtro por Ciudad  M*/}
                     <div className="hidden md:block space-y-1">
                       <label className="text-xs font-bold text-orange-600 uppercase tracking-wide flex items-center gap-1">
+                        {/*
                         <span className="text-sm">🏙️</span>
+                        */}
+                        <MapPin />
                         <span className="truncate">Ciudad Target</span>
                       </label>
                       <div className="relative" ref={cityButtonRef}>

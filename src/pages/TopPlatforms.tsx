@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect, useRef, useMemo } from "react"
 import { createPortal } from 'react-dom';
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap, ChevronDownIcon } from "lucide-react";
+import { ChevronUp, ChevronDown, Star, Plus, Minus, Search, Music, Crown, Play, Pause, Trophy, Zap, ChevronDownIcon, AudioLines, ListMusic, Globe } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -1046,7 +1046,10 @@ export default function TopPlatforms() {
                   {/* Filtro por País/Región */}
                   <div className="space-y-1 sm:space-y-2">
                     <label className="text-xs font-bold text-pink-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                      {/*
                       <span className="text-sm sm:text-base">🌎</span>
+                      */}
+                      <Globe className="size-4 lg:size-6" />
                       <span className="truncate">País/Región</span>
                     </label>
                     <div className="relative" ref={countryButtonRef}>
@@ -1152,7 +1155,10 @@ export default function TopPlatforms() {
                   {/* Filtro por Género */}
                   <div className="space-y-1 sm:space-y-2">
                     <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                      {/*
                       <span className="text-sm sm:text-base">📊</span>
+                      */}
+                      <ListMusic className="size-4 lg:size-6" />
                       <span className="truncate">Género</span>
                     </label>
                     <select
@@ -1180,7 +1186,10 @@ export default function TopPlatforms() {
                   {/* Filtro por Plataforma */}
                   <div className="space-y-1 sm:space-y-2">
                     <label className="text-xs font-bold text-slate-600 uppercase tracking-wide flex items-center gap-1 sm:gap-2">
+                      {/*
                       <span className="text-sm sm:text-base">🌐</span>
+                      */}
+                      <AudioLines className="size-4 lg:size-6" />
                       <span className="truncate">Plataforma</span>
                     </label>
 
