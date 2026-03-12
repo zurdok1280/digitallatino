@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BarChart3, Check, X, ChevronRight, SquareArrowLeft, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { createPortal } from 'react-dom';
 
 interface ComparisonModeProps {
@@ -22,6 +23,7 @@ export function ComparisonMode({
     onSearchClick,
 }: ComparisonModeProps) {
     const { toast } = useToast();
+    const { user, setShowLoginDialog } = useAuth();
     const [isHovered, setIsHovered] = useState(false);
     const [mounted, setMounted] = useState(false);
 
@@ -30,7 +32,40 @@ export function ComparisonMode({
         return () => setMounted(false);
     }, []);
 
-    const handleCompareClick = () => {
+
+    const handleToggleWithAuth = () => {
+        if (!user) {
+            setShowLoginDialog(true);
+
+            return;
+        }
+        onToggle();
+    };
+
+    const handleSearchClickWithAuth = () => {
+        if (!user) {
+            setShowLoginDialog(true);
+            toast({
+                title: 'Inicia sesión',
+                description: 'Necesitas iniciar sesión para buscar canciones',
+                variant: 'destructive',
+            });
+            return;
+        }
+        onSearchClick?.();
+    };
+
+    const handleCompareClickWithAuth = () => {
+        if (!user) {
+            setShowLoginDialog(true);
+            toast({
+                title: 'Inicia sesión',
+                description: 'Necesitas iniciar sesión para comparar canciones',
+                variant: 'destructive',
+            });
+            return;
+        }
+
         if (selectedCount === 2) {
             onCompare();
         } else {
@@ -42,6 +77,10 @@ export function ComparisonMode({
         }
     };
 
+    const handleClearClick = () => {
+        onClear();
+    };
+
     return (
         <div
             className="fixed top-1 left-2 z-50"
@@ -49,7 +88,7 @@ export function ComparisonMode({
             onMouseLeave={() => setIsHovered(false)}
         >
             <div
-                onClick={onToggle}
+                onClick={handleToggleWithAuth}
                 className={`
           flex items-center gap-2 px-3 py-1.5 rounded-full shadow-lg cursor-pointer
           transition-all duration-300 transform hover:scale-105
@@ -74,17 +113,18 @@ export function ComparisonMode({
                 </span>
             </div>
 
-            {/* Tooltip informativo */}
             {isHovered && !isActive && (
                 <div className="absolute left-full ml-2 top-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl border border-purple-100 px-3 py-2 whitespace-nowrap animate-in fade-in slide-in-from-left-2 duration-200">
                     <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500" />
                         <span className="text-xs font-medium text-gray-700">
-                            Comparar 2 canciones
+                            {user ? 'Comparar 2 canciones' : 'Inicia sesión para comparar'}
                         </span>
                     </div>
                     <div className="text-[10px] text-gray-500 mt-0.5">
-                        Selecciona los tracks que quieras comparar
+                        {user
+                            ? 'Selecciona los tracks que quieras comparar'
+                            : 'Necesitas una cuenta para usar esta función'}
                     </div>
                 </div>
             )}
@@ -119,9 +159,10 @@ export function ComparisonMode({
                         <div className="w-px h-5 bg-gray-200" />
 
                         <div className="flex gap-1.5">
+                            {/* Botón de búsqueda */}
                             {selectedCount < 2 && onSearchClick && (
                                 <button
-                                    onClick={onSearchClick}
+                                    onClick={handleSearchClickWithAuth}
                                     className="text-xs px-2.5 py-1.5 rounded-full bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors flex items-center gap-1"
                                 >
                                     <Search className="w-3 h-3" />
@@ -129,13 +170,13 @@ export function ComparisonMode({
                                 </button>
                             )}
                             <button
-                                onClick={onClear}
+                                onClick={handleClearClick}
                                 className="text-xs px-2.5 py-1.5 rounded-full text-gray-600 hover:bg-gray-100 transition-colors"
                             >
                                 Limpiar
                             </button>
                             <button
-                                onClick={handleCompareClick}
+                                onClick={handleCompareClickWithAuth}
                                 disabled={selectedCount !== 2}
                                 className={`
                   text-xs px-3 py-1.5 rounded-full font-medium transition-all

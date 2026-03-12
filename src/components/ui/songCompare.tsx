@@ -145,6 +145,11 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
         }
     }, [isOpen, song1, song2]);
 
+    useEffect(() => {
+        setSelectedPlaylistType('todos');
+        setShowTypeDropdown(false);
+    }, [activeTab]);
+
     const fetchComparisonData = async () => {
         try {
             setLoading(true);
@@ -838,7 +843,7 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
                                                                 {renderSortIcon(playlistSortConfig.key, 'playlist_type', playlistSortConfig.direction)}
                                                                 <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${showTypeDropdown ? 'rotate-180' : ''}`} />
                                                                 {selectedPlaylistType !== 'todos' && (
-                                                                    <span className="ml-1 text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full">
+                                                                    <span className="ml-1 text-[9px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded-full max-w-[80px] truncate">
                                                                         {selectedPlaylistType}
                                                                     </span>
                                                                 )}
@@ -846,29 +851,43 @@ export function SongCompare({ isOpen, onClose, song1, song2 }: SongCompareProps)
 
                                                             {showTypeDropdown && (
                                                                 <div className="absolute top-full left-0 mt-1 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50 py-1 max-h-60 overflow-y-auto">
+
                                                                     <button
+                                                                        key="todos-unico"
                                                                         onClick={() => {
                                                                             setSelectedPlaylistType('todos');
                                                                             setShowTypeDropdown(false);
                                                                         }}
-                                                                        className={`w-full px-3 py-2 text-left text-xs hover:bg-purple-50 transition-colors ${selectedPlaylistType === 'todos' ? 'bg-purple-100 text-purple-700 font-semibold' : 'text-gray-700'
+                                                                        className={`w-full px-3 py-2 text-left text-xs hover:bg-purple-50 transition-colors ${selectedPlaylistType === 'todos'
+                                                                            ? 'bg-purple-100 text-purple-700 font-semibold'
+                                                                            : 'text-gray-700'
                                                                             }`}
                                                                     >
                                                                         Todos
                                                                     </button>
-                                                                    {playlistTypes.map((type) => (
-                                                                        <button
-                                                                            key={type.id}
-                                                                            onClick={() => {
-                                                                                setSelectedPlaylistType(type.name);
-                                                                                setShowTypeDropdown(false);
-                                                                            }}
-                                                                            className={`w-full px-3 py-2 text-left text-xs hover:bg-purple-50 transition-colors ${selectedPlaylistType === type.name ? 'bg-purple-100 text-purple-700 font-semibold' : 'text-gray-700'
-                                                                                }`}
-                                                                        >
-                                                                            {type.name}
-                                                                        </button>
-                                                                    ))}
+
+                                                                    {playlistTypes
+                                                                        .filter(type => {
+
+                                                                            if (!type.name) return false;
+                                                                            const trimmedName = type.name.trim().toLowerCase();
+                                                                            return trimmedName !== '' && trimmedName !== 'todos';
+                                                                        })
+                                                                        .map((type) => (
+                                                                            <button
+                                                                                key={`api-type-${type.id}`}
+                                                                                onClick={() => {
+                                                                                    setSelectedPlaylistType(type.name);
+                                                                                    setShowTypeDropdown(false);
+                                                                                }}
+                                                                                className={`w-full px-3 py-2 text-left text-xs hover:bg-purple-50 transition-colors ${selectedPlaylistType === type.name
+                                                                                    ? 'bg-purple-100 text-purple-700 font-semibold'
+                                                                                    : 'text-gray-700'
+                                                                                    }`}
+                                                                            >
+                                                                                {type.name}
+                                                                            </button>
+                                                                        ))}
                                                                 </div>
                                                             )}
                                                         </div>
